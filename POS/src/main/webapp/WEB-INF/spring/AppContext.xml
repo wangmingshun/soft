@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
+	xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	default-autowire="byName" default-lazy-init="false"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	xsi:schemaLocation="http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
+		http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		
+    <context:component-scan base-package="com.sinolife"/>
+    <context:property-placeholder location='classpath:cfg.properties' />
+    <mvc:annotation-driven />
+    <mvc:resources mapping="/resources/**" location="/resources/" />
+    <mvc:default-servlet-handler />
+    <mvc:resources mapping="/sf_home/**" location="/sf_home/" />
+    <aop:config proxy-target-class="true"/> 
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <tx:annotation-driven transaction-manager="txManager"/>
+   
+	<import resource="comm.xml" />
+	
+	<!-- POS受理相关配置，由于要打jar包给LINTF使用，将这部分分成独立的文件配置 -->
+	<import resource="accept-relate-context.xml" />
+	
+	<!-- quartz配置 -->
+    <import resource="scheduler-context.xml" />
+    
+    <bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourcePOS" />
+		<!-- 因为UM是只读所以 不需要配置事物管理器，不需要JTA。后续通过把um表受只读权限给业务系统数据库，达到用同一个Datasource -->
+	</bean>
+	
+   <bean id="dataSourcePOS" name="dataSourcePOS"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="user" value="${pos.jdbc.user}"></property>
+		<property name="password" value="${pos.jdbc.password}"></property>
+		<property name="jdbcUrl" value="${pos.jdbc.jdbcUrl}"></property>
+		<property name="driverClass" value="${pos.jdbc.driverClass}"></property>
+		<property name="maxPoolSize" value="${pos.jdbc.poolmax}"></property>
+		<property name="minPoolSize" value="${pos.jdbc.poolmin}"></property>
+		<property name="initialPoolSize" value="${pos.jdbc.poolinit}"></property>
+		<property name="maxStatements" value="0"></property>
+		<property name="maxStatementsPerConnection" value="0"></property>
+		<property name="maxConnectionAge" value="${pos.jdbc.connectionAgeMax}"></property>
+        <property name="checkoutTimeout" value="${pos.jdbc.timeOutCheck}"></property>
+        <property name="testConnectionOnCheckout" value="${pos.jdbc.testConnectionOnCheckout}"></property>
+        <property name="preferredTestQuery" value="select 1 from dual"></property>
+        <property name="maxIdleTime" value="${pos.jdbc.idleTimeMax}"></property>
+        <property name="maxAdministrativeTaskTime" value="${pos.jdbc.adminTaskTimeMax}"></property>
+        <property name="numHelperThreads" value="${pos.jdbc.helperThreadsNum}"></property>
+        <property name="acquireRetryAttempts" value="${pos.jdbc.acquireRetryAttempts}"></property>
+	</bean>
+	
+	<bean id="dataSourcePOSReport" name="dataSourcePOSReport"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="user" value="${pos.jdbc.user}"></property>
+		<property name="password" value="${pos.jdbc.password}"></property>
+		<property name="jdbcUrl" value="${pos.report.jdbc.jdbcUrl}"></property>
+		<property name="driverClass" value="${pos.jdbc.driverClass}"></property>
+		<property name="maxPoolSize" value="${pos.jdbc.poolmax}"></property>
+		<property name="minPoolSize" value="${pos.jdbc.poolmin}"></property>
+		<property name="initialPoolSize" value="${pos.jdbc.poolinit}"></property>
+		<property name="maxStatements" value="0"></property>
+		<property name="maxStatementsPerConnection" value="0"></property>
+		<property name="maxConnectionAge" value="${pos.jdbc.connectionAgeMax}"></property>
+        <property name="checkoutTimeout" value="${pos.jdbc.timeOutCheck}"></property>
+        <property name="testConnectionOnCheckout" value="${pos.jdbc.testConnectionOnCheckout}"></property>
+        <property name="preferredTestQuery" value="select 1 from dual"></property>
+        <property name="maxIdleTime" value="${pos.jdbc.idleTimeMax}"></property>
+        <property name="maxAdministrativeTaskTime" value="${pos.jdbc.adminTaskTimeMax}"></property>
+        <property name="numHelperThreads" value="${pos.jdbc.helperThreadsNum}"></property>
+        <property name="acquireRetryAttempts" value="${pos.jdbc.acquireRetryAttempts}"></property>
+	</bean>
+	<!--邮件发送通用配置(默认 ) 废弃不使用了  -->
+	<!--<property name="username" value="sls.system@sino-life.com" /> sls.system@sino-life.com 
+			这是测试帐号 -->
+	<!--
+	<bean id="mailService" class="com.sinolife.sf.framework.email.impl.MailServiceImpl">
+		<property name="host" value="szmail03.sino-life.com" />
+		<property name="username" value="slnp.system@sino-life.com" />
+		<property name="password" value="Sinolife2008" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.timeout">30000</prop>
+				<prop key="mail.smtp.port">25</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+	<!--邮件发送通用配置(新增配置1) 2015-05-19 -->
+	<bean id="mailService01" class="com.sinolife.sf.framework.email.impl.MailServiceImpl">
+		<property name="host" value="szhubapbs.sino-life.com" />
+		<property name="username" value="sl_pos_mail_admin@sino-life.com" />
+		<property name="password" value="Sinolife2008" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.timeout">30000</prop>
+				<prop key="mail.smtp.port">25</prop>
+			</props>
+		</property>
+	</bean>
+	<!--邮件发送通用配置(新增配置2) 2015-05-19 -->
+	<bean id="mailService02" class="com.sinolife.sf.framework.email.impl.MailServiceImpl">
+		<property name="host" value="szhubapbs.sino-life.com" />
+		<property name="username" value="notice.epos@sino-life.com" />
+		<property name="password" value="Sinolife2008" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.timeout">30000</prop>
+				<prop key="mail.smtp.port">25</prop>
+			</props>
+		</property>
+	</bean>
+	<!--邮件发送通用配置(新增配置3) 2015-05-19 -->
+	<bean id="mailService03" class="com.sinolife.sf.framework.email.impl.MailServiceImpl">
+		<property name="host" value="szhubapbs.sino-life.com" />
+		<property name="username" value="epos@sino-life.com" />
+		<property name="password" value="Sinolife2008" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.timeout">30000</prop>
+				<prop key="mail.smtp.port">25</prop>
+			</props>
+		</property>
+	</bean>
+
+ 
+	<bean id="templateStore" class="com.sinolife.intf.print.TemplateStoreImpl">
+		<!--templatePath为模板放置路径-->
+		<property name="templatePath" value="/jasper_tmpl" />
+	</bean>
+ 	
+    <bean id="multipartResolver" class="com.sinolife.sf.framework.comm.CommonsMultipartResolver">
+       <property name="maxUploadSize" value="104857600"/>
+    </bean>
+    
+	<bean id="posProperties" class="java.util.concurrent.ConcurrentHashMap">
+		<description>保全系统的一些环境变量</description>
+		<constructor-arg>
+			<map>
+				<entry key="tmpFilePath">
+					<value>${com.sinolife.stoge.basedir}</value>
+				</entry>
+				<entry key="addToTempFileCount">
+					<value>${com.sinolife.report.addToTempFileCount}</value>
+				</entry>
+				<entry key="gqUrl">
+					<value>${com.sinolife.gq.url}</value>
+				</entry>
+				<entry key="uwUrl">
+					<value>${com.sinolife.uw.url}</value>
+				</entry>
+				<entry key="lnUrl">
+					<value>${com.sinolife.ln.url}</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+    
+    <!-- 影像查询client -->
+	<bean id="imageClient" class="com.sinolife.sf.rpc.ServiceRefence">
+		<property name="interfaceClass" value="com.sinolife.im.http.client.IM" />
+		<property name="serviceId" value="com.sino-life.scan.Imagequery" />
+	</bean>
+    
+    <!-- Indigo打印client -->
+	<bean id="global" class="com.sinolife.intf.print.client.service.Global">
+		<property name="serverIp"><!-- 服务器IP地址 -->
+			<value>${com.sinolife.intf.print.client.service.Global.serverIp}</value>
+		</property>
+		<property name="port"><!-- 服务器端口号 -->
+			<value>${com.sinolife.intf.print.client.service.Global.port}</value>
+		</property>
+		<property name="taskBatchSize"><!-- 打印服务每次socket通讯的提交的打印任务数 -->
+			<value>${com.sinolife.intf.print.client.service.Global.taskBatchSize}</value>
+		</property>
+	</bean>
+    
+</beans>

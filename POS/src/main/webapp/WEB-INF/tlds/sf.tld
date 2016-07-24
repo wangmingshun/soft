@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+		version="2.0">
+  <description>sf framework tag library</description>
+  <display-name>sf framework tag</display-name>
+  <tlib-version>1.0</tlib-version>
+  <short-name>sf</short-name>
+  <uri>http://www.sinolife.com/sf</uri>
+
+  <tag>
+    <description>
+		block tag
+    </description>
+    <name>block</name>
+    <tag-class>com.sinolife.sf.framework.web.tags.inheritance.BlockTag</tag-class>
+    <body-content>JSP</body-content>
+
+    <attribute>
+        <description>
+			block name
+        </description>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <tag>
+    <description>
+		override desc
+    </description>
+    <name>override</name>
+    <tag-class>com.sinolife.sf.framework.web.tags.inheritance.OverrideBlockTag</tag-class>
+    <body-content>JSP</body-content>
+
+    <attribute>
+        <description>
+			override name, must be equals block name for override
+        </description>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  
+ <tag>
+    <name>Resource</name>
+    <tag-class>com.sinolife.sf.security.resource.jsp.JspBlockResource</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>id</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>  
+  </tag>
+  
+  <tag>
+    <name>MenuItem</name>
+    <tag-class>com.sinolife.sf.framework.web.menu.MenuItem</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+        <name>id</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+    <attribute>
+        <name>cls</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>  
+    <attribute>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+    <attribute>
+        <name>url</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>  
+    <attribute>
+        <name>target</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+  </tag>
+  
+  <tag>
+    <name>Menu</name>
+    <tag-class>com.sinolife.sf.framework.web.menu.Menu</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>id</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>cls</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>   
+    <attribute>
+        <name>name</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+  </tag>
+  <tag>
+    <name>MenuBar</name>
+    <tag-class>com.sinolife.sf.framework.web.menu.MenuBar</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>id</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>cls</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>   
+    <attribute>
+        <name>name</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+  </tag>
+  
+  <tag>
+    <name>JsCssLib</name>
+    <tag-class>com.sinolife.sf.framework.js.JsCssLib</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>libType</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <name>JsCssFile</name>
+    <tag-class>com.sinolife.sf.framework.js.JsCssFile</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>file</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+</taglib>
