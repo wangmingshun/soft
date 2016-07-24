@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pos_application" language="groovy" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="40" bottomMargin="30">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="186"/>
+	<style name="default_style" isDefault="true" hAlign="Left" vAlign="Middle" markup="styled" pattern="" isBlankWhenNull="true" fontName="宋体" fontSize="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<subDataset name="Table Dataset 1"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="POS_NO" class="java.lang.String"/>
+	<parameter name="APPLICANT_NAME" class="java.lang.String"/>
+	<parameter name="INSURED_NAME" class="java.lang.String"/>
+	<parameter name="BARCODE_NO" class="java.lang.String"/>
+	<parameter name="APPROVE_TEXT" class="java.lang.String"/>
+	<parameter name="ACCEPTOR_NAME" class="java.lang.String"/>
+	<parameter name="APPROVE_NAME" class="java.lang.String"/>
+	<parameter name="image_path" class="java.lang.String"/>
+	<parameter name="ACCEPT_DATE" class="java.lang.String"/>
+	<parameter name="REMINDING_TEXT" class="java.lang.String"/>
+	<parameter name="TIPS" class="java.lang.String"/>
+	<parameter name="PRINTTYPE" class="java.lang.String"/>
+	<parameter name="SERVICE_ITEMS" class="java.lang.String"/>
+	<parameter name="joint" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="32" splitType="Stretch">
+			<image>
+				<reportElement x="122" y="0" width="393" height="32">
+					<printWhenExpression><![CDATA[new Boolean($P{PRINTTYPE}=="0")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression class="java.lang.String"><![CDATA[$P{image_path}+"sinolife_logo_1.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="50" splitType="Stretch">
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="0" width="515" height="30"/>
+				<textElement textAlignment="Center" markup="styled">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[保险合同变更申请书]]></text>
+			</staticText>
+			<line>
+				<reportElement x="392" y="0" width="95" height="1"/>
+			</line>
+			<line>
+				<reportElement x="392" y="0" width="1" height="45"/>
+			</line>
+			<line>
+				<reportElement x="487" y="0" width="1" height="45"/>
+			</line>
+			<line>
+				<reportElement x="392" y="45" width="95" height="1"/>
+			</line>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="392" y="1" width="95" height="45"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled"/>
+				<text><![CDATA[收件章]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="1" y="30" width="515" height="20" forecolor="#000000"/>
+				<textElement textAlignment="Center" markup="styled">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[（本单所示金额单位：人民币元）]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="170" splitType="Stretch">
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="78" width="79" height="20"/>
+				<textElement/>
+				<text><![CDATA[投保人姓名：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="79" y="78" width="164" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{APPLICANT_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="38" width="55" height="20"/>
+				<textElement markup="styled"/>
+				<text><![CDATA[条码号：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="58" width="55" height="20"/>
+				<textElement/>
+				<text><![CDATA[保单号：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="45" y="58" width="198" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_NO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="243" y="38" width="65" height="20"/>
+				<textElement/>
+				<text><![CDATA[申请日期：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="243" y="78" width="94" height="20"/>
+				<textElement/>
+				<text><![CDATA[被保险人姓名：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="337" y="78" width="178" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{INSURED_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="243" y="58" width="55" height="20"/>
+				<textElement/>
+				<text><![CDATA[保全号：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="291" y="58" width="224" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POS_NO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="308" y="38" width="207" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{ACCEPT_DATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="45" y="38" width="198" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{BARCODE_NO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto">
+				<reportElement style="default_style" positionType="Float" x="0" y="106" width="515" height="20"/>
+				<textElement verticalAlignment="Top">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{APPROVE_TEXT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="" isBlankWhenNull="false">
+				<reportElement style="default_style" positionType="Float" x="0" y="130" width="515" height="20" forecolor="#FF0000"/>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REMINDING_TEXT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" isBlankWhenNull="true">
+				<reportElement style="default_style" positionType="Float" x="0" y="150" width="515" height="20" forecolor="#FF0000"/>
+				<textElement verticalAlignment="Top">
+					<font size="12" isItalic="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{TIPS}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="-4" width="220" height="52"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code39" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{BARCODE_NO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="482" y="0" width="20" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement style="default_style" positionType="Float" x="495" y="0" width="20" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="489" y="12" width="5" height="1"/>
+			</line>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="199" y="0" width="118" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{joint}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="380" splitType="Stretch">
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="282" width="200" height="20"/>
+				<textElement/>
+				<text><![CDATA[被保险人（或其法定监护人）签名：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="272" y="282" width="69" height="20"/>
+				<textElement/>
+				<text><![CDATA[联系电话：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="320" width="79" height="20"/>
+				<textElement/>
+				<text><![CDATA[经办人：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="272" y="263" width="69" height="20"/>
+				<textElement/>
+				<text><![CDATA[联系电话：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="195" y="320" width="37" height="20"/>
+				<textElement/>
+				<text><![CDATA[日期：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="263" width="85" height="20"/>
+				<textElement markup="styled"/>
+				<text><![CDATA[投保人签名：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="20" y="174" width="495" height="40" forecolor="#FF0000"/>
+				<textElement lineSpacing="1_1_2" markup="styled">
+					<font size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[自即日起，本人签名样本以本次保全变更签名样本为准。此前所签署的本合同相关文档本人承认其真实有效，符合本人真实意愿。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="399" y="263" width="66" height="20"/>
+				<textElement/>
+				<text><![CDATA[签署日期：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="399" y="282" width="66" height="20"/>
+				<textElement/>
+				<text><![CDATA[签署日期：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="80" y="320" width="115" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{ACCEPTOR_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="301" width="225" height="20"/>
+				<textElement/>
+				<text><![CDATA[保险金受益人（或其法定监护人）签名：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="272" y="301" width="69" height="20"/>
+				<textElement/>
+				<text><![CDATA[联系电话：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="399" y="301" width="66" height="20"/>
+				<textElement/>
+				<text><![CDATA[签署日期：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="19" width="515" height="156" forecolor="#000000"/>
+				<textElement markup="styled">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[1、	账户持有人须以本人真实姓名开立银行账户，并自愿授权富德生命人寿保险股份有限公司（以下简称本公司）使用指定银行账户（以下简称授权账户）用于保险款项转账收付；
+2、	如果因授权账户错误、账户注销、账户金额不足或授权账户不符合本公司对授权账户要求而导致转账不成功，本公司无须承担由此引起的责任；
+3、	如果申请事项存在退费，且申请人提供的账户为他人所有，本公司视同申请人可以从该账户中取得该笔退费，由此引起的纠纷，由申请人自行承担；
+4、	本公司不对该授权账户的失窃或冒领承担责任；
+5、	如果您申请的变更项目中，存在部分或全部申请项目不符合法律规定或者保险合同约定，则该部分或全部申请项目无效。
+6、	本公司按规定进行客户退费回访工作，一般通过电话形式进行，为确保您的权益得到保障，请对回访问题如实答复。
+7、	如您持有的是网络销售的保单，自本公司同意整单犹豫期撤销、退保之日起或保单保障期满并向客户支付满期金后，保单自动作废。
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="0" width="515" height="20" forecolor="#000000"/>
+				<textElement textAlignment="Center" markup="styled">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[客户须知]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="69" y="282" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="213" y="320" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="329" y="282" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="329" y="301" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="329" y="320" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="456" y="282" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="189" y="301" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="456" y="301" width="50" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="456" y="319" width="50" height="1"/>
+			</line>
+			<textField pattern="yyyy-MM-dd">
+				<reportElement style="default_style" positionType="Float" x="232" y="320" width="131" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="482" y="360" width="20" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement style="default_style" positionType="Float" x="495" y="360" width="20" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="489" y="372" width="5" height="1"/>
+			</line>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="399" y="244" width="66" height="20">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+				<textElement/>
+				<text><![CDATA[签署日期：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="244" width="85" height="20">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+				<textElement markup="styled"/>
+				<text><![CDATA[新投保人签名：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="272" y="244" width="69" height="20">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+				<textElement/>
+				<text><![CDATA[联系电话：]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="456" y="264" width="50" height="1">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="329" y="264" width="50" height="1">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="81" y="264" width="50" height="1">
+					<printWhenExpression><![CDATA[new Boolean($P{SERVICE_ITEMS}=="20")]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="225" width="515" height="20" forecolor="#FF0000"/>
+				<textElement markup="styled">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[  注：您在以下签名栏中签名，本公司将视为您已详细阅读并同意申请书下方的客户须知内容。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="348" y="205" width="90" height="20"/>
+				<textElement markup="styled"/>
+				<text><![CDATA[客户签名确认：]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" positionType="Float" x="433" y="223" width="80" height="1"/>
+			</line>
+			<staticText>
+				<reportElement style="default_style" positionType="Float" x="0" y="177" width="20" height="20"/>
+				<textElement markup="styled"/>
+				<text><![CDATA[□]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="default_style" positionType="Float" x="209" y="360" width="118" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{joint}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.receipt.dao.ReceiptManageDAO">
+	
+	<select id="QUERY_POLICY_CONTRACT_INFO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		  SELECT to_char(c.provide_date, 'yyyy-mm-dd') provide_date,
+				 c.confirm_user,
+				 to_char(c.confirm_date, 'yyyy-mm-dd') confirm_date,
+				 c.sign_flag,
+				 to_char(c.client_sign_date, 'yyyy-mm-dd') client_sign_date,
+				 p.applicant_no,
+				 c.policy_no,
+				 least(decode(p.channel_type,
+							  '01',
+							  to_char(add_months(c.provide_date, 1), 'yyyy-mm-') || '11',
+							  '03',
+							  to_char(add_months(c.provide_date, 1), 'yyyy-mm-') || '15',
+							  to_char(SYSDATE, 'yyyy-mm-dd')),
+					   to_char(SYSDATE, 'yyyy-mm-dd')) max_confirm_date,
+				 to_char(decode(#centerRole#,
+								'Y',
+								SYSDATE,
+								least(SYSDATE,
+									  c.client_sign_date + 10,
+									  c.provide_date + decode(p.business_source, '3', 10, 20))),
+						 'yyyy-mm-dd') max_sign_date,
+				 (SELECT receipt_status
+					FROM pos_receipt_deal
+				   WHERE policy_no = c.policy_no) receipt_status,
+				   f.bar_code,
+				   u.apply_bar_code
+			FROM policy_contract  c,
+				 policy           p,
+				 image_file_index f,
+				 uw_apply_info    u,
+                 image_doc_index im				 
+		   WHERE c.policy_no = #policyNo#
+			 AND c.media_type IN ('1','3')
+			 AND c.policy_no = p.policy_no
+			 AND p.policy_no = u.policy_no
+			 AND im.file_id=f.file_id
+             AND im.valid_flag='Y'
+			 AND u.apply_bar_code = f.image_main_index
+			 AND (f.bar_code LIKE '116701%' OR f.bar_code LIKE '1179%')
+			 AND p.branch_code IN (SELECT branch_code
+									 FROM branch_info
+									START WITH branch_code = (SELECT CASE
+																		WHEN bi.branch_level = '02' THEN
+																		 (SELECT branch_code
+																			FROM branch_info a
+																		   WHERE a.is_headquarter = 'Y'
+																			 AND a.parent_branch = pp.branch_code)
+																		ELSE
+																		 pp.branch_code
+																	 END
+																FROM pub_user_branch_oper_privs pp,
+																	 branch_info                bi
+															   WHERE pp.branch_code = bi.branch_code
+																 AND um_user_id = #user#
+																 AND lower(operation_type) LIKE 'pos_%'
+																 AND valid_flag = 'Y'
+																 AND rownum = 1)
+								   CONNECT BY PRIOR branch_code = parent_branch
+								   union
+									 select branch_code
+										  from pub_user_branch_oper_privs
+										where um_user_id = #user#
+											  and lower(operation_type) like 'pos_%'
+											  and valid_flag = 'Y'
+											and rownum = 1)
+			AND rownum = 1                                    							   
+	]]>
+	</select>
+	
+	<select id="QUERY_MY_FEEDBACK_TASK" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+			  select c.policy_no,
+			   p.applicant_no,
+			   to_char(c.provide_date, 'yyyy-mm-dd') provide_date,
+			   f.bar_code
+		  from policy_contract  c,
+			   policy           p,
+			   image_file_index f,
+			   pos_receipt_deal a,
+			   uw_apply_info    u,
+               image_doc_index im	
+		 where c.sign_flag in ('S','E') 
+		   and c.media_type IN ('1','3')
+		   and c.policy_no = p.policy_no
+		   and p.policy_no = u.policy_no
+		   and u.apply_bar_code = f.image_main_index
+		   AND im.file_id=f.file_id
+           AND im.valid_flag='Y'
+		   and (f.bar_code like '116701%' or f.bar_code like '1179%')
+		   and c.policy_no = a.policy_no
+		   and a.receipt_status = '1'
+		   and c.confirm_user = #user#
+	]]>
+	</select>
+	
+	<!-- 查询当前用户名下未回销的保单数量 -->
+	<select id="QUERY_MY_FEEDBACK_TASK_COUNT" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		  SELECT count(1)
+			FROM policy_contract  c,
+				 pos_receipt_deal a
+		   WHERE c.sign_flag in ('S','E')
+			 AND c.media_type IN ('1','3')
+			 AND c.policy_no = a.policy_no
+			 AND a.receipt_status = '1'
+			 AND c.confirm_user = #user#
+	]]>
+	</select>
+	<!-- 查询当前用户所属机构未回销的保单数量 -->
+	<select id="QUERY_UN_SIGN_SCANED_POLICY" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+	  SELECT   /*+ index(p PK_POLICY)*/ /*+ index(pc IX_POLICY_CONTRACT_02)*/ 
+	           c.policy_no,
+			   p.applicant_no,
+			   to_char(c.provide_date, 'yyyy-mm-dd') provide_date,
+			   f.bar_code
+		  FROM policy_contract  c,
+			   policy           p,
+			   image_file_index f,
+			   uw_apply_info    a,
+			   image_doc_index im
+		 WHERE c.sign_flag in ('S','E')
+		   AND c.media_type IN ('1','3')
+		   AND c.policy_no = p.policy_no
+		   AND p.channel_type = nvl(#channel#, p.channel_type)
+		   AND p.policy_no = a.policy_no
+		   AND im.file_id=f.file_id
+           AND im.valid_flag='Y'
+		   AND a.apply_bar_code = f.image_main_index
+		   AND (f.bar_code LIKE '116701%' OR f.bar_code LIKE '1179%')
+		   AND NOT EXISTS (SELECT policy_no
+				  FROM pos_receipt_deal
+				 WHERE policy_no = c.policy_no
+				   AND receipt_status IN ('1', '2'))
+		   AND EXISTS
+		 (SELECT branch_code
+				  FROM branch_code_relation r
+				 WHERE r.relative_branch_code = (SELECT CASE
+														   WHEN bi.branch_level = '02' THEN
+															(SELECT branch_code
+															   FROM branch_info a
+															  WHERE a.is_headquarter = 'Y'
+																AND a.parent_branch = pp.branch_code)
+														   ELSE
+															pp.branch_code
+														END
+												   FROM pub_user_branch_oper_privs pp,
+														branch_info                bi
+												  WHERE pp.branch_code = bi.branch_code
+													AND pp.um_user_id = #user#
+													AND lower(pp.operation_type) LIKE 'pos_%'
+													AND pp.valid_flag = 'Y'
+													AND rownum = 1)
+				   AND r.relative_grade > -1
+				   AND r.branch_code = p.branch_code
+				UNION
+				SELECT branch_code
+				  FROM pub_user_branch_oper_privs
+				 WHERE um_user_id = #user#
+				   AND lower(operation_type) LIKE 'pos_%'
+				   AND valid_flag = 'Y'
+				   AND branch_code = p.branch_code)
+		   AND rownum < 3
+	]]>
+	</select>
+	
+	<!-- 查询当前用户个人所属机构下未回销的保单总量 -->
+	<select id="QUERY_USER_BRANCH_UNRECEIPT_COUNT" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT count(1)
+		  FROM policy_contract c,
+			   policy          p
+		 WHERE c.sign_flag in ('S','E')
+		   AND c.media_type IN ('1','3')
+		   AND c.policy_no = p.policy_no
+		   AND p.channel_type = nvl(#channel#, p.channel_type)
+		   AND NOT EXISTS (SELECT policy_no
+				  FROM pos_receipt_deal
+				 WHERE policy_no = c.policy_no
+				   AND receipt_status IN ('1', '2'))
+		   AND p.branch_code IN (SELECT branch_code
+								   FROM branch_code_relation r
+								  WHERE r.relative_branch_code =
+										(SELECT CASE
+												   WHEN bi.branch_level = '02' THEN
+													(SELECT branch_code
+													   FROM branch_info a
+													  WHERE a.is_headquarter = 'Y'
+														AND a.parent_branch = pp.branch_code)
+												   ELSE
+													pp.branch_code
+												END
+										   FROM pub_user_branch_oper_privs pp,
+												branch_info                bi
+										  WHERE pp.branch_code = bi.branch_code
+											AND pp.um_user_id = #user#
+											AND lower(pp.operation_type) LIKE 'pos_%'
+											AND pp.valid_flag = 'Y'
+											AND rownum = 1)
+									  AND r.relative_grade > -1
+								   union
+									  select branch_code
+										  from pub_user_branch_oper_privs
+									  where um_user_id = #user#
+											 AND lower(operation_type) like 'pos_%'
+											 AND valid_flag = 'Y'                                                                      
+								 )                 
+	]]>
+	</select>
+	<select id="QUERY_POLICY_IMAGE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		 SELECT p.applicant_no,
+				to_char(c.provide_date, 'yyyy-mm-dd') provide_date,
+				f.bar_code
+		   FROM policy_contract  c,
+				policy           p,
+				image_file_index f,
+				uw_apply_info    u,
+				image_doc_index im
+		  WHERE c.policy_no = p.policy_no
+			AND p.policy_no = u.policy_no
+			AND im.file_id=f.file_id
+            AND im.valid_flag='Y'
+			AND u.apply_bar_code = f.image_main_index
+			AND (f.bar_code LIKE '116701%' OR f.bar_code LIKE '1179%')
+			AND p.policy_no = #policyNo#
+			AND ROWNUM=1
+	]]>
+	</select>
+	
+	
+	<select id="LOCK_POLICY_CONTRACT_RECORD" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select policy_no from policy_contract where policy_no = #policyNo# for update nowait
+	</select>
+
+	<parameterMap id="PUB_PROC_UP_POL_CONTRACT_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="signFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="signDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="confirmDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="confirmUser" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="nullKeys" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PUB_PROC_UP_POL_CONTRACT" parameterMap="PUB_PROC_UP_POL_CONTRACT_MAP">
+		{call l_pos_pub_interface.pub_proc_up_pol_contract(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="PUB_PROC_UP_POL_RECEIPTID_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="eSignatureFileId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="nullKeys" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PUB_PROC_UP_POL_RECEIPTID" parameterMap="PUB_PROC_UP_POL_RECEIPTID_MAP">
+		{call l_pos_pub_interface.pub_proc_up_pol_receiptid(?,?,?,?,?)}
+	</procedure>
+	
+	<select id="QUERY_FINANCIAL_POLICY_FLAG" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_service_item_5.financial_policy(#policyNo#) from dual
+	</select>
+	
+	<parameterMap id="RECEIPT_WRITEOFF_INSURANCE_TRADE_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="signDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="RECEIPT_WRITEOFF_INSURANCE_TRADE" parameterMap="RECEIPT_WRITEOFF_INSURANCE_TRADE_MAP">
+		{call l_pos_insurance_trade.policy_receipt_writeoff(?,?,?,?)}
+	</procedure>
+
+	<select id="QUERY_POLICY_FOR_MEMO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select p.policy_no,
+		       b.branch_name || '(' || b.branch_code || ')' branch,
+		       p.applicant_no,
+		       c.client_name applicant_name,
+		       t.description channel_desc,
+		       decode(p.business_source,'3','00',p.channel_type) channel_type,
+		       to_char(a.provide_date, 'yyyy-mm-dd') provide_date,
+		       a.sign_flag,
+		       'Y' query_flag,
+		       nvl2(r.policy_no, 'Y', 'N') memo_flag,
+		       to_char(r.record_date, 'yyyy-mm-dd') record_date,
+		       r.unarrive_cause,
+		       l_pos_service_item_1.get_phone_by_clientno(p.applicant_no) applicant_phones
+		  from policy                    p,
+		       branch_info               b,
+		       client_information        c,
+		       channel_type_tbl          t,
+		       policy_contract           a,
+		       pos_policy_receipt_putoff r
+		 where p.policy_no = #policyNo#
+		   and p.branch_code = b.branch_code
+		   and p.applicant_no = c.client_no
+		   and p.channel_type = t.channel_type
+		   and p.policy_no = a.policy_no
+		   and a.media_type IN ('1','3')
+		   and p.policy_no = r.policy_no(+)
+		   and p.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code =
+		                    (select branch_code
+		                       from pub_user_branch_oper_privs
+		                      where um_user_id = #user#
+		                        and lower(operation_type) like 'pos_%'
+		                        and valid_flag = 'Y'
+		                        and rownum = 1)
+		        connect by prior branch_code = parent_branch)
+	</select>
+
+	<select id="QUERY_POLICY_APPLY_CARCODE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select a.apply_bar_code, p.business_source
+		  from uw_apply_info a, policy p
+		 where p.policy_no = #policyNo#
+		   and a.policy_no = p.policy_no
+	</select>
+	
+	<parameterMap id="QUERY_POLICYNO_BAR_CODE_SUM_MAP" class="java.util.HashMap">
+		<parameter property="barCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="barCodeSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="QUERY_POLICYNO_BAR_CODE_SUM" parameterMap="QUERY_POLICYNO_BAR_CODE_SUM_MAP">
+		{call l_pos_image_interface.im_get_bar_code_sum(?,?,?,?)}
+	</procedure>
+
+	<insert id="INSERT_POS_POLICY_RECEIPT_PUTOFF" parameterClass="java.util.HashMap" >
+		insert into pos_policy_receipt_putoff
+		  (policy_no,
+		   record_date,
+		   unarrive_cause)
+		values
+		  (#policyNo#, to_date(#memoDate#,'yyyy-mm-dd'), #cause#)
+	</insert>
+
+	<select id="QUERY_RECEIPT_INPUT_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		  select c.policy_no,
+				 t.full_name,
+				 a.receivable_bal + a.receivable_add_bal receivable,
+				 i.client_name,
+				 to_char(c.provide_date,'yyyy-mm-dd') provide_date,
+				 to_char(c.client_sign_date,'yyyy-mm-dd') client_sign_date,
+				 to_char(c.confirm_date,'yyyy-mm-dd') confirm_date,
+				 p.agent_no,
+				 c.confirm_user,
+				 m.dept_full_name,
+				 (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),
+                            '1',
+                            '移动展业',
+                            '2',
+                            '手机APP',
+                            '3',
+                            '微信',
+                            '传统回执') 
+            	from policy_contract pc
+            	where pc.policy_no=p.policy_no) RECEIPT_BUSINESS_SOURCE,
+                 uas.apply_source_desc
+			from policy_contract    c,
+				 policy_product     d,
+				 product            t,
+				 policy             p,
+				 uw_apply_info      a,
+				 client_information i,
+				 department_info    m,
+				 uw_apply_source    uas
+		   where c.confirm_date >= to_date(#startDate#, 'yyyy-mm-dd')
+			 and c.confirm_date < to_date(#endDate#, 'yyyy-mm-dd') + 1
+	]]>
+         and c.policy_no = d.policy_no
+         and d.is_primary_plan = 'Y'
+         and d.product_code = t.product_code
+         and p.policy_no = c.policy_no
+         and a.apply_no = p.apply_no
+         and p.applicant_no = i.client_no
+         and c.sign_flag = 'Y'
+         and uas.apply_source = p.business_source
+         and p.branch_code in
+             (select branch_code
+                from branch_info
+               start with branch_code = #branchCode#
+			        connect by prior branch_code = parent_branch)
+		<dynamic>
+			<isNotEmpty property="confirmUser">
+		        and c.confirm_user = #confirmUser#         
+			</isNotEmpty>
+		</dynamic>
+       and p.department_no = m.dept_no       
+     order by c.policy_no
+	</select>
+	
+	<select id="QUERY_RECEIPT_CONFIRM_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select b.branch_full_name,
+		       decode(p.business_source,'3','银保通',n.description) channel_desc,
+		       c.policy_no,
+		       c1.client_name app_name,
+		       decode(c1.sex_code, '1', '男', '2', '女') app_sex,
+		       c2.client_name ins_name,
+		       m2.prem_term,
+		       d.coverage_period,
+		       m1.modal_total_prem,
+		       t.full_name product_name,
+		       to_char(p.issue_date, 'yyyy-mm-dd') issue_date,
+		       to_char(c.provide_date, 'yyyy-mm-dd') provide_date,
+		       to_char(c.client_sign_date, 'yyyy-mm-dd') client_sign_date,
+		       (SELECT to_char(y.scan_time, 'yyyy-mm-dd hh24:mi:ss')
+				  FROM image_file_index x, image_doc_index y, uw_apply_info u
+				 WHERE x.file_id = y.file_id
+				   AND u.policy_no = p.policy_no
+				   AND x.image_main_index = u.apply_bar_code
+				   AND y.valid_flag = 'Y'
+				   AND substr(x.bar_code, 1, 4) IN ('1167', '1179')
+				   AND rownum = 1) scan_date,
+		       to_char(c.confirm_date, 'yyyy-mm-dd') confirm_date,
+		       l_pos_service_item_1.get_phone_by_clientno(c1.client_no) app_phones,
+		       p.agent_no,
+		       s.emp_name,
+		       sp.phone_no emp_phone,
+		       i.dept_full_name,
+		       decode(p.duty_status, '1', '有效', '2', '无效') duty_status,
+		       c.confirm_user,
+		       decode (c.sign_flag,'Y','已回销','S','已扫描未回销','D','出单未扫描') sign_flag,
+		       (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),                           
+                            '1',
+                            '移动展业',
+                            '2',
+                            '手机APP',
+                            '3',
+                            '微信',
+                            '传统回执') 
+            	from policy_contract pc
+            	where pc.policy_no=p.policy_no) RECEIPT_BUSINESS_SOURCE,
+               uas.apply_source_desc
+		  from policy_contract     c,
+		       policy              p,
+		       policy_prem_info    m1,
+		       branch_info         b,
+		       channel_type_tbl    n,
+		       client_information  c1,
+		       client_information  c2,
+		       policy_product      d,
+		       policy_product_prem m2,
+		       product             t,
+		       staff_info          s,
+		       (select emp_no ,phone_no from staff_phone  where phone_type='4'  )sp,
+		       department_info     i,
+		       uw_apply_source     uas
+		 where c.policy_no = p.policy_no
+		   and p.policy_no = m1.policy_no
+		   and uas.apply_source = p.business_source
+		   and m1.prem_status in ('0', '1')
+		<dynamic>
+			<isEqual property="listType" compareValue="1">
+                and c.sign_flag = 'Y'
+			</isEqual>
+			<isEqual property="listType" compareValue="2">
+                and c.sign_flag in ('D', 'S','E')
+			</isEqual>
+			<isNotEmpty property="channel">
+			   and decode(p.business_source, '3', '00', p.channel_type) = #channel#
+				<isNotEmpty property="timeConsume">
+			        and decode(#listType#,'1',c.client_sign_date,'2',sysdate) - c.provide_date > #timeConsume#
+				</isNotEmpty>			              
+			</isNotEmpty>
+		</dynamic>
+		   and p.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code = #branchCode#
+		        connect by prior branch_code = parent_branch)
+	<![CDATA[
+		   and p.issue_date >= to_date(#startDate#, 'yyyy-mm-dd')
+		   and p.issue_date < to_date(#endDate#, 'yyyy-mm-dd') + 1
+	]]>
+		   and p.branch_code = b.branch_code
+		   and p.applicant_no = c1.client_no
+		   and p.policy_no = d.policy_no
+		   and d.is_primary_plan = 'Y'
+		   and d.insured_no = c2.client_no
+		   and d.policy_no = m2.policy_no
+		   and d.prod_seq = m2.prod_seq
+		   and d.product_code = t.product_code
+		   and p.agent_no = s.emp_no
+		   and s.emp_no=sp.emp_no(+)          
+		   and p.department_no = i.dept_no
+		   and p.channel_type = n.channel_type
+	</select>
+
+	<insert id="INSERT_POS_RECEIPT_DEAL" parameterClass="java.util.HashMap" >
+		insert into pos_receipt_deal
+		  (policy_no,
+		   note,
+		   receipt_status)
+		values
+		  (#policyNo#,
+		   #note#,
+		   #status#)
+	</insert>
+
+	<update id="UPDATE_POS_RECEIPT_DEAL" parameterClass="java.util.HashMap">
+		update pos_receipt_deal
+		   set note = replace(note,'  ',' ') || ' ' || #note#, receipt_status = nvl(#status#,receipt_status)
+		 where policy_no = #policyNo#
+	</update>
+	
+	<!-- 银保通系统接口 通过保单号修改扉页号-->	
+	<parameterMap id="MODIFY_PRESSNO_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="pressNoOld" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="pressNoNew" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="MODIFY_PRESSNO" parameterMap="MODIFY_PRESSNO_MAP">
+		{call l_pos_bia_interface.nbia_policy_update_pressno(?,?,?,?,?)}
+	</procedure>
+	
+	<!--银保通系统接口 通过保单号查询扉页号-->
+	<select id="queryPressNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select l_pos_bia_interface.func_nbia_policy_query_pressno(#policyNO#) from dual
+	]]>
+	</select>
+
+
+
+	<!--查询影像主索引-->
+	<select id="queryImageMainIndex" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select image_main_index  from  image_file_index    where bar_code=#barCodeNo#
+	]]>
+	</select>
+
+
+	<!-- 更新影像主索引-->	
+	<parameterMap id="MODIFY_IMAGE_BARCODE_MAP" class="java.util.HashMap">
+		<parameter property="imageBarcode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="imageBarcodeOld" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="imageBarcodeNew" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="MODIFY_IMAGE_BARCODE" parameterMap="MODIFY_IMAGE_BARCODE_MAP">
+		{call l_pos_image_interface.update_image_index(?,?,?,?,?)}
+	</procedure>
+	<!-- 查询表Policy_Contract信息-->
+    <select id="queryPolicyContractInfo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT to_char(a.client_sign_date, 'yyyy-mm-dd') "signDate",
+			   a.sign_flag "signFlag"
+		  FROM policy_contract a
+		 WHERE a.policy_no = #policyNo#
+	]]>
+	</select>
+		<!-- 更新回执来源-->	
+	<parameterMap id="UPDATE_RECEIPT_SOUCE_MAP" class="java.util.HashMap">
+		<parameter property="p_policy_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_receipt_business_source" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="UPDATE_RECEIPT_SOUCE" parameterMap="UPDATE_RECEIPT_SOUCE_MAP">
+		{call l_pos_pub_interface.pub_proc_up_pol_receipt_source(?,?,?,?)}
+	</procedure>
+	
+	<insert id="update_pos_pol_contract_log" parameterClass="java.util.HashMap">
+	<![CDATA[
+	   insert into pos_pol_contract_log
+	     (policy_no,
+	      processor,
+	      process_date,
+	      column_name,
+	      old_value,
+	      new_value,
+	      remark)
+	   values
+	     (#policyNo#,
+	      #processor#,
+	      #processDate#,
+	      #columnName#,
+	      #oldValue#,
+	      #newValue#,
+	      #remark#)
+	]]>	
+	</insert>
+	
+	<!--回执回销（传统）待处理任务查询-->
+	<select id="QUERY_TO_NOTAPPRECEIPT_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		 SELECT  /*+ index(p PK_POLICY)*//*+ index(pc IX_POLICY_CONTRACT_02)*/ 
+     c.policy_no,
+     (select ua.apply_source_desc
+        from uw_apply_source ua
+       where ua.apply_source = p.business_source) apply_source_desc,
+     (select ci.client_name
+        from client_information ci
+       where ci.client_no = p.applicant_no) client_name,
+     (select ch.description
+        from channel_type_tbl ch
+       where ch.channel_type = p.channel_type) channel_type,
+     decode(c.receipt_business_source,
+            '1',
+            '移动展业',
+            '2',
+            '手机',
+            '3',
+            '微信',
+            '传统') receipt_business_source,
+     to_char(im.scan_time, 'yyyy-mm-dd') scan_time
+      FROM policy_contract  c,
+           policy           p,
+           image_file_index f,
+           uw_apply_info    a,
+           image_doc_index  im
+     WHERE c.sign_flag in ('S', 'E')
+       AND c.media_type IN ('1','3')
+       AND c.policy_no = p.policy_no
+       AND p.policy_no = a.policy_no
+       AND im.file_id = f.file_id
+       AND im.valid_flag = 'Y'
+       AND a.apply_bar_code = f.image_main_index
+       AND (f.bar_code LIKE '116701%' OR f.bar_code LIKE '1179%')
+       AND NOT EXISTS (SELECT policy_no
+              FROM pos_receipt_deal
+             WHERE policy_no = c.policy_no
+               AND receipt_status IN ('1', '2'))
+       AND EXISTS
+     (SELECT branch_code
+              FROM branch_code_relation r
+             WHERE r.relative_branch_code =
+                   (SELECT CASE
+                             WHEN bi.branch_level = '02' THEN
+                              (SELECT branch_code
+                                 FROM branch_info a
+                                WHERE a.is_headquarter = 'Y'
+                                  AND a.parent_branch = pp.branch_code)
+                             ELSE
+                              pp.branch_code
+                           END
+                      FROM pub_user_branch_oper_privs pp, branch_info bi
+                     WHERE pp.branch_code = bi.branch_code
+                       AND pp.um_user_id = #user#
+                       AND lower(pp.operation_type) LIKE 'pos_%'
+                       AND pp.valid_flag = 'Y'
+                       AND rownum = 1)
+               AND r.relative_grade > -1
+               AND r.branch_code = p.branch_code
+            UNION
+            SELECT branch_code
+              FROM pub_user_branch_oper_privs
+             WHERE um_user_id = #user#
+               AND lower(operation_type) LIKE 'pos_%'
+               AND valid_flag = 'Y'
+               AND branch_code = p.branch_code)
+            and c.receipt_business_source is null
+            and rownum<101
+
+	]]>
+	</select>
+	<!--回执回销（移动端）待处理任务查询-->
+	<select id="QUERY_TO_APPRECEIPT_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		 SELECT  /*+ index(p PK_POLICY)*/ /*+ index(pc IX_POLICY_CONTRACT_02)*/ 
+     c.policy_no,
+     (select ua.apply_source_desc
+        from uw_apply_source ua
+       where ua.apply_source = p.business_source) apply_source_desc,
+     (select ci.client_name
+        from client_information ci
+       where ci.client_no = p.applicant_no) client_name,
+     (select ch.description
+        from channel_type_tbl ch
+       where ch.channel_type = p.channel_type) channel_type,
+     decode(c.receipt_business_source,
+            '1',
+            '移动展业',
+            '2',
+            '手机',
+            '3',
+            '微信',
+            '传统') receipt_business_source,
+     to_char(im.scan_time, 'yyyy-mm-dd') scan_time
+      FROM policy_contract  c,
+           policy           p,
+           image_file_index f,
+           uw_apply_info    a,
+           image_doc_index  im
+     WHERE c.sign_flag in ('S', 'E')
+       AND c.media_type IN ('1','3')
+       AND c.policy_no = p.policy_no
+       AND p.policy_no = a.policy_no
+       AND im.file_id = f.file_id
+       AND im.valid_flag = 'Y'
+       AND a.apply_bar_code = f.image_main_index
+       AND (f.bar_code LIKE '116701%' OR f.bar_code LIKE '1179%')
+       AND NOT EXISTS (SELECT policy_no
+              FROM pos_receipt_deal
+             WHERE policy_no = c.policy_no
+               AND receipt_status IN ('1', '2'))
+       AND EXISTS
+     (SELECT branch_code
+              FROM branch_code_relation r
+             WHERE r.relative_branch_code =
+                   (SELECT CASE
+                             WHEN bi.branch_level = '02' THEN
+                              (SELECT branch_code
+                                 FROM branch_info a
+                                WHERE a.is_headquarter = 'Y'
+                                  AND a.parent_branch = pp.branch_code)
+                             ELSE
+                              pp.branch_code
+                           END
+                      FROM pub_user_branch_oper_privs pp, branch_info bi
+                     WHERE pp.branch_code = bi.branch_code
+                       AND pp.um_user_id = #user#
+                       AND lower(pp.operation_type) LIKE 'pos_%'
+                       AND pp.valid_flag = 'Y'
+                       AND rownum = 1)
+               AND r.relative_grade > -1
+               AND r.branch_code = p.branch_code
+            UNION
+            SELECT branch_code
+              FROM pub_user_branch_oper_privs
+             WHERE um_user_id = #user#
+               AND lower(operation_type) LIKE 'pos_%'
+               AND valid_flag = 'Y'
+               AND branch_code = p.branch_code)
+            and c.receipt_business_source is NOT null
+            and rownum<101
+
+	]]>
+	</select>
+	<!-- 回执回销待处理问题件查询 -->
+	<select id="QUERY_TO_RECEIPT_PROBLEM_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		<![CDATA[
+			select /*+ index(b PK_POLICY)*//*+ index(h IX_POLICY_CONTRACT_02)*//*+ index(a IX_POS_RECEIPT_DEAL_01)*/
+				 d.description channel_type,
+				 b.policy_no,
+				 ca.client_name applicant_name,
+				 to_char(h.provide_date, 'yyyy-mm-dd') provide_date,
+				 to_char(h.client_sign_date, 'yyyy-mm-dd') client_sign_date,
+				 (select max(a2.scan_time)
+				    from image_file_index a1, image_doc_index a2, uw_apply_info a3
+				   where a3.policy_no = b.policy_no
+				     and a3.apply_bar_code = a1.image_main_index
+				     and (a1.bar_code like '116701%' or a1.bar_code like '1179%')
+				     and a1.file_id = a2.file_id) scan_time,
+				 k.agent_no,
+				 l.emp_name agent_name,
+				 a.note,
+				 (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),
+				                '1',
+				                '移动展业',
+				                '2',
+				                '手机APP',
+				                '3',
+				                '微信',
+				                '传统回执')
+				    from policy_contract pc
+				   where pc.policy_no = b.policy_no) RECEIPT_BUSINESS_SOURCE
+				  from pos_receipt_deal   a,
+				       policy             b,
+				       channel_type_tbl   d,
+				       client_information ca,
+				       policy_contract    h,
+				       policy_agent       k,
+				       staff_info         l
+				 where a.receipt_status = '2'
+				   and a.policy_no = b.policy_no
+				   and h.sign_flag in ('E', 'S')
+				   and b.channel_type = d.channel_type
+				   and ca.client_no = b.applicant_no
+				   and h.policy_no = b.policy_no
+				   and k.policy_no = b.policy_no
+				   and k.agent_no = l.emp_no
+				   and EXISTS
+				 (SELECT branch_code
+				          FROM branch_code_relation r
+				         WHERE r.relative_branch_code =
+				               (SELECT CASE
+				                         WHEN bi.branch_level = '02' THEN
+				                          (SELECT branch_code
+				                             FROM branch_info a
+				                            WHERE a.is_headquarter = 'Y'
+				                              AND a.parent_branch = pp.branch_code)
+				                         ELSE
+				                          pp.branch_code
+				                       END
+				                  FROM pub_user_branch_oper_privs pp, branch_info bi
+				                 WHERE pp.branch_code = bi.branch_code
+				                   AND pp.um_user_id = #user#
+				                   AND lower(pp.operation_type) LIKE 'pos_%'
+				                   AND pp.valid_flag = 'Y'
+				                   AND rownum = 1)
+				           AND r.relative_grade > -1
+				           AND r.branch_code = b.branch_code
+				        UNION
+				        SELECT branch_code
+				          FROM pub_user_branch_oper_privs
+				         WHERE um_user_id = #user#
+				           AND lower(operation_type) LIKE 'pos_%'
+				           AND valid_flag = 'Y'
+				           AND branch_code = b.branch_code)
+				           and rownum<101
+		]]>				   
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,1115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.print.dao.PrintDAO">
+
+	<select id="queryEndorsementInfoByCriteria" parameterClass="com.sinolife.pos.print.dto.EndorsementPrintCriteriaDTO" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.pos_no,
+		       i.apply_date
+      FROM pos_info           a,
+           pos_apply_files    i,
+           pos_apply_batch    j,
+           counter_info       k,
+           policy             p 
+     WHERE a.policy_no=p.policy_no
+       AND a.accept_status_code in ('E01', 'A15', 'A17')
+       AND a.barcode_no = i.barcode_no
+       AND i.pos_batch_no = j.pos_batch_no
+       AND j.counter_no = k.counter_no
+       AND a.service_items < 50
+       AND (l_pos_pub.is_application_free(a.pos_no) = 'N' or
+           (l_pos_pub.is_application_free(a.pos_no) = 'Y' and
+           substr(a.barcode_no, 0, 6) <> '123409'))
+      AND not exists
+          (select 'x'
+           from pos_info pi
+           where pi.accept_status_code not in ('E01', 'A15', 'A17')
+           AND pi.accept_status_code NOT LIKE 'C%'
+           and pi.barcode_no = a.barcode_no) 
+	]]>
+	<dynamic>
+		<isNotEqual property="singlePrintFlag" compareValue="Y">			
+		   <![CDATA[
+		       AND not exists
+			 	(select 'x'
+			          from policy pol, policy_e_service pes, client_e_service ces
+			         where pol.policy_no = pes.policy_no(+)
+			           and pol.applicant_no = ces.client_no(+)
+			           and pes.is_added = 'Y'
+			           and ces.e_letter_flag = 'Y'
+			           and pol.policy_no = a.policy_No)  
+			  AND j.accept_channel_code not in ('7', '15', '16', '14', '17','18','19','24','25','26','27')
+
+		    ]]>		
+		</isNotEqual>		
+		<isNotEmpty property="posNo">
+		<![CDATA[
+		   AND a.pos_no = #posNo#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="effectDateStart">
+		<![CDATA[
+		   AND a.effective_date >= trunc(#effectDateStart#)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="effectDateEnd">
+		<![CDATA[
+		   AND a.effective_date <= trunc(#effectDateEnd# + 1)
+		]]>
+		</isNotEmpty>
+		
+		<isNotEmpty property="acceptChannelCode">	
+		
+		 <isEqual property="acceptChannelCode" compareValue="1">			
+		   <![CDATA[
+		     AND j.accept_channel_code  in ('1','2','3','6')
+		    ]]>		
+			</isEqual>			
+			<isNotEqual property="acceptChannelCode" compareValue="1">				
+		     <![CDATA[
+		      AND j.accept_channel_code  = #acceptChannelCode#
+		     ]]>		
+		</isNotEqual>
+		
+		</isNotEmpty>
+		
+		<isNotEmpty property="policyChannelCode">
+		  <![CDATA[
+		   AND p.CHANNEL_TYPE = #policyChannelCode#
+		  ]]>		
+		</isNotEmpty>	
+		<isNotEmpty property="approvalServiceType">
+		<![CDATA[
+		   AND i.approval_service_type = #approvalServiceType#
+		]]>
+		</isNotEmpty>		
+		<isNotEmpty property="acceptor">
+		<![CDATA[
+		   AND a.acceptor = #acceptor#
+		]]>
+		</isNotEmpty>
+	    <isNotEmpty property="printOptions">
+	     <isEqual property="printOptions" compareValue="N">	
+		  <![CDATA[
+	    	 AND a.ent_print_user is  null
+		  ]]>
+		 </isEqual>
+		</isNotEmpty>
+		<isNotEmpty property="acceptBranchCode">
+		<![CDATA[     
+		   AND EXISTS (SELECT t.branch_code
+		          FROM branch_info t
+		         WHERE t.branch_code = k.branch_code
+		         START WITH t.branch_code = #acceptBranchCode#
+		        CONNECT BY PRIOR t.branch_code = t.parent_branch)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="serviceItemsArr">
+			<iterate prepend="AND" conjunction="OR" open="(" close=")" property="serviceItemsArr">
+				<![CDATA[
+					a.service_items = #serviceItemsArr[]#
+				]]>
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+	<![CDATA[
+	   order by a.acceptor,a.pos_no
+	  ]]>
+	</select>
+
+	<select id="countEndorsementByCriteria" parameterClass="com.sinolife.pos.print.dto.EndorsementPrintCriteriaDTO" resultClass="java.lang.Integer">
+	<![CDATA[
+	SELECT count('x')
+      FROM pos_info           a,
+           pos_apply_files    i,
+           pos_apply_batch    j,
+           counter_info       k,
+           policy             p 
+     WHERE a.policy_no=p.policy_no
+       AND a.accept_status_code in ('E01', 'A15', 'A17')
+       AND a.barcode_no = i.barcode_no
+       AND i.pos_batch_no = j.pos_batch_no
+       AND j.counter_no = k.counter_no    
+       AND a.service_items < 50
+       AND (l_pos_pub.is_application_free(a.pos_no) = 'N' or
+           (l_pos_pub.is_application_free(a.pos_no) = 'Y' and
+           substr(a.barcode_no, 0, 6) <> '123409'))
+       AND not exists
+          (select 'x'
+           from pos_info pi
+           where pi.accept_status_code not in ('E01', 'A15', 'A17')
+           AND pi.accept_status_code NOT LIKE 'C%'
+           and pi.barcode_no = a.barcode_no) 
+       AND not exists
+	 	(select 'x'
+	          from policy pol, policy_e_service pes, client_e_service ces
+	         where pol.policy_no = pes.policy_no(+)
+	           and pol.applicant_no = ces.client_no(+)
+	           and pes.is_added = 'Y'
+	           and ces.e_letter_flag = 'Y'
+	           and pol.policy_no = a.policy_No)
+	  AND j.accept_channel_code not in ('7', '15', '16', '14', '17','18','19','24','25','26','27')  
+	]]>
+	<dynamic>	
+		<isNotEmpty property="effectDateStart">
+		<![CDATA[
+		   AND a.effective_date >= trunc(#effectDateStart#)
+		]]>
+		</isNotEmpty>
+	    <isNotEmpty property="printOptions">
+	     <isEqual property="printOptions" compareValue="N">	
+		  <![CDATA[
+	    	 AND a.ent_print_user is  null
+		  ]]>
+		 </isEqual>
+		</isNotEmpty>
+		<isNotEmpty property="effectDateEnd">
+		<![CDATA[
+		   AND a.effective_date <= trunc(#effectDateEnd# + 1)
+		]]>
+		</isNotEmpty>
+		
+		<isNotEmpty property="acceptChannelCode">	
+		
+		   <isEqual property="acceptChannelCode" compareValue="1">			
+		     <![CDATA[
+		      AND j.accept_channel_code  in ('1','2','3','6')
+		     ]]>		
+			</isEqual>			
+			<isNotEqual property="acceptChannelCode" compareValue="1">				
+		     <![CDATA[
+		      AND j.accept_channel_code  = #acceptChannelCode#
+		     ]]>		
+		    </isNotEqual>
+		
+		</isNotEmpty>
+		
+		<isNotEmpty property="policyChannelCode">
+		  <![CDATA[
+		   AND p.CHANNEL_TYPE = #policyChannelCode#
+		  ]]>		
+		</isNotEmpty>	
+		
+		<isNotEmpty property="approvalServiceType">
+		<![CDATA[
+		   AND i.approval_service_type = #approvalServiceType#
+		]]>
+		</isNotEmpty>	
+		<isNotEmpty property="acceptor">
+		<![CDATA[
+		   AND a.acceptor = #acceptor#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="acceptBranchCode">
+		<![CDATA[
+		   AND EXISTS (SELECT t.branch_code
+		          FROM branch_info t
+		         WHERE t.branch_code = k.branch_code
+		         START WITH t.branch_code = #acceptBranchCode#
+		        CONNECT BY PRIOR t.branch_code = t.parent_branch)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="serviceItemsArr">
+			<iterate prepend="AND" conjunction="OR" open="(" close=")" property="serviceItemsArr">
+				<![CDATA[
+					a.service_items = #serviceItemsArr[]#
+				]]>
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+	</select>
+
+	<select id="queryEndorsementInfoByPosNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.pos_no,
+		       a.policy_no,
+		       d.client_name applicant_name,
+		       e.client_name insured_name,
+		       a.barcode_no,
+		       to_char(a.approve_text) approve_text,
+		       a.acceptor,
+		       to_char(a.accept_date, 'yyyy-mm-dd') accept_date,
+		       g.user_name approve_name,
+		       f.approver approve_no,
+		       h.user_name acceptor_name,
+		       i.apply_date apply_date,
+		       a.ent_print_user entPrintUser,
+		       x.postalcode client_postalcode,
+		       x.full_address client_address,
+		       approval_service_type,
+		       j.accept_channel_code,
+		       a.service_items 
+		  FROM pos_info           a,
+		       policy             b,
+		       policy_product     c,
+		       client_information d,
+		       client_information e,
+		       pos_approve        f,
+		       pos_user_privs     g,
+		       pos_user_privs     h,
+		       pos_apply_files    i,
+		       pos_apply_batch    j,
+		       counter_info       k,
+		       client_address     x,
+		       policy_contact_info y 
+		 WHERE a.accept_status_code in ('E01', 'A15', 'A17')
+		   AND a.policy_no = b.policy_no
+		   AND b.policy_no = c.policy_no
+		   AND c.is_primary_plan = 'Y'
+		   AND b.applicant_no = d.client_no
+		   AND c.insured_no = e.client_no
+		   AND a.pos_no = f.pos_no(+)
+		   AND f.approver = g.user_id(+)
+		   AND a.acceptor = h.user_id(+)
+		   AND (f.pos_no IS NULL OR f.pos_no IS NOT NULL AND f.approve_no = (SELECT MAX(approve_no)
+		                                                                      FROM pos_approve
+		                                                                     WHERE pos_no = a.pos_no))
+		   AND a.barcode_no = i.barcode_no
+		   AND i.pos_batch_no = j.pos_batch_no
+		   AND j.counter_no = k.counter_no		  
+		   AND a.pos_no = #posNo#
+		   and y.policy_no = b.policy_no
+		   and y.address_seq = x.address_seq(+)
+		   AND rownum = 1
+	]]>
+	</select>
+
+	<select id="queryPosNoteByCriteria" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<dynamic>
+		<isEqual property="singlePrintFlag" compareValue="Y">
+		<![CDATA[
+			select * from (
+		]]>
+		</isEqual>
+	</dynamic>
+	<![CDATA[
+		SELECT t.detail_sequence_no
+		  FROM pos_note_main t,
+		       policy        r
+		 WHERE t.policy_no = r.policy_no		    
+	]]>
+	<dynamic>
+		<isEqual property="isELetterFlag" compareValue="N" prepend="AND">
+		<![CDATA[
+	    (not exists
+	 	(select 'x'
+	          from policy pol, policy_e_service pes, client_e_service ces
+	         where pol.policy_no = pes.policy_no(+)
+	           and pol.applicant_no = ces.client_no(+)
+	           and pes.is_added = 'Y'
+	           and ces.e_letter_flag = 'Y'
+	           and pol.policy_no = t.policy_No)
+	     and not exists
+	     (SELECT 'x'
+			 FROM policy p1, policy_contact_info p2
+			WHERE p1.policy_no = p2.policy_no
+			  AND p1.policy_no = r.policy_no
+			  AND p2.email_seq IS NOT NULL
+			  AND (p1.channel_type = '08' OR
+				   p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S'))))			
+		]]>
+		</isEqual>
+		<isEqual property="isELetterFlag" compareValue="Y" prepend="AND">
+		<![CDATA[
+	     (exists
+	 	(select 'x'
+	          from policy pol, policy_e_service pes, client_e_service ces
+	         where pol.policy_no = pes.policy_no(+)
+	           and pol.applicant_no = ces.client_no(+)
+	           and pes.is_added = 'Y'
+	           and ces.e_letter_flag = 'Y'
+	           and pol.policy_no = t.policy_No)
+			   AND t.pdf_upload_date IS NULL
+			   AND t.pdf_name IS NULL
+			   AND t.im_file_id IS NULL
+		  or exists
+		  (SELECT 'x'
+			 FROM policy p1, policy_contact_info p2
+			WHERE p1.policy_no = p2.policy_no
+			  AND p1.policy_no = r.policy_no
+			  AND p2.email_seq IS NOT NULL
+			  AND (p1.channel_type = '08' OR
+				   p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S'))
+))
+		]]>
+		</isEqual>					
+		<isNotEqual property="singlePrintFlag" compareValue="Y" prepend="AND">
+			<![CDATA[
+			  (select ci.need_pos_letter from policy_contact_info ci  where ci.policy_no=t.policy_no) ='Y'                            
+			]]>
+		</isNotEqual>
+		<isNotEmpty property="detailSequenceNo" prepend="AND">
+		<![CDATA[
+			t.detail_sequence_no = #detailSequenceNo#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="noticeType" prepend="AND">
+		<![CDATA[
+			t.note_type = #noticeType#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="policyNo" prepend="AND">
+		<![CDATA[
+			t.policy_no = #policyNo#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="businessDateStart" prepend="AND">
+		<![CDATA[
+			t.business_date >= trunc(#businessDateStart#)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="businessDateEnd" prepend="AND">
+		<![CDATA[
+			t.business_date <= trunc(#businessDateEnd# + 1)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="policyChannel" prepend="AND">
+		<![CDATA[
+			r.channel_type = #policyChannel#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="serviceNo" prepend="AND">
+		<![CDATA[
+			(l_pos_rn_interface.rn_get_service_info(t.policy_no) = #serviceNo# or r.agent_no = #serviceNo#)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="branchCode" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.branch_code
+		          FROM branch_info a
+		         WHERE a.branch_code = r.branch_code
+		         START WITH a.branch_code = #branchCode#
+		        CONNECT BY PRIOR a.branch_code = a.parent_branch)
+		]]>
+		</isNotEmpty>
+		<isEqual property="channelType" compareValue="1" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.POLICY_NO
+				  FROM policy a
+				 WHERE a.policy_no = t.policy_no
+				   AND (a.business_source = '3' OR a.business_source <> '3' AND a.channel_type IN ('02', '04')))
+		]]>
+		</isEqual>
+		<isEqual property="channelType" compareValue="2" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.POLICY_NO
+				  FROM policy a
+				 WHERE a.policy_no = t.policy_no
+				   AND (a.business_source  <> '3' AND a.channel_type NOT IN ('02', '04')))
+		]]>
+		</isEqual>
+		<isNotEmpty property="noticeYear" prepend="AND">
+		<![CDATA[
+			t.business_date BETWEEN to_date(#noticeYear# || '-01-01', 'yyyy-mm-dd')
+							AND to_date((to_number(#noticeYear#) + 1) || '-01-01', 'yyyy-mm-dd')
+		]]>
+		</isNotEmpty>
+		<isEqual property="singlePrintFlag" compareValue="Y">
+			<![CDATA[
+				ORDER BY t.detail_sequence_no DESC
+				) z WHERE rownum = 1
+			]]>
+		</isEqual>
+		<isNotEqual property="singlePrintFlag" compareValue="Y">
+			<![CDATA[
+				ORDER BY t.business_date
+			]]>
+		</isNotEqual>
+	</dynamic>
+	</select>
+	
+	<select id="countPosNoteByCriteria" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT count('x')
+		  FROM pos_note_main t,
+		       policy        r
+		 WHERE t.policy_no = r.policy_no
+	]]>
+	<dynamic>
+		<isEqual property="isELetterFlag" compareValue="N" prepend="AND">
+		<![CDATA[
+	    (not exists
+	 	(select 'x'
+	          from policy pol, policy_e_service pes, client_e_service ces
+	         where pol.policy_no = pes.policy_no(+)
+	           and pol.applicant_no = ces.client_no(+)
+	           and pes.is_added = 'Y'
+	           and ces.e_letter_flag = 'Y'
+	           and pol.policy_no = t.policy_No) 
+	     and not exists
+	     (SELECT 'x'
+			 FROM policy p1, policy_contact_info p2
+			WHERE p1.policy_no = p2.policy_no
+			  AND p1.policy_no = r.policy_no
+			  AND p2.email_seq IS NOT NULL
+			  AND (p1.channel_type = '08' OR
+				   p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S')))) 
+		]]>
+		</isEqual>
+		<isEqual property="isELetterFlag" compareValue="Y" prepend="AND">
+		<![CDATA[
+	     (exists
+	 	(select 'x'
+	          from policy pol, policy_e_service pes, client_e_service ces
+	         where pol.policy_no = pes.policy_no(+)
+	           and pol.applicant_no = ces.client_no(+)
+	           and pes.is_added = 'Y'
+	           and ces.e_letter_flag = 'Y'
+	           and pol.policy_no = t.policy_No) 
+			   AND t.pdf_upload_date IS NULL
+			   AND t.pdf_name IS NULL
+			   AND t.im_file_id IS NULL
+	    or exists
+	     (SELECT 'x'
+			 FROM policy p1, policy_contact_info p2
+			WHERE p1.policy_no = p2.policy_no
+			  AND p1.policy_no = r.policy_no
+			  AND p2.email_seq IS NOT NULL
+			  AND (p1.channel_type = '08' OR
+				   p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S'))))
+		]]>
+		</isEqual>
+		<isNotEmpty property="noticeType" prepend="AND">
+		<![CDATA[
+			t.note_type = #noticeType#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="policyNo" prepend="AND">
+		<![CDATA[
+			t.policy_no = #policyNo#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="businessDateStart" prepend="AND">
+		<![CDATA[
+			t.business_date >= trunc(#businessDateStart#)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="businessDateEnd" prepend="AND">
+		<![CDATA[
+			t.business_date <= trunc(#businessDateEnd# + 1)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="policyChannel" prepend="AND">
+		<![CDATA[
+			r.channel_type = #policyChannel#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="serviceNo" prepend="AND">
+		<![CDATA[
+			(l_pos_rn_interface.rn_get_service_info(t.policy_no) = #serviceNo#  or r.agent_no = #serviceNo#)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="branchCode" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.branch_code
+		          FROM branch_info a
+		         WHERE a.branch_code = r.branch_code
+		         START WITH a.branch_code = #branchCode#
+		        CONNECT BY PRIOR a.branch_code = a.parent_branch)
+		]]>
+		</isNotEmpty>
+		<isEqual property="channelType" compareValue="1" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.POLICY_NO
+				  FROM policy a
+				 WHERE a.policy_no = t.policy_no
+				   AND (a.business_source = '3' OR a.business_source <> '3' AND a.channel_type IN ('02', '04')))
+		]]>
+		</isEqual>
+		<isEqual property="channelType" compareValue="2" prepend="AND">
+		<![CDATA[
+				EXISTS (SELECT a.POLICY_NO
+				  FROM policy a
+				 WHERE a.policy_no = t.policy_no
+				   AND (a.business_source  <> '3' AND a.channel_type NOT IN ('02', '04')))
+		]]>
+		</isEqual>
+		<isNotEmpty property="noticeYear" prepend="AND">
+		<![CDATA[
+			t.business_date BETWEEN to_date(#noticeYear# || '-01-01', 'yyyy-mm-dd')
+							AND to_date((to_number(#noticeYear#) + 1) || '-01-01', 'yyyy-mm-dd')
+		]]>
+		</isNotEmpty>
+	</dynamic>
+	</select>
+	
+	<select id="queryNoteYearOptions" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+	<![CDATA[
+		SELECT m.noteyear code, m.noteyear description
+		  FROM (SELECT DISTINCT to_char(a.business_date, 'yyyy') noteyear
+		          FROM pos_note_main a
+		         WHERE a.note_type = #noticeType#
+		           AND a.policy_no = #policyNo#) m
+		 ORDER BY m.noteyear DESC
+	]]>
+	</select>
+	
+	<select id="queryPosNoteMainByID" parameterClass="java.lang.String" resultClass="com.sinolife.pos.print.dto.PosNoteDTO">
+	<![CDATA[
+		SELECT t.note_type "noteType",
+		       t.client_no "clientNo",
+		       t.policy_no "policyNo",
+		       t.business_date "businessDate",
+		       t.detail_sequence_no "detailSequenceNo",
+		       lower(t.template_version) "templateVersion",
+		       t.client_name "clientName",
+		       t.client_address "clientAddress",
+		       t.client_postalcode "clientPostalcode",
+		       t.company_service_name "companyServiceName",
+		       t.company_service_address "companyServiceAddress",
+		       t.company_service_postalcode "companyServicePostalcode",
+		       t.company_service_telephone "companyServiceTelephone",
+		       t.company_name "companyName",
+		       t.print_date "printDate",
+		       t.service_telephone_a "serviceTelephoneA",
+		       t.service_telephone_b "serviceTelephoneB",
+		       t.return_flag "returnFlag",
+		       t.return_reason "returnReason"
+		  FROM pos_note_main t
+		 WHERE t.detail_sequence_no = #value#
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="queryPosNoteDetailByID" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT t.detail_sequence_no,
+		       t.table_name table_name,
+		       t.row_no,
+		       t.column_name,
+		       t.column_value
+		  FROM pos_note_detail t
+		 WHERE t.detail_sequence_no = #value#
+		 ORDER BY t.table_name, t.row_no
+	]]>
+	</select>
+	
+	
+	<update id="updatePosInfoEntData" parameterClass="java.util.HashMap" >
+		update pos_info
+        set ent_print_user=#submitUserId#,ent_print_date=sysdate       
+		 where pos_no = #posNo#
+    </update>
+	
+	<update id="updatePosNoteMainPrintDate" parameterClass="java.lang.String">
+	<![CDATA[
+		UPDATE pos_note_main t
+		   SET t.print_date = SYSDATE
+		 WHERE t.detail_sequence_no = #value#
+	]]>
+	</update>
+	
+	<select id="verifyAndLockPosInfoForPolicyPrint" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT t.pos_no
+		  FROM pos_info t
+		 WHERE t.service_items = '27'
+		   AND t.accept_status_code = 'A17'
+		   AND t.policy_no = #value#
+		   AND ROWNUM = 1
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<select id="queryPrintTaskNoByPolicyNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT m.print_task_no
+		  FROM (SELECT a.print_task_no
+		          FROM policy_print_task a
+		         WHERE a.policy_no = #value#
+		           AND a.data_sources = '02'
+		         ORDER BY a.tasked_date DESC) m
+		 WHERE rownum = 1
+	]]>
+	</select>
+	
+	<select id="queryPosNoteByPosNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.print.dto.PosNoteDTO">
+	<![CDATA[
+		SELECT t.note_type "noteType",
+		       t.client_no "clientNo",
+		       t.policy_no "policyNo",
+		       t.business_date "businessDate",
+		       t.detail_sequence_no "detailSequenceNo",
+		       lower(t.template_version) "templateVersion",
+		       t.client_name "clientName",
+		       t.client_address "clientAddress",
+		       t.client_postalcode "clientPostalcode",
+		       t.company_service_name "companyServiceName",
+		       t.company_service_address "companyServiceAddress",
+		       t.company_service_postalcode "companyServicePostalcode",
+		       t.company_service_telephone "companyServiceTelephone",
+		       t.company_name "companyName",
+		       t.print_date "printDate",
+		       t.service_telephone_a "serviceTelephoneA",
+		       t.service_telephone_b "serviceTelephoneB",
+		       t.return_flag "returnFlag",
+		       t.return_reason "returnReason"
+		  FROM pos_note_main t,
+		       pos_info      r
+		 WHERE t.client_no = r.pos_no
+		   AND r.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="getAddProduct" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_accept.get_add_product(#value#)
+		  FROM dual
+	]]>
+	</select>
+	
+	<resultMap class="java.util.HashMap" id="queryPlanProvisionByProductCodeResultMap">
+		<result property="content" column="CONTENT" jdbcType="BLOB" typeHandler="com.ibatis.sqlmap.engine.type.BlobTypeHandlerCallback"/>
+	</resultMap>
+	<select id="queryPlanProvisionByProductCode" parameterClass="java.util.HashMap" resultMap="queryPlanProvisionByProductCodeResultMap">
+	<![CDATA[
+		SELECT a.content
+		  FROM plan_provision a
+		 WHERE a.product_code = #productCode#
+		   AND a.document_type = '1'
+		   AND a.start_date <= trunc(#applyDate#)
+		   AND (a.end_date IS NULL OR a.end_date >= trunc(#applyDate#))
+		   AND a.provision_version =
+		       (SELECT MAX(provision_version)
+		          FROM plan_provision
+		         WHERE product_code = #productCode#
+		           AND document_type = '1'
+		           AND start_date <= trunc(#applyDate#)
+		           AND (end_date IS NULL OR end_date >= trunc(#applyDate#)))
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="updateNoteAddressParaMap">
+		<parameter property="p_detail_sequence_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	<procedure id="updateNoteAddress" parameterMap="updateNoteAddressParaMap">
+		{ call l_pos_pub.update_note_address(?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="investAnnalsPrintSingleParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="p_from_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN" />
+		<parameter property="p_to_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN" />
+		<parameter property="p_note_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_detail_sequence_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="investAnnalsPrintSingle" parameterMap="investAnnalsPrintSingleParaMap">
+		{ call l_pos_invest_report.invest_annals_print_single(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="queryPolicyPrintBranchCodeLV2" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+	    SELECT bi.branch_code
+	      FROM branch_info bi
+	     WHERE bi.branch_level = '02'
+	     START WITH bi.branch_code = (SELECT d.branch_code
+	                                    FROM pos_info        a,
+	                                         pos_apply_files b,
+	                                         pos_apply_batch c,
+	                                         counter_info    d
+	                                   WHERE a.barcode_no = b.barcode_no
+	                                     AND b.pos_batch_no = c.pos_batch_no
+	                                     AND c.counter_no = d.counter_no
+	                                     AND a.pos_no = #value#
+	                                     AND rownum = 1)
+	    CONNECT BY PRIOR bi.parent_branch = bi.branch_code
+	]]>
+	</select>
+	
+	<select id="queryPolicyContractInfo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.provide_date,
+		       a.client_sign_date
+		  FROM policy_contract a
+		 WHERE a.policy_no = #value#
+	]]>
+	</select>
+	
+	<select id="isInvoiceGotBack" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y')
+		  FROM pos_info                 a,
+		       pos_apply_file_materials b
+		 WHERE a.barcode_no = b.barcode_no
+		   AND b.apply_material_code = '1228'
+		   AND a.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="isShenzhenUser" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y')
+		  FROM branch_info t
+		 WHERE t.branch_code = #value#
+		 START WITH t.branch_code = '8648'
+		CONNECT BY PRIOR t.branch_code = t.parent_branch
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="divNoticeRedrawParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="divNoticeRedraw" parameterMap="divNoticeRedrawParaMap">
+		{call l_pos_dividend.div_notice_redraw(?,?,?)}
+	</procedure>
+	
+	<update id="updatePosNotePdfNameAndPDFUploadDate" parameterClass="java.util.HashMap">
+	<![CDATA[
+		UPDATE pos_note_main t
+		   SET t.pdf_upload_date = SYSDATE,
+		       t.pdf_name        = #fileName#,
+		       t.is_local		 = #isLocal#		       
+		 WHERE t.detail_sequence_no = #detailSequenceNo#
+	]]>
+	</update>
+	
+	<update id="updatePosNoteMainPrintDateAndPdfName" parameterClass="java.util.HashMap">
+	<![CDATA[
+		UPDATE pos_note_main t
+		   SET t.print_date = SYSDATE,
+		       t.pdf_name        = #fileName#
+		 WHERE t.detail_sequence_no = #detailSequenceNo#
+	]]>
+	</update>
+	
+	<!-- 查询免填单申请书信息 edit by gaojiaming start-->		
+	<select id="queryFillFormApplicationInfoByPosNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.pos_no,
+		       a.policy_no,
+		       d.client_name applicant_name,
+		       e.client_name insured_name,
+		       a.barcode_no,
+		       to_char(a.approve_text) approve_text,
+		       a.acceptor,
+		       to_char(a.accept_date, 'yyyy-mm-dd') accept_date,
+		       g.user_name approve_name,
+		       f.approver approve_no,
+		       h.user_name acceptor_name,
+		       i.apply_date apply_date,
+		       a.ent_print_user entPrintUser,
+		       x.postalcode client_postalcode,
+		       x.full_address client_address,
+		       approval_service_type,
+		       j.accept_channel_code,
+		       a.service_items,
+		       a.prem_sum 
+		  FROM pos_info           a,
+		       policy             b,
+		       policy_product     c,
+		       client_information d,
+		       client_information e,
+		       pos_approve        f,
+		       pos_user_privs     g,
+		       pos_user_privs     h,
+		       pos_apply_files    i,
+		       pos_apply_batch    j,
+		       counter_info       k,
+		       client_address     x,
+		       policy_contact_info y 
+		 WHERE a.accept_status_code in ('A19','E01','A15','A08','A12')
+		   AND a.policy_no = b.policy_no
+		   AND b.policy_no = c.policy_no
+		   AND c.is_primary_plan = 'Y'
+		   AND b.applicant_no = d.client_no
+		   AND c.insured_no = e.client_no
+		   AND a.pos_no = f.pos_no(+)
+		   AND f.approver = g.user_id(+)
+		   AND a.acceptor = h.user_id(+)
+		   AND (f.pos_no IS NULL OR f.pos_no IS NOT NULL AND f.approve_no = (SELECT MAX(approve_no)
+		                                                                      FROM pos_approve
+		                                                                     WHERE pos_no = a.pos_no))
+		   AND a.barcode_no = i.barcode_no
+		   AND i.pos_batch_no = j.pos_batch_no
+		   AND j.counter_no = k.counter_no		  
+		   AND a.pos_no = #posNo#
+		   and y.policy_no = b.policy_no
+		   and y.address_seq = x.address_seq(+)
+		   AND rownum = 1
+	]]>
+	</select>	
+	<!-- 查询免填单申请书信息 edit by gaojiaming end-->
+
+	<!-- 免填单申请书获取模板批文（核保类）和提示信息 edit by gaojiaming start-->		
+	<parameterMap class="java.util.HashMap" id="getApplicationTextParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_content_text" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_reminding_text" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+	</parameterMap>
+	<procedure id="getApplicationText" parameterMap="getApplicationTextParaMap">
+		{call l_pos_pub.get_application_text(?,?,?,?,?)}
+	</procedure>	
+	<!-- 免填单申请书获取模板批文（核保类）和提示信息 edit by gaojiaming end-->	
+
+	<!-- 根据保全号查询关联保全号 edit by gaojiaming start-->	
+	<select id="queryPosNosByPosNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosInfoDTO">
+	<![CDATA[
+		select pos_no "posNo"
+  		  from pos_info
+         where accept_status_code in ('A19','E01','A15','A08')
+   		   and barcode_no in
+               (select barcode_no 
+                  from pos_info 
+                 where pos_no = #posNo#)		   
+	]]>
+	</select>
+	<!-- 根据保全号查询关联保全号 edit by gaojiaming end-->
+	
+	<!-- 查询是否免填单业务 edit by gaojiaming start-->	
+	<select id="checkIsApplicationFree" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		select l_pos_pub.is_application_free(#posNo#) isApplicationFree 
+		  from dual		   
+	]]>
+	</select>
+	<!-- 查询是否免填单业务 edit by gaojiaming end-->		
+
+	<!-- 电子信函更新im_file_id edit by gaojiaming start-->		
+	<update id="updatePosNotePdfNameAndImFileId" parameterClass="java.util.HashMap">
+	<![CDATA[
+		UPDATE pos_note_main t
+		   SET t.pdf_upload_date = SYSDATE,
+		       t.pdf_name        = #fileName#,
+		       t.im_file_id	 = #imFileId#		       
+		 WHERE t.detail_sequence_no = #detailSequenceNo#
+	]]>
+	</update>	
+	<!-- 电子信函更新im_file_id edit by gaojiaming end-->	
+
+	<!-- 根据保单号获取邮箱地址 edit by gaojiaming start-->
+	<select id="getEmailAddressForELetter" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+	    select b.email_address
+	      from client_e_service a, client_email b,policy c
+	       where a.client_no = b.client_no
+	         and a.email_seq = b.email_seq
+	         and a.e_letter_flag = 'Y'
+	         and b.client_no=c.applicant_no
+	         and c.policy_no=#policyNo#
+	    union
+	    SELECT c.email_address
+			 FROM policy p1, policy_contact_info p2, client_email c
+			WHERE p1.policy_no = p2.policy_no
+			  AND p1.policy_no = #policyNo#
+			  AND p2.email_seq IS NOT NULL
+			  AND p2.email_seq = c.email_seq
+			  AND (p1.channel_type = '08' OR
+				   p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S'))
+	]]>
+	</select>	
+	<!-- 根据客户号获取邮箱地址 edit by gaojiaming end-->
+	
+	<!-- 获取客户号 edit by gaojiaming start-->
+	<select id="getclientNoByDetailSequenceNoAndNoticeType" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+ 		select t.client_no
+   			from pos_note_main t
+  			where t.detail_sequence_no = #detailSequenceNo#
+   			 and t.note_type = #noticeType#
+	]]>
+	</select>	
+	<!-- 获取客户号 edit by gaojiaming end-->	
+	
+	<!-- 官网保单全部加挂标志同步接口；电子函件订阅/退订接口 edit by gaojiaming start-->	
+	<parameterMap class="java.util.HashMap" id="mergeIntoClientSEerviceParaMap">
+		<parameter property="p_client_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_auto_added" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>		
+		<parameter property="p_e_letter_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_email_address" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>	
+	</parameterMap>
+	<procedure id="mergeIntoClientSEervice" parameterMap="mergeIntoClientSEerviceParaMap">
+		{call l_pub_pos_interface.merge_into_client_e_service(?,?,?,?,?,?)}
+	</procedure>
+	<!-- 官网保单全部加挂标志同步接口；电子函件订阅/退订接口  edit by gaojiaming start-->
+	
+	<!-- 官网加挂保单同步接口 edit by gaojiaming start-->	
+	<parameterMap class="java.util.HashMap" id="syncEPolicyParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_added" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_manual" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_added_time" javaType="java.util.Date" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+	</parameterMap>
+	<procedure id="syncEPolicy" parameterMap="syncEPolicyParaMap">
+		{call l_pub_pos_interface.merge_into_policy_e_service(?,?,?,?,?,?)}
+	</procedure>
+	<!-- 官网加挂保单同步接口 edit by gaojiaming start-->	 
+	
+	<!-- 查询客户电子信函订阅状态 edit by gaojiaming start-->
+	<select id="getClientELetterStatus" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select t.e_letter_flag from client_e_service t where t.client_no = #clientNo#
+	]]>
+	</select>	
+	<!-- 查询客户电子信函订阅状态 edit by gaojiaming end-->	
+	
+	<!-- 电子函件历史查询接口 edit by gaojiaming start -->
+	<select id="queryPosNoteHistory" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select t.client_no,
+		       t.policy_no,
+		       t.product_code,
+		       t.full_name,
+		       t.detail_sequence_no,
+		       t.base_sum_ins,
+		       t.effect_date,
+		       t.note_type,
+		       t.description,
+		       t.im_file_id,
+		       t.note_created_date,
+		       t.pdf_upload_date
+		  from (select a.client_no,
+		               a.policy_no,
+		               c.product_code,
+		               d.full_name,
+		               a.detail_sequence_no,
+		               c.base_sum_ins,
+		               c.effect_date,
+		               a.note_type,
+		               b.description,
+		               a.im_file_id,
+		               a.note_created_date,
+		               a.pdf_upload_date
+		          from pos_note_main a, pos_note_type b, policy_product c, product d
+		         where a.note_type = b.note_type
+		           and a.policy_no = c.policy_no
+		           and c.product_code = d.product_code
+		           and sysdate - 365 * 3 <= a.note_created_date
+		           and c.prod_seq = 1
+		        union all
+		        select pi.client_no,
+		               pi.policy_no,
+		               pp.product_code,
+		               pd.full_name,
+		               pi.pos_no detail_sequence_no,
+		               pp.base_sum_ins,
+		               pp.effect_date,
+		               'ent' note_type,
+		               '保全变更批单' description,
+		               pi.e_ent_file_id im_file_id,
+		               pi.effective_date note_created_date,
+		               pi.ent_print_date pdf_upload_date
+		          from pos_info pi, policy_product pp, product pd
+		         where pi.policy_no = pp.policy_no
+		           and pp.product_code = pd.product_code
+		           and sysdate - 365 * 3 <= pi.effective_date
+		           and pi.e_ent_file_id is not null
+		           and pp.prod_seq = 1) t
+		where t.client_no = #clientNo#
+	]]> 
+		<dynamic>	      
+		<isNotEmpty property="noteType">
+		<![CDATA[
+		   AND t.note_type = #noteType#
+		]]>
+		</isNotEmpty> 
+		<isNotEmpty property="startTime">
+		<![CDATA[
+		   AND t.note_created_date >= #startTime#
+		]]>
+		</isNotEmpty> 
+		<isNotEmpty property="endTime">
+		<![CDATA[
+		   AND t.note_created_date <= #endTime#
+		]]>
+		</isNotEmpty> 				
+		</dynamic>					
+		<![CDATA[
+			 order by t.policy_no
+		]]>		  
+	</select> 
+	<!-- 电子函件历史查询接口 edit by gaojiaming end -->	
+	
+	<!-- 获取电子函件ID edit by gaojiaming start-->
+	<select id="getLoadFileId" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select a.im_file_id, a.note_type, a.policy_no
+		  from (select t.im_file_id, t.note_type, t.policy_no
+		          from pos_note_main t
+		         where t.policy_no = #policyNo#
+		           and t.detail_sequence_no = #detailSequenceNo#
+		        union all
+		        select d.e_ent_file_id im_file_id, 'ent' note_type, d.policy_no
+		          from pos_info d
+		         where d.policy_no = #policyNo#
+		           and d.pos_no = #detailSequenceNo#) a
+	]]>
+	</select>	
+	<!-- 获取电子函件ID edit by gaojiaming end-->  
+	
+	<!-- 根据保全号在明细表里获取邮箱 edit by gaojiaming start-->
+	<select id="getEmailAddressByPosNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select t.new_value
+		  from pos_accept_detail t
+		 where t.pos_no = #posNo# 
+		   and t.pos_object = '5'
+		   and t.item_no = '024'
+	]]>
+	</select>	
+	<!-- 根据客户号获取邮箱地址 edit by gaojiaming end-->	
+	
+	<!-- 获取通知书保单和通知书类型 edit by gaojiaming start-->
+	<select id="getNoteTypeDescriptionAndPolicyNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		select a.policy_no,b.description
+		  from pos_note_main a, pos_note_type b
+		 where a.note_type = b.note_type
+		   and a.detail_sequence_no = #detailSequenceNo#
+	]]>
+	</select>	
+	<!-- 获取通知书保单和通知书类型 edit by gaojiaming end-->	
+	
+	<!-- 邮件发送日志 edit by gaojiaming start-->
+    <insert id="insertPosMailLog" parameterClass="java.util.HashMap" >
+		 insert into pos_mail_log (email, send_date, business_no)
+		 values(#email#, sysdate, #businessNo#)
+    </insert>	
+	<!-- 邮件发送日志 edit by gaojiaming start--> 	
+	
+	<!-- 函件发送记录查询接口 edit by gaojiaming start-->
+	<select id="getMailLogByDetailSequenceNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		select a.email,
+		       to_char(a.send_date, 'yyyy-mm-dd hh24:mi:ss') send_date,
+		       a.business_no
+		  from pos_mail_log a
+		 where a.business_no = #detailSequenceNo#
+		 order by a.send_date desc
+	]]>
+	</select>	
+	<!-- 函件发送记录查询接口 edit by gaojiaming end-->	
+	
+	<!-- 写入投保人名下保单资产证明书 edit by wangmingshun start -->
+	<parameterMap class="java.util.HashMap" id="clientWealthNoticeParaMap">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="applyDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN" />
+		<parameter property="p_detail_sequence_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+	</parameterMap>
+	<procedure id="clientWealthNotice" parameterMap="clientWealthNoticeParaMap">
+		{call l_pos_batch_process_helper.client_wealth_notice(?,?,?,?,?)}
+	</procedure>						
+	<!-- 写入投保人名下保单资产证明书 edit by wangmingshun end -->	
+		
+	<!-- 查询需增加二维码的个险渠道 edit by tangjing start-->
+	<select id="findChannelType" resultClass="java.lang.String">
+	<![CDATA[
+		select channel_type from policy where policy_no = #policyNo#
+	]]>
+	</select>	
+	<!-- 查询需增加二维码的个险渠道 edit by tangjing end-->					
+</sqlMap>

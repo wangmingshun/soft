@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_2">
+
+	<select id="QUERY_PRODUCT_INFO" parameterClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO" resultClass="com.sinolife.pos.common.dto.PolicyProductDTO">
+	<![CDATA[
+    SELECT a.policy_no            "policyNo",
+           (select channel_type from policy where policy_no=a.policy_no) "channelType",
+           a.prod_seq             "prodSeq",
+           a.product_code         "productCode",
+           a.relationship         "relationship",
+           f.description          "relationshipDesc",
+           a.insured_no           "insuredNo",
+           c.client_name          "insuredName",
+           a.duty_status          "dutyStatus",
+           g.description          "dutyStatusDesc",
+           a.lapse_reason         "lapseReason",
+           a.effect_date          "effectDate",
+           a.units                "units",
+           a.product_level        "productLevel",
+           a.base_sum_ins         "baseSumIns",
+           a.dividend_sum_ins     "dividendSumIns",
+           a.coverage_period      "coveragePeriod",
+           a.maturity_date        "maturityDate",
+           a.special_term         "specialTerm",
+           a.is_primary_plan      "isPrimaryPlan",
+           a.cover_period_type    "coverPeriodType",
+           e.description          "coverPeriodTypeDesc",
+           b.full_name            "productFullName",
+           b.abbr_name            "productAbbrName",
+           d.policy_no            "premInfo.policyNo",
+           d.prod_seq             "premInfo.prodSeq",
+           d.frequency            "premInfo.frequency",
+           h.description          "premInfo.frequencyDesc",
+           d.prem_source          "premInfo.premSource",
+           i.description          "premInfo.premSourceDesc",
+           d.prem_status          "premInfo.premStatus",
+           j.description          "premInfo.premStatusDesc",
+           d.prem_term            "premInfo.premTerm",
+           d.ann_standard_prem    "premInfo.annStandardPrem",
+           d.ann_weak_add_prem    "premInfo.annWeakAddPrem",
+           d.ann_occu_add_prem    "premInfo.annOccuAddPrem",
+           d.period_standard_prem "premInfo.periodStandardPrem",
+           d.period_occu_add_prem "premInfo.periodOccuAddPrem",
+           d.period_weak_add_prem "premInfo.periodWeakAddPrem",
+           d.period_prem_sum      "premInfo.periodPremSum",
+           d.pay_to_date          "premInfo.payToDate",
+           d.add_prem_term        "premInfo.addPremTerm",
+           d.add_prem_eff_date    "premInfo.addPremEffDate",
+           d.pk_serial            "premInfo.pkSerial",
+           d.prem_period_type     "premInfo.premPeriodType",
+           k.description          "premInfo.premPeriodTypeDesc",
+           d.sex_code             "premInfo.sexCode",
+           l.sex_desc             "premInfo.sexDesc",
+           d.ins_age              "premInfo.insAge",
+           d.occupation_code      "premInfo.occupationCode",
+		   m.occupation_desc      "premInfo.occupationDesc",
+		   l_pos_pub.is_long_product(a.product_code) "longFlag",
+           d.period_standard_prem                    "periodStandardPrem",
+           d.ann_standard_prem                       "annStandardPrem",
+           l_pos_pub.get_product_prem_cal_type(a.product_code) "calType",
+		   l_pos_pub.is_ulife_product(a.product_code)          "universalFlag",
+		   l_pos_pub.is_fund_product(a.product_code)           "unitLinkedFlag",
+		   l_pos_service_item_2.get_product_cash_value(a.policy_no, a.prod_seq, to_date(#applyDate#,'yyyy-mm-dd')) "cashValue",
+		   l_pos_service_item_2.get_special_sur_sum(a.policy_no, a.prod_seq) "specialSurSum"
+		  FROM policy_product      a,
+		       product             b,
+		       client_information  c,
+		       policy_product_prem d,
+		       cover_period_type   e,
+		       relationship        f,
+		       duty_status         g,
+		       frequency           h,
+		       prem_source         i,
+		       prem_status         j,
+		       prem_period_type    k,
+		       sex                 l,
+		       occupation          m
+		 WHERE a.product_code = b.product_code(+)
+		   AND a.insured_no = c.client_no(+)
+		   AND a.policy_no = d.policy_no(+)
+		   AND a.prod_seq = d.prod_seq(+)
+		   AND a.cover_period_type = e.cover_period_type(+)
+		   AND a.relationship = f.relationship(+)
+		   AND a.duty_status = g.duty_status(+)
+		   AND d.frequency = h.frequency(+)
+		   AND d.prem_source = i.prem_source(+)
+		   AND d.prem_status = j.prem_status(+)
+		   AND d.prem_period_type = k.prem_period_type(+)
+		   AND d.sex_code = l.sex_code(+)
+		   AND d.occupation_code = m.occupation_code(+)
+		   AND a.policy_no = #policyNo#
+	]]>
+	</select>
+	
+	<parameterMap id="queryPremLoanAplMap" class="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_2">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="policyBalance" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="loanSum" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="aplSum" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="premPaid" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="QUERY_PREM_LOAN_APL" parameterMap="queryPremLoanAplMap">
+		{call l_pos_service_item_2.proc_accept_input_info(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap   class="java.util.HashMap" id="getTranslateApplyInfoMap">
+		<parameter property="p_old_apply_bar_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_new_apply_bar_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_old_pri_product_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_new_pri_product_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_prem" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getTranslateApplyInfo" parameterMap="getTranslateApplyInfoMap">
+		{call l_pos_uw_interface.get_translate_apply_info(?,?,?,?,?,?,?)}
+	</procedure>
+	<!-- 根据保单号查寻是否可转保 -->
+   <select id="getCannotToNewByPolicyNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select decode(count('x'),0,'Y','N')
+         from Policy_Product a
+        where a.policy_no = #value#
+          and a.product_code in ('CIDD_SN1','CBDI_AN0','CIDI_DN1','CBAN_DN1','CIAN_IN1','CIDD_SN1','CEAN_AN1','UBED_GN1','CNAN_BR1','CNDD_HN0')
+          and (a.duty_status = '1' or
+              (a.duty_status = '2' and a.lapse_reason in ('7', '8', '9', '10', '11', '12')))
+	]]>
+	</select>
+</sqlMap>

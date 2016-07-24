@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.vip.dao.VipManageDAO">
+	<parameterMap id="CALC_CLIENT_VIP_GRADE_MAP" class="java.util.HashMap">
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipPremSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vipGrade" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	<procedure id="CALC_CLIENT_VIP_GRADE" parameterMap="CALC_CLIENT_VIP_GRADE_MAP">
+		{call l_pos_vip_manage.calc_client_vip_grade_prem(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="GET_CLIENT_VIP_GRADE_DTL_MAP" class="java.util.HashMap">
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipType" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vipGrade" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vipGradeDesc" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vipEffectDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="OUT" />
+		<parameter property="vipPremSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vipBranch" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="isManualFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	<procedure id="GET_CLIENT_VIP_GRADE_DTL" parameterMap="GET_CLIENT_VIP_GRADE_DTL_MAP">
+		{call l_pos_vip_manage.get_client_vip_grade_dtl(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="MAINTAIN_CLIENT_VIP_GRADE_MAP" class="java.util.HashMap">
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipGrade" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipEffectDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="vipBranch" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipPremSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="isManual" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="MAINTAIN_CLIENT_VIP_GRADE" parameterMap="MAINTAIN_CLIENT_VIP_GRADE_MAP">
+		{call l_pos_vip_manage.maintain_client_vip_grade(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="getClientVipGradeParaMap">
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_vip_grade" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_vip_desc" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="getClientVipGrade" parameterMap="getClientVipGradeParaMap">
+		{call l_pos_vip_manage.get_client_vip_grade(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="QUERY_VIP_BASEINFO_MAP">
+		<parameter property="query_string" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="query_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_name" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_sex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_birthday"  jdbcType="TIMESTAMP" javaType="java.util.Date" mode="OUT" />
+		<parameter property="client_idno" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_idtype" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_WORK_UNIT" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_POSITION" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_address" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="client_phone" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="vip_grade" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="card_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="emp_name" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="branch_name" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="phone" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	<procedure id="QUERY_VIP_BASEINFO" parameterMap="QUERY_VIP_BASEINFO_MAP">
+		{call l_pos_vip_manage.get_vip_info_query(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	
+	
+	<parameterMap id="queryVipProductInfoParaMap" class="java.util.HashMap">
+		<parameter property="query_string" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="query_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="productList" jdbcType="ARRAY" typeName="POSCDE.ARRAY_VIP_PRODUCT_INFO"  mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	
+	<procedure id="queryVipProductInfo" parameterMap="queryVipProductInfoParaMap">
+	<![CDATA[
+		{call l_pos_vip_manage.get_product_info(?,?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+
+	<select id="QUERY_TYPE_GRADE_PREMSUM" resultClass="java.lang.String" parameterClass="java.util.HashMap">
+		select nvl(to_char(max(a.prem_sum)), 'NUL') prem_sum
+		  from pos_vip_type_grade a
+		 where a.vip_type = #vipType#
+		   and a.vip_grade = #vipGrade#
+		   and a.branch_classify = #branchClassify#
+	</select>
+    
+	<insert id="INSERT_POS_VIP_TYPE_GRADE" parameterClass="java.util.HashMap">
+		insert into pos_vip_type_grade
+		  (vip_type, vip_grade, branch_classify, prem_sum, updated_date, updated_user, created_date, created_user)
+		values
+		  (#vipType#, #vipGrade#, #branchClassify#, #premSum#, sysdate, user, sysdate, user)
+	</insert>
+    
+	<update id="UPDATE_POS_VIP_TYPE_GRADE" parameterClass="java.util.HashMap">
+		update pos_vip_type_grade
+		   set prem_sum = #premSum#,
+		       updated_date = sysdate,
+		       updated_user = user
+		 where vip_type = #vipType#
+		   and vip_grade = #vipGrade#
+		   and branch_classify = #branchClassify#
+	</update>
+	
+	<select id="QUERY_CLIENTNO_IS_VIP" resultClass="java.lang.String" parameterClass="java.lang.String">
+	     
+	     select count(1) from pos_vip_client  pc where pc.client_no=#clentNo# and pc.vip_end_date is null
+	
+	</select>
+	
+	
+	<select id="QUERY_CLIENT_APPLY_BRANCH" resultClass="java.lang.String" parameterClass="java.lang.String">
+		select branch_code
+		  from policy p
+		 where p.applicant_no = #clientNo#
+		   and p.apply_date = (select max(apply_date)
+		                         from policy
+		                        where applicant_no = #clientNo#)
+		   and rownum = 1
+	</select>
+    
+	<!--VIP等级变动信息-->
+	<select id="QUERY_VIP_GRADE_CHANGE" resultClass="com.sinolife.pos.common.dto.VipProductInfoDTO" parameterClass="java.util.HashMap">
+		select 
+       (select b.description
+          from pos_vip_grade b
+         where b.vip_grade=a.vip_grade) vipGrade,
+       a.vip_effect_date vipEffectDate,
+       <!-- 增加vip结束日期显示  edit by wangmingshun start-->
+       a.vip_end_date vipEndDate
+       <!-- 增加vip结束日期显示  edit by wangmingshun end-->
+      from pos_vip_client a
+    where client_no = #clientNo#
+	</select>
+    
+    
+	<!--VIP卡号变动信息-->
+	<select id="QUERY_VIP_CARD_CHANGE" resultClass="com.sinolife.pos.common.dto.VipProductInfoDTO" parameterClass="java.util.HashMap">
+		select a.card_no cardNo,
+       a.modified_date modifiedDate,
+       (select b.description
+          from pos_vip_card_modified_reason b
+         where b.modified_reason = a.modified_reason) modifiedReason,
+       a.provided_user providedUser
+  from pos_vip_card_info a
+ where a.client_no =  #clientNo#
+  order by a.modified_date 
+	</select>
+    
+	<!--VIP服务专员变动信息-->
+	<select id="QUERY_VIP_EMP_CHANGE" resultClass="com.sinolife.pos.common.dto.VipProductInfoDTO" parameterClass="java.util.HashMap">
+		 select b.emp_name empName, a.contact_phone  empPhone, c.dept_full_name empDept
+   from pos_vip_service_info a, staff_info b, department_info c
+  where a.service_no = b.emp_no
+    and c.dept_no = b.dept_no
+    and a.client_no =#clientNo#
+    order by a.start_date 
+	</select>
+    
+    
+	<!--享受VIP服务情况-->
+	<select id="QUERY_VIP_SHARED_SERVICE" resultClass="com.sinolife.pos.common.dto.VipProductInfoDTO" parameterClass="java.util.HashMap">
+		select a.vip_service_date         vipServiceDate,
+        c.description              bigService,
+        b.description              smallService,
+        a.service_item_description  seviceDesc,
+        a.file_id                    fileId,
+        a.is_valid                   isValid,
+        a.seq_no                     seqNo
+   from pos_vip_service_instance_info a,
+        pos_vip_small_service_item    b,
+        pos_vip_big_service_item      c
+  where a.small_service_item = b.small_service_item
+    and b.big_service_item = c.big_service_item
+    and a.client_no = #clientNo#
+     order by a.vip_service_date
+	</select>
+    
+	<!--VIP卡号变更事由-->
+	<select id="QUERY_VIP_MODIFIED_REASON"  resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+		
+		  select r.modified_reason code ,r.description  description  from POS_VIP_CARD_MODIFIED_REASON  r
+	
+	</select>  
+    
+	<!--VIP等级-->
+	<select id="QUERY_VIP_GRADE"  resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+		
+		   select vip_grade code  ,description   from pos_vip_grade
+	
+	</select> 
+    
+	<!--VIP服务大项-->
+	<select id="QUERY_VIP_BIG_SERVICE_ITEM"  resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+		
+		  select bi.big_service_item code,bi.description  from pos_vip_big_service_item  bi
+	
+	</select> 
+    
+	<!--VIP服务小项-->
+	<select id="QUERY_VIP_SMALL_SERVICE_ITEM"  parameterClass="java.util.HashMap"  resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+		
+		 select si.small_service_item code ,si.description  from pos_vip_small_service_item si
+               where si.big_service_item=#bigServiceItem#
+	
+	</select> 
+    
+	<insert id="INSERT_POS_VIP_SERVICE__INSTANCE_INFO" parameterClass="java.util.HashMap">    
+        insert into pos_vip_service_instance_info (client_no,seq_no,vip_service_date,small_service_item,service_item_description
+              ,file_id)   
+              values(#clientNo#,(select nvl(max(seq_no),0)+1 from pos_vip_service_instance_info where client_no=#clientNo#),
+              to_date(#serviceDate#,'yyyy-mm-dd'),#vipSmallServiceItem#,#serviceReason#,#fileId#)
+	</insert>
+    
+	<!--VIP卡号原有时间结束-->
+	<update id="UPDATE_POS_VIP_CARD_INFO" parameterClass="java.util.HashMap" >      	
+      	 update pos_vip_card_info set end_date=sysdate  where  client_no=#clientNo#  and  end_date is null    	 
+	</update>  
+      
+      
+	<!--VIP服务专员原有时间结束-->
+	<update id="UPDATE_POS_VIP_SERVICE_INFO" parameterClass="java.util.HashMap" >      	
+      	update   pos_vip_service_info   set end_date=sysdate  where   client_no=#clientNo#  and end_date is null 	 
+	</update>  
+      
+          
+    
+	<!--VIP服务专员新增-->    
+	<insert id="INSERT_POS_VIP_SERVICE_INFO" parameterClass="java.util.HashMap">    
+    
+    	insert into pos_vip_service_info
+		  (client_no, service_no, modified_reason,contact_phone,modified_user, modified_date,start_date, created_user, created_date, updated_user, updated_date)
+		values
+		  (#clientNo#, #empNo#,#empChangeReason#,#empPhone# ,user,sysdate,sysdate,user, sysdate, user, sysdate)
+
+	</insert>
+	<!--VIP卡号新增-->    
+	<insert id="INSERT_POS_VIP_CARD_INFO" parameterClass="java.util.HashMap">      
+	 	insert into pos_vip_card_info
+		  (client_no, card_no, modified_date, modified_reason,provided_user,start_date, created_user, created_date, updated_user, updated_date)
+		values
+		  (#clientNo#, #cardNo#, to_date(#applyDate#,'yyyy-mm-dd'),#modifiedReason#, #providedUser#,sysdate, user, sysdate, user, sysdate)
+	</insert>
+    
+	<insert id="INSERT_POS_FILE_INFO" parameterClass="java.util.HashMap" >
+		insert into pos_file_info  (file_id, upload_file_type,	file_name, upload_time,upload_user )
+	     	values  (#fileId#, #uploadFileType#, #fileName#,  sysdate,user  )
+	</insert>
+    
+      <select id="QUERY_VIP_POS_FILE_INFO" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.VipProductInfoDTO">
+		select p.file_id  fileId,
+		       p.file_name  fileName,
+		       to_char(p.upload_time, 'yyyy-mm-dd hh24:mi:ss') uploadTime,
+		       p.upload_user uploadUser
+		  from pos_file_info p
+		 where p.file_id = #fileId#
+    </select>
+    
+    
+    	<!--自动校验是否为导入的卡号-->  
+    
+    <parameterMap class="java.util.HashMap" id="judgeImportSystemParaMap">
+		<parameter property="p_voucher_flow" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_business_series" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_branch_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="judgeImportSystem" parameterMap="judgeImportSystemParaMap">
+		{call l_pos_vc_interface.check_vip_useful(?,?,?,?,?)}
+	</procedure>
+    
+    
+     
+    	<!-- 判断vip卡号和客户等级是否匹配-->  
+    
+    <parameterMap class="java.util.HashMap" id="judgeCardAndGradeParaMap">
+		<parameter property="p_card_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_match" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="judgeCardAndGrade" parameterMap="judgeCardAndGradeParaMap">
+		{call l_pos_vip_manage.match_vip_card_grade(?,?,?,?,?)}
+	</procedure>
+    
+    
+    	<!--逐笔回销单证vip卡号-->  
+    
+    <parameterMap class="java.util.HashMap" id="voucherflowConfirmParaMap">
+    	<parameter property="p_voucher_flow" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_business_series" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_branch_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_voucher_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_related_businessno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_confirm_date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="p_confirm_userno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="voucherflowConfirm" parameterMap="voucherflowConfirmParaMap">
+		{call l_pos_vc_interface.voucher_flow_confirm(?,?,?,?,?,?,?,?,?)}
+	</procedure>   
+    <!--获取客户的VIP等级，卡号--> 	
+	<parameterMap id="vipInfoParaMap" class="java.util.HashMap">
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_vip_grade" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_vip_desc" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_card_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	<procedure id="getVipInfo" parameterMap="vipInfoParaMap">
+	<![CDATA[
+		{call l_pos_vip_manage.get_vip_info_desc(?,?,?,?,?,?)}
+	]]>
+	</procedure>
+       <!--更新新vip卡号--> 	
+	<parameterMap id="vipCardParaMap" class="java.util.HashMap">
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_card_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_modified_date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="p_modified_reason" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_provided_user" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_start_date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />		
+	</parameterMap>
+	<procedure id="updateVipCard" parameterMap="vipCardParaMap">
+	<![CDATA[
+		{call l_pos_vip_manage.update_vip_card(?,?,?,?,?,?,?,?)}
+	]]>
+	</procedure>
+	<!--edit by wangmingshun start 获取客户的服务方案 -->  
+    <parameterMap class="java.util.HashMap" id="clientServicePlanParaMap">
+    	<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="clientServicePlan" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="clientServicePlan" parameterMap="clientServicePlanParaMap">
+		{call l_pos_vip_manage.get_client_service_plan(?,?,?,?)}
+	</procedure>
+   	<!--edit by wangmingshun end 获取客户的服务方案 -->
+   	
+   	<!-- 修改vip服务信息状态 -->
+   	<update id="UPDATE_POS_VIP_SERVICE_INSTANCE_INFO" parameterClass="java.util.HashMap" >      	
+      	update pos_vip_service_instance_info
+      	   set is_valid=#isValid#
+         where client_no=#clientNo#  
+           and seq_no=#seqNo# 	 
+	</update>
+   	
+   	<!-- 维护客户VIP信息 edit by wangmingshun -->
+   	<parameterMap id="marking_client_info_map" class="java.util.HashMap">
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipGrade" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipEffectDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="vipBranch" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipPremSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="isManual" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="marking_client_info" parameterMap="marking_client_info_map">
+		{call l_pos_vip_manage.marking_client_info(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="queryPayFailPolicyInfoByClientNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		<![CDATA[
+		select distinct *
+		  from (select to_char(a.vip_effect_date, 'yyyy-MM-dd') as vipEffectDate,
+		               a.vip_grade as vipGrade,
+		               b.description as vipGradeName,
+		               a.client_no,
+		               (CASE
+		                 WHEN a.vip_effect_date <= date '2015-4-27' THEN
+		                  '2013版'
+		                 ELSE
+		                  '2015版'
+		               END) as vipPlan
+		          from pos_vip_client a, pos_vip_grade b
+		         where a.client_no = #clientNo#
+		            and a.vip_grade = b.vip_grade
+		           and a.vip_end_date is null
+		           order by a.vip_effect_date desc
+		           )
+		  where rownum = 1
+		 ]]>
+	</select>
+	
+</sqlMap>

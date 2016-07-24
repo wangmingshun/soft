@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.include.dao.IncludeDAO">
+   
+    <resultMap id="BranchInfoDTO" class="com.sinolife.pos.common.dto.BranchInfoDTO">
+		<result property="id" column="CODE" />
+		<result property="text" column="DESCRIPTION" />
+		<result property="level" column="BRANCH_LEVEL" />
+		<result property="askLevel" column="ASK_LEVEL" />
+	</resultMap>
+	<select id="QUERY_BRANCH_SONS" resultMap="BranchInfoDTO" parameterClass="java.util.HashMap">
+	<![CDATA[
+		select distinct a.branch_code code,
+		                a.branch_name || '(' || a.branch_code || ')' description,
+		                a.branch_level branch_level,
+		                #branchLevel# ask_level
+		  from branch_info a, branch_info b
+		 where a.is_valid = 'Y'
+		   and (#branchCode# is null or b.branch_code = #branchCode#)
+		   and a.branch_level = decode(#branchCode#, null, '01', '0' || (b.branch_level + 1))
+		   and nvl(a.parent_branch, 'x') = decode(#branchCode#, null, 'x', b.branch_code)
+	]]>
+	</select>
+	
+	<select id="QUERY_BRANCH_ROOT" resultMap="BranchInfoDTO" parameterClass="java.util.HashMap">
+	<![CDATA[
+		select a.branch_code code,
+		       a.branch_name || '(' || a.branch_code || ')' description,
+		       a.branch_level branch_level,
+		       #branchLevel# ask_level
+		  from branch_info a
+		 where a.is_valid = 'Y'
+		   and (#branchCode# is null or a.branch_code = #branchCode#)
+		   and a.branch_level = decode(#branchCode#, null, '01', a.branch_level)
+	]]>
+	</select>
+	     
+     <select id="QUERY_USER_PRIVILEGE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.user_id,
+		       p.user_name,
+		       p.upper_user_id,
+		       i.description input_grade,
+		       decode(p.different_place_privs, 'Y', '是', '否') different_place_privs,
+		       c.counter_name || '（柜面号：' || p.counter_no || '）' counter_name,
+		       a.description amount_days_grade
+		  from pos_user_privs        p,
+		       pos_input_grade_code  i,
+		       counter_info          c,
+		       pos_amount_days_grade a
+		 where p.user_id = lower(#userId#)
+		   and p.input_grade = i.input_grade
+		   and p.counter_no = c.counter_no
+		   and p.amount_days_grade = a.amount_days_grade
+     </select>
+     
+     <select id="QUERY_CITY_BY_PROVINCE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	 <![CDATA[
+		select distinct a.city_code, c.city_name
+		  from area_define a, city c
+		 where a.province_code = #value#
+		   and a.city_code = c.city_code
+		   and a.city_code <> #value#
+		   and a.is_valid='Y'
+		   and c.is_valid='Y'
+		union
+		select '' city_code, ' ' city_name from dual
+	 ]]>
+     </select>
+     
+     <select id="QUERY_AREA_BY_CITY" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	 <![CDATA[
+	 	select a.area_code, a.area_name
+		  from area_define a
+		 where a.city_code = #value#
+		   and a.area_code <> #value#
+		   and a.is_valid='Y'
+	 ]]>
+     </select>
+     
+     <select id="QUERY_COUNTER_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+     <![CDATA[
+     select c.counter_no,
+            c.counter_name || '(柜面号:' || c.counter_no || ')' counter_name,
+            c.address,
+            c.counter_phone,
+            c.open_time,
+            c.branch_code
+      from counter_info c
+     where c.close_time is null
+       and to_number(c.counter_no) < 900
+       and c.branch_code in
+           (SELECT branch_code
+              FROM branch_info
+             START WITH branch_code = nvl(#branchCode#, '86')
+		        CONNECT BY PRIOR branch_code = parent_branch)
+	 ]]>
+     </select>
+
+	<select id="queryStaffByEmpNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.StaffInfoDTO">
+	<![CDATA[
+    select t.emp_no       empno,          
+           t.dept_no      deptno,
+           t.emp_name     empname,
+           t.sex_code     sexcode,
+           t.birth_date   birthdate,
+           t.id_type      idtype,
+           t.emp_idno     empidno,
+           t.home_address homeaddress,       
+           t.postcode     postcode,
+           t.hire_date    hiredate,          
+           t.leave_date   leavedate,
+           t.position     position,
+           t.rank,          
+           a.sex_desc     sexdesc,
+           b.id_type_name idtypedesc
+      from staff_info t, sex a, id_type b
+     where t.sex_code = a.sex_code(+)
+       and t.id_type = b.id_type(+)      
+       and t.leave_date is null
+       and t.is_valid = 'Y'
+       and t.emp_no = #value#
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="queryBankListParaMap">
+		<parameter property="p_country_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_province_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_city_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_bank_category" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_array_bank_info_items" jdbcType="ARRAY" typeName="FINCDE.ARRAY_BANK_INFO_ITEMS" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_mes" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="queryBankList" parameterMap="queryBankListParaMap">
+		{call l_pos_fin_interface.fin_get_bank_list_by_area(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="QUERY_BRANCH_IN_PROVINCE_CITY" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[		
+      select b.branch_code,
+             b.branch_name || '（' || b.branch_code || '）' branch_name
+        from branch_info b
+       where b.province_code = #province#
+         and b.city_code = #city#
+         and b.is_valid = 'Y'
+         and (b.branch_close_date is null or b.branch_close_date > sysdate)
+         and ((#channel# = '01' and
+             (b.branch_level = '04' or
+             (b.branch_level = '03' and not exists
+              (select branch_code
+                    from branch_info
+                   where branch_level = '04'
+                     and parent_branch = b.branch_code))))
+             
+             or (#channel# in ('02', '04') and b.branch_level = '03')
+             
+             or (#channel# = '03' and
+             (b.branch_level = '04' or b.branch_level = '03'))
+             
+             )
+         and exists (select dept_no
+                from department_info
+               where branch_code = b.branch_code)
+    ]]>
+	</select>
+	
+	<select id="SELECT_ALL_PRODUCTS" resultClass="java.util.HashMap">
+		select product_code,
+		       full_name || '(' || product_code || ')' full_name
+		  from product
+	</select>
+
+	<select id="isBarcodeNoUsed" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT 'Y'
+		  FROM pos_apply_files p
+		 WHERE p.barcode_no = #value#
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="QUERY_UM_USER_BRANCH_CODE" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select branch_code
+		  from pub_user_branch_oper_privs
+		 where um_user_id = #userId#
+		   and valid_flag = 'Y'
+		   and lower(operation_type) like 'pos_%'
+	</select>
+	
+	<select id="QUERY_IS_PARENT_BRANCH" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select nvl2(max(branch_code),'Y','N')
+		  from branch_info b
+		  where b.branch_code = #branchCode#
+		 start with b.branch_code = #parentBranch#
+		connect by prior b.branch_code = b.parent_branch
+	</select>
+
+	<select id="isStaffExists" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y')
+		  FROM staff_info t
+		 WHERE t.emp_no = #value#
+	]]>
+	</select>
+	
+	<select id="queryPrivinceAndCityByBranchCode" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+      select *
+        from (select b.province_code, b.city_code
+                from branch_info b
+               start with b.branch_code = #value#
+              connect by PRIOR b.parent_branch = b.branch_code
+                     and b.is_valid = 'Y'
+               order by b.branch_level desc) bi
+       where rownum = 1
+	]]>
+	</select>
+
+	<select id="QUERY_USER_BRANCH_CODE_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select nvl(max('Y'), 'N')
+		  from dual
+		 where #branchCode# in (select branch_code
+		                    from branch_info
+		                   start with branch_code =
+		                              (select branch_code
+		                                 from pub_user_branch_oper_privs
+		                                where um_user_id = #user#
+		                                  and lower(operation_type) like 'pos_%'
+		                                  and valid_flag = 'Y'
+		                                  and rownum = 1)
+		                  connect by prior branch_code = parent_branch)
+	</select>
+		
+</sqlMap>

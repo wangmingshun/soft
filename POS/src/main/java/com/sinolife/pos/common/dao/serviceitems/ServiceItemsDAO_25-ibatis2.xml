@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_25">
+	<select id="getAplOptionByPolicy" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select p.apl_option
+		  from pos_info i, policy p
+		 where i.pos_no = #value#
+		   and p.policy_no = i.policy_no
+		   and rownum = 1
+	</select>
+</sqlMap>

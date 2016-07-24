@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.status.dao.AcceptStatusModifyDAO">
+
+    <select id="QUERY_POS_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	
+select p.pos_no, p.policy_no, p.accept_status_code, i.description
+  from pos_info p, product_service_items i
+ where p.service_items = i.service_items
+   and p.pos_no = #posNo#
+   and p.service_items = '27'
+   and p.accept_status_code = 'E01'
+
+union
+select p.pos_no, p.policy_no, p.accept_status_code, i.description
+  from pos_info p, product_service_items i
+ where p.service_items = i.service_items
+   and p.pos_no = #posNo#
+   and p.accept_status_code = 'C01'
+
+union 
+select p.pos_no, p.policy_no, p.accept_status_code, i.description
+  from pos_info p, product_service_items i
+ where p.service_items = i.service_items
+   and p.pos_no = #posNo#
+   and p.accept_status_code = 'C05'
+    </select>
+    
+   <parameterMap class="java.util.HashMap" id="insertDataUpdateLogParaMap">
+		<parameter property="p_module_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_data_update_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_approve_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_remark" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insertDataUpdateLog" parameterMap="insertDataUpdateLogParaMap">
+		{call l_pos_pub_interface.insert_data_update_log(?,?,?,?,?,?,?,?,?)}
+	</procedure> 
+	
+	<select id="queryProblemItmeNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+	  SELECT MAX(ppi.problem_item_no) problemitemno
+        FROM pos_problem_items ppi
+       WHERE ppi.problem_item_type = '3'
+          AND ppi.problem_status IN ('1', '2', '3')
+          AND ppi.pos_no =#value#
+          AND rownum = 1
+	]]>
+	</select>
+	
+	
+    
+</sqlMap>

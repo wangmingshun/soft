@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+    <fontFamily name="宋体">
+        <normal>SIMLI.TTF</normal>
+        <bold>SIMLI.TTF</bold>
+        <italic>SIMLI.TTF</italic>
+        <boldItalic>SIMLI.TTF</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+        <exportFonts>
+            <export key="net.sf.jasperreports.html">'宋体', Arial, Helvetica, sans-serif</export>
+            <export key="net.sf.jasperreports.xhtml">'宋体', Arial, Helvetica, sans-serif</export>
+        </exportFonts>    
+    </fontFamily>
+</fontFamilies>

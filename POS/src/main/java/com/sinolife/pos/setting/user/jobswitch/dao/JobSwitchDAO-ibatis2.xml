@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.jobswitch.dao.JobSwitchDAO">
+     
+     <select id="QUERY_TASK_LIST_FOR_SWITCH" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+     <![CDATA[
+		select '1' JOB_TYPE,
+		       '受理件' JOB_TYPE_DESC,
+		       p.policy_no POLICY_NO,
+		       p.barcode_no BARCODE_NO,
+		       p.pos_no POS_NO,
+		       '待录入' STATUS,
+		       p.pk_serial PK
+		  from pos_info p
+		 where p.accept_status_code in ('A01','A19')
+		   and p.acceptor = lower(#value#)
+		   and not exists (select t.pk_serial
+		          from pos_task_handover t
+		         where t.corresponding_pk_serial = p.pk_serial
+		           and t.handover_status <> '3'
+		           and t.task_type = '1'
+		           and t.handover = lower(#value#))
+		   and p.accept_date > SYSDATE - 60
+		union
+		select '2' JOB_TYPE,
+		       '审批件' JOB_TYPE_DESC,
+		       p.policy_no POLICY_NO,
+		       p.barcode_no BARCODE_NO,
+		       p.pos_no POS_NO,
+		       '待审批' STATUS,
+		       a.pk_serial PK
+		  from pos_approve a, pos_info p
+		 where a.pos_no = p.pos_no
+		   and p.accept_status_code = 'A08'
+		   and a.approver = lower(#value#)
+		   and a.approve_time is null
+		   and not exists (select ap.pk_serial
+		          from pos_approve ap
+		         where ap.pos_no = a.pos_no
+		           and ap.submit_no = a.submit_no
+		           and ap.approve_time is null
+		           and ap.approve_no < a.approve_no)
+		   and not exists (select t.pk_serial
+		          from pos_task_handover t
+		         where t.corresponding_pk_serial = a.pk_serial
+		           and t.handover_status <> '3'
+		           and t.task_type = '2'
+		           and t.handover = lower(#value#))
+		   and p.accept_date > SYSDATE - 60
+		union
+		select '3' JOB_TYPE,
+		       '问题件' JOB_TYPE_DESC,
+		       p.policy_no POLICY_NO,
+		       p.barcode_no BARCODE_NO,
+		       p.pos_no POS_NO,
+		       '已生成' STATUS,
+		       b.pk_serial PK
+		  from pos_problem_items b, pos_info p
+		 where b.pos_no = p.pos_no
+		   and b.problem_status = '1'
+		   and b.accessor = lower(#value#)
+		   and not exists (select t.pk_serial
+		          from pos_task_handover t
+		         where t.corresponding_pk_serial = b.pk_serial
+		           and t.handover_status <> '3'
+		           and t.task_type = '3'
+		           and t.handover = lower(#value#))
+		   and p.accept_date > SYSDATE - 60
+	 ]]>
+     </select>
+
+     <select id="QUERY_TASK_LIST_CONFIRMING" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select '受理件' JOB_TYPE_DESC,
+		       p.policy_no,
+		       p.barcode_no,
+		       p.pos_no,
+		       s.description STATUS,
+		       to_char(t.handover_date, 'yyyy-mm-dd') handover_date,
+		       t.undertaker
+		  from pos_task_handover t, pos_info p, pos_accept_status_code s
+		 where t.handover = #user#
+		   and t.handover_status = '1'
+		   and t.task_type = '1'
+		   and t.pos_no = p.pos_no
+		   and p.accept_status_code = s.accept_status_code
+		   and p.accept_status_code like 'A%'
+		union
+		select '审批件' JOB_TYPE_DESC,
+		       p.policy_no,
+		       p.barcode_no,
+		       p.pos_no,
+		       decode(a.approve_decision,'1','通过','2','不通过','3','转他人审批','4','重新录入受理明细','待审批') STATUS,
+		       to_char(t.handover_date, 'yyyy-mm-dd') handover_date,
+		       t.undertaker
+		  from pos_task_handover t, pos_info p, pos_approve a
+		 where t.handover = #user#
+		   and t.handover_status = '1'
+		   and t.task_type = '2'
+		   and t.pos_no = p.pos_no
+		   and t.corresponding_pk_serial = a.pk_serial
+		   and p.accept_status_code like 'A%'
+		union
+		select '问题件' JOB_TYPE_DESC,
+		       p.policy_no,
+		       p.barcode_no,
+		       p.pos_no,
+		       s.description STATUS,
+		       to_char(t.handover_date, 'yyyy-mm-dd') handover_date,
+		       t.undertaker
+		  from pos_task_handover t, pos_info p, pos_problem_items b, pos_problem_status s
+		 where t.handover = #user#
+		   and t.handover_status = '1'
+		   and t.task_type = '3'
+		   and t.pos_no = p.pos_no
+		   and t.corresponding_pk_serial = b.pk_serial
+		   and b.problem_status = s.problem_status
+		   and p.accept_status_code like 'A%'
+     </select>
+     
+     <insert id="INSERT_TASK_HANDOVER" parameterClass="java.util.HashMap">
+		insert into pos_task_handover
+		  (task_type,
+		   pos_no,
+		   corresponding_pk_serial,
+		   handover,
+		   undertaker,
+		   handover_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#taskType#,
+		   #posNo#,
+		   #correspondingPK#,
+		   #handover#,
+		   #undertaker#,
+		   sysdate,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+     </insert>
+     
+     <update id="UPDATE_TASK_HANDOVER" parameterClass="java.util.HashMap">
+		update pos_task_handover
+		   set handover_status = '1',
+		       handover_date   = sysdate,
+		       undertaker      = #undertaker#,
+		       undertake_date  = null
+		 where task_type = #taskType#
+		   and pos_no = #posNo#
+     </update>
+     
+     <select id="QUERY_WORK_STATUS_FOR_SWITCH" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+     <![CDATA[
+		select t.undertaker
+		  from pos_work_handover t
+		 where t.handover = #handover#
+		   and t.task_type = #taskType#
+		   and t.handover_status in ('1', '2')
+		   and t.handover_end_date > sysdate
+	 ]]>
+     </select>
+
+     <select id="QUERY_WORK_SWITCHED" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+     <![CDATA[
+		select p.work_handover_no
+		  from pos_work_handover p
+		 where p.handover = #handover#
+		   and p.task_type = #type#
+		   and p.handover_status in ('1', '2')
+		   and p.handover_end_date > sysdate
+		   and rownum = 1
+	 ]]>
+     </select>     
+     
+     <update id="UPDATE_WORK_HANDOVER" parameterClass="java.util.HashMap">
+		update pos_work_handover
+		   set undertaker      = #undertaker#,
+		       handover_status = '1',
+		       handover_date   = sysdate,
+		       handover_cause  = #cause#,
+		       handover_end_date = to_date(#endDate#, 'yyyy-mm-dd'),
+		       updated_date   = sysdate,
+		       updated_user   = user		       
+		 where work_handover_no = #workHandoverNo#
+     </update>
+     
+     <insert id="INSERT_WORK_HANDOVER" parameterClass="java.util.HashMap">
+		insert into pos_work_handover
+		  (work_handover_no,
+		   task_type,
+		   handover,
+		   handover_date,
+		   undertaker,
+		   handover_cause,
+		   handover_end_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  ((select lpad(nvl(max(to_number(work_handover_no)), 0) + 1,20,'0') from pos_work_handover),
+		   #type#,
+		   #handover#,
+		   sysdate,
+		   #undertaker#,
+		   #cause#,
+		   to_date(#endDate#, 'yyyy-mm-dd'),
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+     </insert>
+     
+     <update id="UPDATE_WORK_HANDOVER_END_DATE" parameterClass="java.lang.String">
+		update pos_work_handover
+		   set handover_end_date = sysdate,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where handover = #value#
+		   and handover_end_date > sysdate
+		   and handover_status in ('1','2')
+     </update>
+     
+     <select id="QUERY_TASK_HANDED_POSNO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select task_type, pos_no
+		  from pos_task_handover
+		 where task_type = #taskType#
+		   and pos_no = #posNo#
+     </select>
+        
+     <select id="QUERY_TASK_LIST_CONFIRM" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select a.task_type,
+		       t.description task_type_desc,
+		       p.policy_no,
+		       p.barcode_no,
+		       p.pos_no,
+		       decode(a.task_type, '1', '待录入', '2', '待审批', '3', '已生成') STEP,
+		       a.handover,
+		       a.pk_serial
+		  from pos_task_handover a, pos_task_type t, pos_info p
+		 where a.undertaker = #value#
+		   and a.pos_no = p.pos_no
+		   and a.task_type = t.task_type
+		   and a.handover_status = '1'
+     </select>
+     
+     <select id="QUERY_WORK_LIST_CONFIRM" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select a.pk_serial,
+		       a.task_type,
+		       t.description type_desc,
+		       a.handover,
+		       to_char(a.handover_end_date,'yyyy-mm-dd') handover_end_date
+		  from pos_work_handover a, pos_task_type t
+		 where a.undertaker = #undertaker#
+		   and a.handover_status = '1'
+		   and a.handover_end_date > sysdate
+		   and a.task_type = t.task_type
+     </select>
+     
+     <update id="UPDATE_TASK_HANDOVER_STATUS" parameterClass="java.util.HashMap">
+		update pos_task_handover
+		   set undertake_date = sysdate, 
+		       handover_status = #status#,
+		       updated_date   = sysdate,
+		       updated_user   = user		   
+		 where pk_serial = #pkSerial#
+     </update>
+     
+     <update id="UPDATE_WORK_HANDOVER_STATUS" parameterClass="java.util.HashMap">
+		update pos_work_handover
+		   set undertake_date = sysdate, 
+		       handover_status = #status#,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where pk_serial = #pkSerial#
+     </update>
+     
+     <update id="UPDATE_PROCESSOR_1" parameterClass="java.lang.String">
+		update pos_info
+		   set acceptor =
+		       (select undertaker
+		          from pos_task_handover
+		         where pk_serial = #pkSerial#),
+		       updated_date   = sysdate,
+		       updated_user   = user		         
+		 where pk_serial = (select corresponding_pk_serial
+		                      from pos_task_handover
+		                     where pk_serial = #pkSerial#)
+     </update>
+     
+     <update id="UPDATE_PROCESSOR_2" parameterClass="java.lang.String">
+		update pos_approve
+		   set approver =
+		       (select undertaker
+		          from pos_task_handover
+		         where pk_serial = #pkSerial#),
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where pk_serial = (select corresponding_pk_serial
+		                      from pos_task_handover
+		                     where pk_serial = #pkSerial#)
+     </update>
+     
+     <update id="UPDATE_PROCESSOR_3" parameterClass="java.lang.String">
+		update pos_problem_items
+		   set accessor =
+		       (select undertaker
+		          from pos_task_handover
+		         where pk_serial = #pkSerial#),
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where pk_serial = (select corresponding_pk_serial
+		                      from pos_task_handover
+		                     where pk_serial = #pkSerial#)
+     </update>
+     
+     <select id="QUERY_PROBLEM_CHANGE_ACCESSOR" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select t.handover, t.undertaker, p.problem_item_no
+		  from pos_task_handover t, pos_problem_items p
+		 where t.pk_serial = #pkSerial#
+		   and t.corresponding_pk_serial = p.pk_serial
+		   and t.task_type = '3'
+     </select>
+
+	<parameterMap id="PROC_LN_CHANGE_ACCESSOR_MAP" class="java.util.HashMap">
+	    <parameter property="PROBLEM_ITEM_NO" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="HANDOVER" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="UNDERTAKER" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="MESSAGE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="FLAG" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_LN_CHANGE_ACCESSOR" parameterMap="PROC_LN_CHANGE_ACCESSOR_MAP">
+		{call l_pos_ln_interface.ln_change_accessor(?,?,?,?,?)}
+	</procedure>
+	
+	<select id="UNDERTAKER_AMOUNT_DAYS_GRADE_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select nvl2(max(p2.user_id), 'Y', 'N')
+		  from pos_user_privs p1, pos_user_privs p2
+		 where p1.user_id = #handover#
+		   and p2.user_id = #undertaker#
+		   and to_number(p2.amount_days_grade) >= to_number(p1.amount_days_grade)
+	]]>
+    </select>
+    
+    <update id="UPDATE_WORK_UNDERTAKER_TAKED" parameterClass="java.lang.String">
+    <![CDATA[
+		update pos_work_handover
+		   set undertaker =
+		       (select undertaker
+		          from pos_work_handover
+		         where pk_serial = #pkSerial#)
+		 where undertaker =
+		       (select handover from pos_work_handover where pk_serial = #pkSerial#)
+		   and handover_status = '2'
+		   and handover_end_date > sysdate
+    ]]>
+    </update>
+    
+    <select id="QUERY_HANDOVER_PK_TASK" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select handover from pos_task_handover where pk_serial = #pkSerial#
+    </select>
+    
+    <select id="QUERY_HANDOVER_PK_WORK" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select handover from pos_work_handover where pk_serial = #pkSerial#
+    </select>
+	
+</sqlMap>

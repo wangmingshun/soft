@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_8">
+	
+	
+	<select id="QUERY_NOTPAID_LOAN_COUNT" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		select count(1) from pos_loan pl where pl.policy_no= #value#
+                  and pl.payback_no  is null  and pl.loan_status in ('1','2','3')
+                   and pl.valid_flag='Y'
+	</select>
+</sqlMap>

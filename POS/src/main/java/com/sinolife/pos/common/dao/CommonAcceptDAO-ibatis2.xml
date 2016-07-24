@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.CommonAcceptDAO">
+
+	<parameterMap id="INSERT_POS_APPLY_BATCH_MAP" class="com.sinolife.pos.common.dto.PosApplyBatchDTO">
+		<parameter property="acceptor" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="applyTypeCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptChannelCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="representor" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="idType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="representIdno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="batchStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<!-- 批次表加入申请人证件有效期	edit by wangmingshun start  -->
+		<parameter property="idnoValidityDate" jdbcType="DATE" javaType="java.util.Date" mode="IN" />
+		<!-- 批次表加入申请人证件有效期	edit by wangmingshun end  -->
+		<parameter property="posBatchNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_APPLY_BATCH" parameterMap="INSERT_POS_APPLY_BATCH_MAP">
+		{call l_pos_pub.insert_pos_apply_batch(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_APPLY_FILES_MAP" class="com.sinolife.pos.common.dto.PosApplyFilesDTO">
+		<parameter property="barcodeNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="posBatchNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="relateBarcode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="filePages" jdbcType="NUMBER" javaType="java.lang.Long" mode="IN" />
+		<parameter property="signAccordFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="applyDate" jdbcType="DATE" javaType="java.util.Date" mode="IN" />
+		<parameter property="paymentType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="transferAccountno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="bankCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="transferAccountOwner" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="foreignExchangeType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approvalServiceType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="zip" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="address" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="privateFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_APPLY_FILES" parameterMap="INSERT_POS_APPLY_FILES_MAP">
+		{call l_pos_pub.insert_pos_apply_files(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_INFO_MAP" class="com.sinolife.pos.common.dto.PosInfoDTO">
+		<parameter property="serviceItems" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="acceptStatusCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveText" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="clientNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="rollbackCause" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="abandonedDetail" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="barcodeNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premName" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="idType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premIdno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premSum" jdbcType="DOUBLE" javaType="java.lang.Double" mode="IN" />
+		<parameter property="premFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="paymentType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premSuccessFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="bankCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />	
+		<parameter property="accountNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="foreignExchangeType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="transferResult" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptor" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptSeq" jdbcType="NUMBER" javaType="java.lang.Integer" mode="IN" />
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="accountNoType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_INFO" parameterMap="INSERT_POS_INFO_MAP">
+		{call l_pos_pub.insert_pos_info(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_ACCEPT_DETAIL_MAP" class="com.sinolife.pos.common.dto.PosAcceptDetailDTO">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="posObject" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="processType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="objectValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="itemNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="oldValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="newValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="infoGroupNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryPkSerial" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryString" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="changeTable" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_ACCEPT_DETAIL" parameterMap="INSERT_POS_ACCEPT_DETAIL_MAP">
+		{call l_pos_pub.insert_pos_accept_detail(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_APPLY_FILE_MTL_MAP" class="com.sinolife.pos.common.dto.PosApplyFileMaterialsDTO">
+		<parameter property="applyMaterialCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="barcodeNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_APPLY_FILE_MTL" parameterMap="INSERT_POS_APPLY_FILE_MTL_MAP">
+		{call l_pos_pub.insert_pos_apply_file_mtl(?,?,?,?)}
+	</procedure>
+	<!-- 写银保通对账表 -->
+	<parameterMap id="INSERT_POS_BIA_CHECK_MAP" class="com.sinolife.pos.common.dto.PosBiaCheckDto">
+		<parameter property="policy_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="pos_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="service_items" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="accept_date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="barcode_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="totel_amount" jdbcType="DOUBLE" javaType="java.lang.Double" mode="IN" />
+		<parameter property="prem_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />	
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_BIA_CHECK" parameterMap="INSERT_POS_BIA_CHECK_MAP">
+		{call l_pos_pub.insert_pos_bia_account_check(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	<parameterMap id="INSERT_POS_APPROVE_MAP" class="com.sinolife.pos.common.dto.PosApproveInfoDTO">
+		<parameter property="posNO" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="submitNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="submiter" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approver" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="submitTime" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="approveTime" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="approveDecision" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveOpnion" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_APPROVE" parameterMap="INSERT_POS_APPROVE_MAP">
+		{call l_pos_pub.insert_pos_approve(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_PREM_MAP" class="com.sinolife.pos.common.dto.PosPremDTO">
+		<parameter property="posNO" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="prodSeq" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="amtType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="businessCostNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premSum" jdbcType="DOUBLE" javaType="java.lang.Double" mode="IN" />
+		<parameter property="validFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_PREM" parameterMap="INSERT_POS_PREM_MAP">
+		{call l_pos_pub.insert_pos_prem(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="INSERT_POS_PROCESS_DETAIL_MAP" class="com.sinolife.pos.common.dto.PosProcessDetailDTO">
+		<parameter property="posNO" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="posProcessNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="tableName" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="processType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryColumnPK" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryColumnValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="updateColumnName" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="updateColumnOldValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="updateColumnNewValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_PROCESS_DETAIL" parameterMap="INSERT_POS_PROCESS_DETAIL_MAP">
+		{call l_pos_pub.insert_pos_process_detail(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+
+	<parameterMap id="INSERT_POS_STATUS_CHANGE_HIS_MAP" class="com.sinolife.pos.common.dto.PosStatusChangeHistoryDTO">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="oldStatusCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="newStatusCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="changeDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="changeUser" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_POS_STATUS_CHANGE_HIS" parameterMap="INSERT_POS_STATUS_CHANGE_HIS_MAP">
+		{call l_pos_pub.insert_pos_status_change_his(?,?,?,?,?,?,?)}
+	</procedure>
+
+    <parameterMap id="PROC_WORKFLOW_CONTROL_MAP" class="java.util.Map">
+		<parameter property="procType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="result" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="resultDesc" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_WORKFLOW_CONTROL" parameterMap="PROC_WORKFLOW_CONTROL_MAP">
+		{call l_pos_workflow.workflow_control(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.Map" id="finModifyBusinessCostParaMap">
+		<parameter property="p_query_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_business_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_business_no_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_business_cost_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_amt_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_client_name" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_payment_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_bank_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_account_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_account_owner" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_id_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_idno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_private_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_account_no_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_credit_valid_date" jdbcType="DATE" javaType="java.util.Date" mode="IN"/>
+		<parameter property="p_credit_cvv" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_prem_start_date" jdbcType="DATE" javaType="java.util.Date" mode="IN"/>
+		<parameter property="p_prem_end_date" jdbcType="DATE" javaType="java.util.Date" mode="IN"/>
+		<parameter property="p_null_parameters" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+		<parameter property="p_msg" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	<procedure id="finModifyBusinessCost" parameterMap="finModifyBusinessCostParaMap">
+		{call l_pos_fin_interface.fin_modify_business_cost(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="UPDATE_POS_INFO_MAP" class="java.util.Map">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="updateKey" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="updateValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="UPDATE_POS_INFO" parameterMap="UPDATE_POS_INFO_MAP">
+		{call l_pos_pub.update_pos_info(?,?,?,?,?)}
+	</procedure>
+	
+	<select id="prePosnoIsEnd" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_workflow.pre_posno_is_end(#value#) FROM dual
+	]]>
+	</select>
+	
+	<insert id="insertPosPersonalNotice" parameterClass="java.util.HashMap">
+	<![CDATA[
+		INSERT INTO pos_personal_notice
+		   (pos_no,
+		    client_no,
+		    notice_type,
+		    notice_check,
+		    created_user,
+		    created_date,
+		    updated_user,
+		    updated_date,
+		    pk_serial)
+		   SELECT #posNo#,
+		          #clientNo#,
+		          #noticeType#,
+		          #noticeCheck#,
+		          USER,
+		          SYSDATE,
+		          USER,
+		          SYSDATE,
+		          COUNT('x') + 1
+		     FROM pos_personal_notice
+	]]>
+	</insert>
+	
+	<insert id="insertPosPersonalNoticeDetail" parameterClass="java.util.HashMap">
+	<![CDATA[
+		INSERT INTO pos_personal_notice_detail
+		   (pos_no,
+		    client_no,
+		    notice_type,
+		    notice_content_code,
+		    notice_description,
+		    created_user,
+		    created_date,
+		    updated_user,
+		    updated_date,
+		    pk_serial)
+		   SELECT #posNo#,
+		   		  #clientNo#,
+		          #noticeType#,
+		          #noticeContentCode#,
+		          #noticeDescription#,
+		          USER,
+		          SYSDATE,
+		          USER,
+		          SYSDATE,
+		          COUNT('x') + 1
+		     FROM pos_personal_notice_detail
+	]]>
+	</insert>
+	
+	<parameterMap class="java.util.HashMap" id="doPolicySuspendParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_service_suspend_item" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_set_time" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="v_sign" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="v_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="doPolicySuspend" parameterMap="doPolicySuspendParaMap">
+		{call l_pos_pub_interface.pub_proc_do_pol_suspend(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="resumePolicySuspendMap">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="businessNoType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="businessNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="suspendItem" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="resumePolicySuspend" parameterMap="resumePolicySuspendMap">
+		{call l_pos_pub_interface.pub_proc_resume_pol_suspend(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="POS_INSIDE_APPLY_MAP">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="applyDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="serviceItems" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="POS_INSIDE_APPLY" parameterMap="POS_INSIDE_APPLY_MAP">
+		{call l_pos_pub.pos_inside_apply(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="queryAndLockPosInfoByPosBatchNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosInfoDTO">
+	<![CDATA[
+		SELECT b.pos_no                "posNo",
+		       b.service_items         "serviceItems",
+		       b.accept_date           "acceptDate",
+		       b.accept_status_code    "acceptStatusCode",
+		       b.approve_text          "approveText",
+		       b.policy_no             "policyNo",
+		       b.client_no             "clientNo",
+		       b.rollback_cause        "rollbackCause",
+		       b.abandoned_detail      "abandonedDetail",
+		       b.barcode_no            "barcodeNo",
+		       b.prem_name             "premName",
+		       b.id_type               "idType",
+		       b.prem_idno             "premIdno",
+		       b.prem_sum              "premSum",
+		       b.prem_flag             "premFlag",
+		       b.prem_success_flag     "premSuccessFlag",
+		       b.bank_code             "bankCode",
+		       b.account_no            "accountNo",
+		       b.foreign_exchange_type "foreignExchangeType",
+		       b.acceptor              "acceptor",
+		       b.remark                "remark",
+		       b.pk_serial             "pkSerial",
+		       b.accept_seq            "acceptSeq",
+		       b.transfer_result       "transferResult",
+		       b.payment_type          "paymentType",
+		       b.prem_success_date     "premSuccessDate",
+		       b.handled_date          "handledDate",
+		       b.approved_date         "approvedDate",
+		       b.underwrited_date      "underwritedDate",
+		       b.effective_date        "effectiveDate",
+		       b.account_no_type       "accountNoType"
+		  FROM pos_apply_files a,
+		       pos_info        b
+		 WHERE a.barcode_no = b.barcode_no
+		   AND a.pos_batch_no = #value#
+	  ORDER BY b.accept_seq
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<select id="existsSameRuleMsgDetail" parameterClass="com.sinolife.pos.common.dto.PosAcceptDetailDTO" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT p.pk_serial
+		  FROM pos_accept_detail p
+		 WHERE p.pos_no = #posNo#
+		   AND p.pos_object = '8'
+		   AND p.process_type = #processType#
+		   AND p.object_value = #objectValue#
+		   AND p.item_no = #itemNo#
+		   AND p.old_value = #oldValue#
+		   AND p.new_value = #newValue#
+		   AND rownum = 1
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<update id="updateRuleMsgDetail" parameterClass="java.lang.String">
+	<![CDATA[
+		UPDATE pos_accept_detail p
+		   SET p.pos_object      = '9',
+		       p.query_pk_serial = '',
+		       p.query_string    = '',
+		       p.change_table    = ''
+		 WHERE p.pk_serial = #value#
+	]]>
+	</update> 
+	
+	<select id="getNextPosNoInBatch" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select pos_no
+		  from (select c.pos_no
+		          from pos_apply_batch a, pos_apply_files b, pos_info c
+		         where a.pos_batch_no = b.pos_batch_no
+		           and b.barcode_no = c.barcode_no
+		           and c.accept_status_code = 'A01'
+		           and a.pos_batch_no = #value#
+		         order by c.accept_seq) m
+		 where rownum = 1
+	]]>
+	</select>
+	
+	<parameterMap id="GET_NEXT_POS_NO_MAP" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="GET_NEXT_POS_NO" parameterMap="GET_NEXT_POS_NO_MAP">
+		{call l_pos_workflow.get_next_pos_no(?,?,?)}
+	</procedure>
+	
+	<!-- 写入待金标准发回数据 -->
+	<parameterMap id="INSERT_JBZ_SINOLIFE_MAP" class="java.util.HashMap">
+		<parameter property="P_data_send_date"  jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="p_policy_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="p_last_examination_date"  jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="p_examination_time" jdbcType="DOUBLE" javaType="java.lang.Double" mode="IN" />
+		<parameter property="p_booking_status" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="p_booking_date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />	
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="INSERT_JBZ_SINOLIFE" parameterMap="INSERT_JBZ_SINOLIFE_MAP">
+		{call l_pos_pub.insert_jbz_sinolife(?,?,?,?,?,?,?,?)}
+	</procedure>
+
+	<!-- 代审信息或免填单标志写入受理明细 edit by gaojiaming start -->	
+	<select id="getPosAcceptDetailDTOList" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosAcceptDetailDTO">
+	<![CDATA[
+		select a.pos_object   "posObject",
+		       a.process_type "processType",
+		       a.object_value "objectValue",
+		       a.item_no      "itemNo",
+		       a.new_value    "newValue"
+		  from pos_accept_detail a
+		 where a.pos_no = #posNo#
+		   and a.item_no in ('022', '026'，'028')
+		   and a.pos_object = '5'
+	]]>
+	</select>
+	<!-- 代审信息或免填单标志写入受理明细 edit by gaojiaming end -->
+		
+	<!-- 检验抵交续期保费保单号的有效性 edit by gaojiaming start -->		
+	<select id="checkPaypolicyValid" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select 'Y'
+		  from policy p
+		 where p.policy_no = #payPolicy#
+		   and p.applicant_no in (select p1.applicant_no
+		                            from policy p1
+		                           where policy_no = #applyPolicy#
+		                          union
+		                          select insured_no
+		                            from policy_product pp
+		                           where policy_no = #applyPolicy#)
+	]]>
+	</select>
+	<!-- 检验抵交续期保费保单号的有效性 edit by gaojiaming end -->	
+	
+	<!--根据保单号查询是否是电销(0不代表电销，1代表是电销) edit by luoyonggang start-->
+	<select id="getPolicyNoCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		select count(1) from policy a where a.policy_no =#policyNo# and a.channel_type = '06'	
+	</select>	
+	<!--根据保单号查询是否是电销 edit by luoyonggang end-->
+	
+	<parameterMap id="update_pos_apply_files_map" class="java.util.HashMap">
+		<parameter property="barcodeNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="columnKey" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="columnValue" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="update_pos_apply_files" parameterMap="update_pos_apply_files_map">
+		{call l_pos_pub.update_pos_apply_files(?,?,?,?,?)}
+	</procedure>
+	<!--查询人脸识别次数-->
+	<select id="getFaceRecognitionCount" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select p.OLD_VALUE
+			  from pos_accept_detail p
+			 where p.pos_no = #posNo#
+			   and p.item_no = #itemNo#
+			   and p.pos_object = '5'
+			   and p.process_type = '1'	
+	</select>
+	<!-- 更新保全受理明细表 -->
+	<update id="updatePosAcceptDetail" parameterClass="com.sinolife.pos.common.dto.PosAcceptDetailDTO">
+	<![CDATA[
+		update pos_accept_detail p
+		   set p.new_value = #newValue#, p.old_value = #oldValue#
+		 where p.pos_no = #posNo#
+		   and p.pos_object = #posObject#
+		   and p.process_type = #processType#
+		   and p.item_no = #itemNo#
+		   and p.object_value = #objectValue#
+	]]>
+	</update> 	
+</sqlMap>

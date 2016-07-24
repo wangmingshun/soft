@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.holiday.dao.HolidaySetDAO">
+    
+    <select id="QUERY_YEAR_LONG_VACATION" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+    <![CDATA[
+		select to_char(p.vacation_date, 'yyyy-mm-dd') vacation_date,
+		       p.vacation_description,
+		       p.date_type
+		  from pos_long_vacation p
+		 where p.vacation_date >= to_date(#year# || '-01-01', 'yyyy-mm-dd')
+		   and p.vacation_date <= to_date(#year# || '-12-31', 'yyyy-mm-dd')
+    ]]>
+    </select>
+    
+    <select id="QUERY_VACATION_EXIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.vacation_date
+		  from pos_long_vacation p
+		 where p.vacation_date = to_date(#vacation#, 'yyyy-mm-dd')
+    </select>
+
+    <update id="UPDATE_VACATION_DESCRIPTION" parameterClass="java.util.HashMap">
+		update pos_long_vacation
+		   set vacation_description = #vacationDesc#,
+		       date_type = #dateType#,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where vacation_date = to_date(#vacationDate#, 'yyyy-mm-dd')
+    </update>
+    
+    <insert id="INSERT_LONG_VACATION" parameterClass="java.util.HashMap">
+		insert into pos_long_vacation
+		  (vacation_date,
+		   vacation_description,
+		   date_type,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (to_date(#vacationDate#, 'yyyy-mm-dd'),
+		   #vacationDesc#,
+		   #dateType#,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+    </insert>
+    
+</sqlMap>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.report.dao.AsyncListDao">
+	<!-- 异步清单 edit by luoyonggang start-->
+	<select id="queryAsyncTask" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			select  
+		       alc.user_id,
+		       lct.list_name as DESCRIPTION,
+		       alc.im_file_id,
+		       alc.list_code,
+		       case alc.status_code
+		               when '0' then
+		                '未开始'
+		               when '1' then
+		                'DB处理中'
+		               when '2' then
+		                '数据已写临时表'
+		               when '3' then
+		                 'java处理中'
+		               when '4' then
+		                '已完成'
+		               when '5' then
+		                '处理失败'
+		             end proc_status ,
+		         alc.data_amount,
+		         to_char(alc.submit_time,'yyyy-mm-dd hh24:mi:ss') submit_time,
+		         to_char(alc.java_end_time,'yyyy-mm-dd hh24:mi:ss')java_end_time,
+		         alc.remark
+		       from listintf.async_list_control alc,listintf.list_code_tbl lct
+		            where alc.module_code = '04'
+		              and alc.module_code = lct.module_code
+		              and alc.list_code = lct.list_code
+		              and alc.is_valid ='Y'
+			 	      and alc.user_id=#user_id#
+		]]>	
+		<dynamic>	
+			<isNotEmpty property="startDate">
+			<![CDATA[
+			   and trunc(alc.SUBMIT_TIME) >= to_date(#startDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="endDate">
+			<![CDATA[
+			   and trunc(alc.submit_time) <= to_date(#endDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>	
+		</dynamic>
+		<![CDATA[
+		   order by alc.submit_time desc
+		]]>				   
+	</select>
+	<!-- 异步清单 edit by luoyonggang end-->  
+	<!--生成异步清单提取任务 edit by luoyonggang start-->
+	<insert id="insertReportTask"  parameterClass="java.util.HashMap">
+		insert into listintf.async_list_control
+	      (module_code, 
+	       pk_serial, 
+	       created_date,
+	       created_user,
+	       updated_date,
+	       updated_user,
+	       list_code,
+	       user_id,
+	       submit_time,
+	       parameters,
+	       status_code,
+	       is_valid,
+	       file_name)
+	    values
+	      ('04',
+	       listintf.seq_async_list_control_pk.nextval,
+	       sysdate,
+	       #created_user#,
+	       sysdate,
+	       #created_user#,
+	       #list_code#,
+	       #user_id#,
+	       sysdate,
+	       #parameters#,
+	       '0',
+	       'Y',
+	       #fileName#)
+	</insert>
+	<!--生成异步清单提取任务  edit by luoyonggang end-->
+	
+	<!-- 更新报表任务有效性  edit by luoyonggang start -->		
+	<update id="updatePosListControlIsValid" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update listintf.async_list_control alc
+			   set alc.is_valid = 'N'
+			 where alc.list_code = #listCode#
+			   and alc.user_id = #userId#
+			   and alc.submit_time = to_date(#submitTime#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务有效性 edit by luoyonggang end -->
+	
+	<!-- 更新报表任务状态和开始时间  edit by luoyonggang start -->		
+	<update id="updateReportTaskStart" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update listintf.async_list_control alc
+			   set alc.java_start_time = sysdate, 
+			       alc.status_code = '3'
+			 where alc.module_code = '04'
+			   and alc.list_code = #LIST_CODE#
+			   and alc.user_id = #USER_ID#
+			   and alc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务状态和开始时间 edit by luoyonggang end -->
+	
+	<!-- 更新报表任务状态和开始时间  edit by luoyonggang start -->		
+	<update id="updateReportTaskEnd" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update listintf.async_list_control alc
+			   set alc.java_end_time = sysdate,
+			       alc.status_code   = '4',
+			       alc.im_file_id    = #fileID#,
+			       alc.file_name    =#fileName#
+			 where alc.module_code = '04'
+			   and alc.list_code = #LIST_CODE#
+			   and alc.user_id = #USER_ID#
+			   and alc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务状态和开始时间 edit by luoyonggang end -->
+	
+	<!-- 查询清单报表需要显示的字段信息  edit by luoyonggang start-->
+	<select id="asyncGetListCode" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		<![CDATA[
+			SELECT a.display_desc displayDesc, a.column_name columnName
+			  FROM listintf.list_column_rel a
+			 where a.module_code = '04'
+			   and a.list_code = #listCode#
+			   and a.is_valid = 'Y'
+			 order by a.display_seq
+		]]>	
+	</select>
+	<!-- 查询清单报表需要显示的字段信息  edit by luoyonggang end-->	
+	
+	<!-- 取得清单数量 edit by luoyonggang start -->
+	<select id="getListCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		select count(1) 
+		  from listintf.async_list_data a 
+		 where a.query_index =#queryIndex#	
+	</select>
+	<!-- 取得清单数量 edit by luoyonggang end -->	
+	
+	<!-- 下载获取对应文件名edit by luoyonggang start-->
+	<select id="getDownLoadFileName" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select alc.file_name
+			  from listintf.async_list_control alc
+			 where alc.module_code = '04' 
+			   and alc.im_file_id = #imFileId#
+			   and alc.user_id = #userId#
+			   and rownum = 1
+		]]>				   
+	</select>  
+	<!-- 下载获取对应文件名 edit by luoyonggang end-->
+	
+	<!-- 校验同一用户同一清单是否重复提交edit by luoyonggang start-->
+	<select id="checkReportTaskStatus" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select count(*)
+			  from listintf.async_list_control alc
+			 where alc.module_code = '04'
+			   and alc.list_code = #listCode#
+			   and alc.user_id = #user_id#
+			   and alc.status_code not in ('4', '5')
+			   and alc.is_valid = 'Y'
+		]]>				   
+	</select>
+	<!-- 校验同一用户同一清单是否重复提交edit by luoyonggang end-->
+	
+	<parameterMap id="posApproveListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="approveUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="posApproveListQuery" parameterMap="posApproveListQueryMap">
+		{call l_pos_list_query.pos_approve_list_query(?,?,?,?,?,?,?)}
+	</procedure>
+</sqlMap>

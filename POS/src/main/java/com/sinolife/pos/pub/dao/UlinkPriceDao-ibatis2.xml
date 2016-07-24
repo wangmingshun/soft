@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="com.sinolife.pos.pub.dao.UlinkPriceDao">
+
+    <!-- 定义综合查询前缀，后缀sql -->
+	<sql id="prefixSql">
+		<dynamic>
+			<isEqual property="doCount" compareValue="true">
+				select count(*) from (
+			</isEqual>
+			<isEqual property="doCount" compareValue="false">
+				SELECT * FROM (select row_.*, rownum start_rownum_ from
+				(
+			</isEqual>
+		</dynamic>
+	</sql>
+	<sql id="suffixSql">
+		<dynamic>
+			<isEqual property="doCount" compareValue="true">)</isEqual>
+			<isEqual property="doCount" compareValue="false">
+				<![CDATA[
+					) row_ WHERE rownum <= #startIndex# + #pageSize# )  WHERE start_rownum_ > #startIndex#	
+				]]>
+			</isEqual>
+		</dynamic>
+	</sql>
+	<sql id="countPrefix">select count(*) from (</sql>
+	<sql id="countSuffix">)</sql>
+	<sql id="pagePrefix">
+		<dynamic>
+			<isNotNull property="pageSize">
+				SELECT * FROM ( select rownum r, union_tb.* from (
+			</isNotNull>
+		</dynamic>
+	</sql>
+	<sql id="pageSuffix">
+		<dynamic>
+			<isNotNull property="pageSize">
+				<![CDATA[
+					) union_tb 
+				) WHERE r > #startIndex# AND r <= #startIndex# + #pageSize#
+				]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+
+	<parameterMap id="ulinkPriceMap" class="java.util.HashMap">
+		<parameter property="p_price_date" jdbcType="DATE" javaType="java.util.Date" mode="IN"></parameter>
+		<parameter property="p_assets_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="p_sold_price" jdbcType="NUBERIC" javaType="java.lang.Double" mode="IN"></parameter>	
+		<parameter property="p_tot_assets_value" jdbcType="NUBERIC" javaType="java.lang.Double" mode="IN"></parameter>
+		<parameter property="p_real_assets_value" jdbcType="NUBERIC" javaType="java.lang.Double" mode="IN"></parameter>
+		<parameter property="p_flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="p_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+    <procedure id="addUlinkPrice" parameterMap="ulinkPriceMap">
+		<![CDATA[
+			{call poscde.l_pos_inv_pub_interface.insert_ulink_price(?,?,?,?,?,?,?)}			
+		]]>
+	</procedure>
+	
+	
+	<resultMap id="UlinkPrice.ResultMap" class="com.sinolife.pos.pub.dto.UlinkPrice">
+        <result property="financialProducts" column="FINANCIAL_PRODUCTS"/>
+         <result property="description" column="DESCRIPTION"/>
+         <result property="priceDate" column="ASSET_APPRAISAL_DATE"/>        
+         <result property="soldPrice" column="SOLD_PRICE"/>
+         <result property="buyPrice" column="BUY_PRICE"/>
+     </resultMap>
+     
+     <sql id="getUlinkPriceListByDate">
+			select a.financial_products,
+			       b.description,    
+			       a.asset_appraisal_date, 
+			       a.sold_price,         
+			       a.buy_price            
+			  from pos_unit_linked_price a,
+			       pos_financial_products b
+			  where a.financial_products = b.financial_products
+			   and  a.asset_appraisal_date <![CDATA[>=]]>#startDate#
+			   and  a.asset_appraisal_date <![CDATA[<=]]>#endDate#
+			order by a.asset_appraisal_date,a.financial_products
+      </sql>
+      
+      
+
+   <select id="getUlinkPriceList"  parameterClass="com.sinolife.pos.pub.dto.UlinkPrice"  resultMap="UlinkPrice.ResultMap">                                               
+	     <include refid="pagePrefix" />
+	     <include refid="getUlinkPriceListByDate" />
+         <include refid="pageSuffix" />
+  </select>
+  
+  <select id="getUlinkPriceCount" parameterClass="com.sinolife.pos.pub.dto.UlinkPrice"  resultClass="java.lang.Integer" >                                             
+     	<include refid="countPrefix" />
+        <include refid="getUlinkPriceListByDate" />
+        <include refid="countSuffix" />
+  </select>
+</sqlMap>
+

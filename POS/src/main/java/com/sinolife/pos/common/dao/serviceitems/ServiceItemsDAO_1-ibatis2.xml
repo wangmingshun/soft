@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_1">
+
+	<select id="getReceiptPutoffDateByPolicyNo" parameterClass="java.lang.String" resultClass="java.util.Date">
+	<![CDATA[
+		SELECT a.record_date
+		  FROM pos_policy_receipt_putoff a
+		 WHERE a.policy_no = #value#
+	]]>
+	</select>
+
+	<parameterMap id="RULE_UIAN_AC_SURVIVAL_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="RULE_UIAN_AC_SURVIVAL" parameterMap="RULE_UIAN_AC_SURVIVAL_MAP">
+		{call l_pos_service_item_1.rule_uian_ac_survival(?,?,?)}
+	</procedure>
+	
+</sqlMap>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.file.dao.PosFileDAO">
+
+    <insert id="INSERT_POS_FILE_INFO" parameterClass="java.util.HashMap" >
+		insert into pos_file_info
+		  (file_id,
+		   policy_no,
+		   upload_file_type,
+		   pos_no,
+		   file_name,
+		   upload_time,
+		   upload_user
+		   )
+		values
+		  (#fileId#,
+		   #policyNo#,
+		   #fileType#,
+		   #posNo#,
+		   #fileName#,
+		   sysdate,
+		   #userId#
+		   )
+    </insert>
+    
+ 
+    
+    
+    
+    <select id="QUERY_POS_FILE_INFO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select p.file_id,
+		       p.file_name,
+		       to_char(p.upload_time, 'yyyy-mm-dd hh24:mi:ss') upload_time,
+		       p.upload_user
+		  from pos_file_info p
+		 where p.upload_file_type = #fileType#
+		   and nvl(p.policy_no,'x') = nvl(#policyNo#, 'x')
+		   and nvl(p.pos_no,'x') = nvl(#posNo#, 'x')
+    </select>
+        
+</sqlMap>

@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notice_11_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="80" bottomMargin="85">
+	<property name="ireport.zoom" value="1.1000000000000152"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="style1" isBlankWhenNull="true" fontName="宋体" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<style name="table" style="style1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#FFFFFF"/>
+			<topPen lineColor="#000000"/>
+			<leftPen lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" style="style1" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#FFFFFF"/>
+		</box>
+	</style>
+	<style name="table_CH" style="style1" mode="Opaque" backcolor="#F0F8FF" hAlign="Center" vAlign="Middle" fontSize="10">
+		<pen lineWidth="0.5"/>
+		<box>
+			<pen lineWidth="0.5" lineColor="#FFFFFF"/>
+			<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" style="style1" mode="Opaque" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" fontSize="10">
+		<box>
+			<pen lineWidth="0.5" lineColor="#FFFFFF"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="begin_value_data">
+		<field name="PRICING_DATE" class="java.lang.String"/>
+		<field name="INVEST_NAME" class="java.lang.String"/>
+		<field name="INVEST_RATE" class="java.lang.String"/>
+		<field name="ACCOUNT_UNITS" class="java.lang.String"/>
+		<field name="SOLD_PRICE" class="java.lang.String"/>
+		<field name="BUY_PRICE" class="java.lang.String"/>
+		<field name="ACCOUNT_VALUE" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="final_value_data">
+		<field name="PRICING_DATE" class="java.lang.String"/>
+		<field name="INVEST_NAME" class="java.lang.String"/>
+		<field name="INVEST_RATE" class="java.lang.String"/>
+		<field name="ACCOUNT_UNITS" class="java.lang.String"/>
+		<field name="SOLD_PRICE" class="java.lang.String"/>
+		<field name="BUY_PRICE" class="java.lang.String"/>
+		<field name="ACCOUNT_VALUE" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="fee_deduct_data">
+		<field name="DEDUCT_DATE" class="java.lang.String"/>
+		<field name="DEDUCT_DESC" class="java.lang.String"/>
+		<field name="DEDUCT_AMOUNT" class="java.lang.String"/>
+		<field name="TOTAL_DEDUCT_AMOUNT" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="invest_chg_data">
+		<field name="PRICING_DATE" class="java.lang.String"/>
+		<field name="INVEST_NAME" class="java.lang.String"/>
+		<field name="CHANGED_ITEM" class="java.lang.String"/>
+		<field name="CHANGED_AMOUNT" class="java.lang.String"/>
+		<field name="SOLD_PRICE" class="java.lang.String"/>
+		<field name="BUY_PRICE" class="java.lang.String"/>
+		<field name="INVEST_UNITS" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="CLIENT_POSTALCODE" class="java.lang.String"/>
+	<parameter name="CLIENT_ADDRESS" class="java.lang.String"/>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="PRODUCT_DESC" class="java.lang.String"/>
+	<parameter name="EFFECT_DATE" class="java.lang.String"/>
+	<parameter name="INSURED_NAME" class="java.lang.String"/>
+	<parameter name="REPORT_PERIOD" class="java.lang.String"/>
+	<parameter name="BEGIN_VALUE_LIST" class="java.util.List"/>
+	<parameter name="FINAL_VALUE_LIST" class="java.util.List"/>
+	<parameter name="FEE_DEDUCT_LIST" class="java.util.List"/>
+	<parameter name="INVEST_CHG_LIST" class="java.util.List"/>
+	<parameter name="COMPANY_SERVICE_NAME" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_ADDRESS" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_POSTALCODE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_TELEPHONE" class="java.lang.String"/>
+	<parameter name="PRINT_BARCODE_NO" class="java.lang.String"/>
+	<parameter name="IMAGE_SRC_PATH" class="java.lang.String"/>
+	<parameter name="COMPANY_NAME" class="java.lang.String"/>
+	<parameter name="isShowImage" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_path" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="564" splitType="Stretch">
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="116" width="515" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[投资连结保险周年报告]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="253" y="147" width="262" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["险种名称： "+$P{PRODUCT_DESC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="253" y="177" width="262" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["本次报告期间："+$P{REPORT_PERIOD}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="0" y="162" width="253" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["投保人："+$P{CLIENT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="253" y="162" width="262" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["被保险人："+$P{INSURED_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="0" y="147" width="253" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保险合同号："+$P{POLICY_NO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="0" y="177" width="253" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保险合同生效日："+$P{EFFECT_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="235" width="555" height="15"/>
+				<textElement/>
+				<text><![CDATA[　　合同上一周年日后的第一个资产评估日的账户价值如下：（投资账户价值=投资单位数╳投资单位卖出价格）]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="193" width="515" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[期初账户价值]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="253" width="515" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[期末账户价值]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="295" width="555" height="15"/>
+				<textElement/>
+				<text><![CDATA[　　合同本周年日后的第一个资产评估日的账户价值如下：（投资账户价值=投资单位数╳投资单位卖出价格）]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 1" style="table" positionType="Float" x="0" y="228" width="515" height="25"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="begin_value_data">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{BEGIN_VALUE_LIST})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="72">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<text><![CDATA[评估日期]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{PRICING_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="77">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="77" height="15"/>
+								<textElement/>
+								<text><![CDATA[账户名称]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="77" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="76">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="76" height="15"/>
+								<textElement/>
+								<text><![CDATA[投资比例]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="76" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="72">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<text><![CDATA[单位数]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ACCOUNT_UNITS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="71">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<text><![CDATA[卖出价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{SOLD_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="71">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<text><![CDATA[买入价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{BUY_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="75">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="75" height="15"/>
+								<textElement/>
+								<text><![CDATA[账户价值]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="75" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ACCOUNT_VALUE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<componentElement>
+				<reportElement key="table" style="table" positionType="Float" x="0" y="288" width="515" height="22"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="final_value_data">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{FINAL_VALUE_LIST})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="72">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<text><![CDATA[评估日期]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{PRICING_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="77">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="77" height="15"/>
+								<textElement/>
+								<text><![CDATA[账户名称]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="77" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="76">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="76" height="15"/>
+								<textElement/>
+								<text><![CDATA[投资比例]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="76" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="72">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<text><![CDATA[单位数]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ACCOUNT_UNITS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="71">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<text><![CDATA[卖出价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{SOLD_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="71">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<text><![CDATA[买入价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="71" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{BUY_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="75">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="75" height="15"/>
+								<textElement/>
+								<text><![CDATA[账户价值]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="75" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ACCOUNT_VALUE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="310" width="515" height="20" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$P{FEE_DEDUCT_LIST}!=null&&!$P{FEE_DEDUCT_LIST}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[年度费用扣除情况]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 2" style="table" positionType="Float" x="0" y="330" width="515" height="25" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$P{FEE_DEDUCT_LIST}!=null&&!$P{FEE_DEDUCT_LIST}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="fee_deduct_data">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{FEE_DEDUCT_LIST})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="80">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="80" height="15"/>
+								<textElement/>
+								<text><![CDATA[扣除时间]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="80" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{DEDUCT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="160">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="160" height="15"/>
+								<textElement/>
+								<text><![CDATA[费用类型]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="160" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{DEDUCT_DESC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="138">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="138" height="15"/>
+								<textElement/>
+								<text><![CDATA[扣除金额]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="138" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{DEDUCT_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="136">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="136" height="15"/>
+								<textElement/>
+								<text><![CDATA[费用扣除合计]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="136" height="15"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{TOTAL_DEDUCT_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="355" width="515" height="20" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$P{INVEST_CHG_LIST}!=null&&!$P{INVEST_CHG_LIST}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[年度投资变动情况]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 3" style="table" positionType="Float" x="0" y="375" width="515" height="18" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$P{INVEST_CHG_LIST}!=null&&!$P{INVEST_CHG_LIST}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="invest_chg_data">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{INVEST_CHG_LIST})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="72">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="72" height="15"/>
+								<textElement/>
+								<text><![CDATA[评估日期]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="72" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{PRICING_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="69">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="69" height="15"/>
+								<textElement/>
+								<text><![CDATA[账户名称]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="69" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="100" height="15"/>
+								<textElement/>
+								<text><![CDATA[变动内容]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="100" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{CHANGED_ITEM}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="70" height="15"/>
+								<textElement/>
+								<text><![CDATA[变动金额]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="70" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{CHANGED_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="70" height="15"/>
+								<textElement/>
+								<text><![CDATA[卖出价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="70" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{SOLD_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="70" height="15"/>
+								<textElement/>
+								<text><![CDATA[买入价格]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="70" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{BUY_PRICE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="64">
+						<jr:columnHeader style="table_CH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement style="table_CH" positionType="Float" x="0" y="0" width="64" height="15"/>
+								<textElement/>
+								<text><![CDATA[单位数]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="16" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement style="table_TD" positionType="Float" x="0" y="0" width="64" height="16"/>
+								<textElement/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INVEST_UNITS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="399" width="515" height="28"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[　　提示：保险单账户价值受市场因素影响可能会增加或减少，最新投资单位价格可至本公司网站查询，网址为： http://www.sino-life.com]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="428" width="515" height="15"/>
+				<textElement/>
+				<text><![CDATA[　　如有疑问，请与本公司联络，本公司将竭诚为为您提供完善的服务。]]></text>
+			</staticText>
+			<frame>
+				<reportElement style="style1" positionType="Float" x="-3" y="443" width="520" height="74"/>
+				<line>
+					<reportElement positionType="Float" x="5" y="6" width="511" height="1"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="5" y="21" width="511" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="115" y="50" width="401" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="5" y="65" width="511" height="1"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="5" y="6" width="1" height="60"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="115" y="6" width="1" height="60"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="515" y="6" width="1" height="60"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="375" y="21" width="1" height="30"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="410" y="21" width="1" height="30"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="style1" positionType="Float" x="376" y="21" width="34" height="29"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[邮编]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="style1" positionType="Float" x="6" y="6" width="109" height="16"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[客户服务热线]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="style1" positionType="Float" x="116" y="7" width="399" height="14"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[95535/4008200035]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="200" y="50" width="1" height="16"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="style1" positionType="Float" x="115" y="51" width="85" height="14"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[服务电话]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="style1" positionType="Float" stretchType="RelativeToTallestObject" x="6" y="21" width="109" height="45"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_NAME}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="style1" positionType="Float" stretchType="RelativeToTallestObject" x="116" y="22" width="259" height="29"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_ADDRESS}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="style1" positionType="Float" x="411" y="22" width="104" height="29"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_POSTALCODE}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement style="style1" positionType="Float" x="201" y="50" width="314" height="15"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_TELEPHONE}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="202" y="517" width="311" height="15"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[富 德 生 命 人 寿 保 险 股 份 有 限 公 司]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="253" y="532" width="259" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　　　"+$P{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField pattern="　　　　yyyy年MM月dd日">
+				<reportElement style="style1" positionType="Float" x="253" y="547" width="259" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="43" width="196" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_NAME}+" 先生/女士收"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="0" width="223" height="22"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="17" y="55" width="316" height="35"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{PRINT_BARCODE_NO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="20" width="223" height="26"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="362" y="0" width="153" height="116">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{isShowImage})]]></printWhenExpression>
+				</reportElement>
+				<imageExpression class="java.lang.String"><![CDATA[$P{image_path}+"notice_logo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

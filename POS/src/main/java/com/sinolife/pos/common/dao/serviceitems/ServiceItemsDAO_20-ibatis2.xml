@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_20">
+
+	<select id="QUERY_POLICY_CONTACT_BYNO" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyContactInfoDTO">
+		SELECT c.policy_no policyNo,
+		       p.phone_seq phoneSeq,
+		       t.phone_type_name || '：' || nvl2(p.area_no, p.area_no || '-', '') || p.phone_no phoneDesc,
+		       a.address_seq addressSeq,
+		       a.full_address addressDesc,
+		       e.email_seq emailSeq,
+		       e.email_address emailDesc,
+		       c.sms_service smsService
+		  FROM policy_contact_info c,
+		       client_phone        p,
+		       phone_type          t,
+		       client_address      a,
+		       client_email        e
+		 WHERE c.policy_no = #policyNo#
+		   AND c.phone_seq = p.phone_seq(+)
+		   AND p.phone_type = t.phone_type(+)
+		   AND c.address_seq = a.address_seq(+)
+		   AND c.email_seq = e.email_seq(+)
+		   and p.phone_status(+) = '1'
+		   and a.address_status(+) = '1'
+		   and e.email_status(+) = '1'
+	</select>
+	
+	<select id="QUERY_APPLICANT_NO_BY_POLICY_NO" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select applicant_no from policy where policy_no = #value#
+	</select>
+	
+</sqlMap>

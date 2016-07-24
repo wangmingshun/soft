@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.policysuspend.dao.PolicySuspendDAO">
+
+	<select id="QUERY_POLICY_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.policy_no,
+		       decode(p.duty_status, '1', '有效', '2', '无效') duty_status,
+		       ca.client_no applicant_no,
+		       ca.client_name applicant_name,
+		       ci.client_no insured_no,
+		       ci.client_name insured_name,
+		       t.full_name,
+		       a.pos_no,
+		       nvl2(a.pos_no, 'Y', 'N') suspend_flag,
+		       a.remark suspend_remark
+		  from policy             p,
+		       client_information ca,
+		       client_information ci,
+		       policy_product     d,
+		       product            t,
+		       pos_info           a
+		 where p.policy_no = #policyNo#
+		   and p.applicant_no = ca.client_no
+		   and p.policy_no = d.policy_no
+		   and d.is_primary_plan = 'Y'
+		   and d.insured_no = ci.client_no
+		   and d.product_code = t.product_code
+		   and p.policy_no = a.policy_no(+)
+		   and a.service_items(+) = '89'
+		   and a.accept_status_code(+) = 'E01'
+		   and rownum = 1
+	</select>
+	
+	<update id="UPDATE_POS_INFO_REMARK" parameterClass="java.util.HashMap" >
+		update pos_info set remark = remark || #suspendRemark# where pos_no = #posNo#
+    </update>
+    
+    <update id="UPDATE_POS_INFO_STATUS_REMARK" parameterClass="java.util.HashMap" >
+		update pos_info
+		   set remark = remark || #suspendRemark#, accept_status_code = 'C02'
+		 where pos_no = #posNo#
+    </update>
+    
+</sqlMap>

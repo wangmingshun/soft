@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_19">
+	<select id="QUERY_ITEMS_INPUT" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select c.client_no, 
+		       c.client_name
+		  from client_information c
+		 where c.client_no = #value#
+		   and rownum = 1
+	</select>
+	
+	<select id="QUERY_POLICYCONTACTLIST_INPUT" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PolicyContactInfoDTO">
+  select    p.policy_no policyNo,
+            p.issue_date  issueDate,
+            decode(p.duty_status,'1','有效','无效') dutyStatus,
+           ca.address_seq addressSeq,
+           ca.full_address addressDesc,
+           ce.email_seq emailSeq,
+           ce.email_address emailDesc,
+           c1.phone_seq phoneSeq,
+           t1.phone_type_name || nvl2(c1.area_no, c1.area_no || '-', '') ||
+           c1.phone_no phoneDesc,
+           c2.phone_seq mobilePhoneSeq,
+           t2.phone_type_name || nvl2(c2.area_no, c2.area_no || '-', '') ||
+           c2.phone_no mobilePhoneDesc,           
+           c3.phone_seq homePhoneSeq,
+           t3.phone_type_name || nvl2(c3.area_no, c3.area_no || '-', '') ||
+           c3.phone_no  homePhoneDesc,           
+           c4.phone_seq officePhoneSeq,
+           t4.phone_type_name || nvl2(c4.area_no, c4.area_no || '-', '') ||
+           c4.phone_no  officePhoneDesc,           
+           c.sms_service smsService,          
+           p.branch_code branchCode,
+           b.branch_name || '（' || b.branch_code || '）' branchName,
+           ca.postalcode postalCode
+      from policy              p,
+           policy_contact_info c,
+           client_phone        c1,
+           client_phone        c2,
+           client_phone        c3,
+           client_phone        c4,
+           phone_type          t1,
+           phone_type          t2,
+           phone_type          t3,
+           phone_type          t4,
+           client_email        ce,
+           client_address      ca,
+           branch_info         b
+     where p.applicant_no =#clientNo#
+       and p.policy_no = c.policy_no(+)
+       and c.phone_seq = c1.phone_seq(+)
+       and c.mobile_phone_seq=c2.phone_seq(+)
+       and c.home_phone_seq= c3.phone_seq(+)
+       and c.office_phone_seq=c4.phone_seq(+)     
+       and c1.phone_type = t1.phone_type(+)
+       and c2.phone_type = t2.phone_type(+)
+       and c3.phone_type = t3.phone_type(+)
+       and c4.phone_type = t4.phone_type(+) 
+       and c.email_seq = ce.email_seq(+)
+       and c.address_seq = ca.address_seq(+)    
+       and p.branch_code = b.branch_code
+       and c1.phone_status(+) = '1'
+       and c2.phone_status(+) = '1'
+       and c3.phone_status(+) = '1'
+       and c4.phone_status(+) = '1'
+       and ce.email_status(+) = '1'
+       and ca.address_status(+) = '1'
+       order by p.issue_date desc
+	</select>
+	
+	<parameterMap id="PUB_CHECK_CLIENT_CONTACT_INFO_MAP" class="java.util.HashMap">
+		<parameter property="checkChar" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="checkType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PUB_CHECK_CLIENT_CONTACT_INFO" parameterMap="PUB_CHECK_CLIENT_CONTACT_INFO_MAP">
+		{call l_pos_pub_interface.pub_check_client_contact_info(?,?,?,?)}
+	</procedure>
+	
+	
+	<parameterMap id="PUB_CHECK_CLIENT_MOBILE_MAP" class="java.util.HashMap">
+		<parameter property="checkChar" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="checkPhone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PUB_CHECK_CLIENT_MOBILE" parameterMap="PUB_CHECK_CLIENT_MOBILE_MAP">
+		{call l_pos_pub_interface.check_client_mobile(?,?,?,?)}	
+	</procedure>
+	
+	
+	
+</sqlMap>

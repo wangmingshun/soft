@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commons">
+	<!-- 定义综合查询前缀，后缀sql -->
+	<sql id="prefixSql">
+		<dynamic>
+			<isEqual property="doCount" compareValue="true">
+				select count(*) from (
+			</isEqual>
+			<isEqual property="doCount" compareValue="false">
+				SELECT * FROM (select row_.*, rownum start_rownum_ from
+				(
+			</isEqual>
+		</dynamic>
+	</sql>
+	<sql id="suffixSql">
+		<dynamic>
+			<isEqual property="doCount" compareValue="true">)</isEqual>
+			<isEqual property="doCount" compareValue="false">
+				<![CDATA[
+					) row_ WHERE rownum <= #startIndex# + #pageSize# )  WHERE start_rownum_ > #startIndex#	
+				]]>
+			</isEqual>
+		</dynamic>
+	</sql>
+	<sql id="countPrefix">select count(*) from (</sql>
+	<sql id="countSuffix">)</sql>
+	<sql id="pagePrefix">
+		<dynamic>
+			<isNotNull property="pageSize">
+				SELECT * FROM ( select rownum r, union_tb.* from (
+			</isNotNull>
+		</dynamic>
+	</sql>
+	<sql id="pageSuffix">
+		<dynamic>
+			<isNotNull property="pageSize">
+				<![CDATA[
+					) union_tb 
+				) WHERE r > #startIndex# AND r <= #startIndex# + #pageSize#
+				]]>
+			</isNotNull>
+		</dynamic>
+	</sql>
+</sqlMap>

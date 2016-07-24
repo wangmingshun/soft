@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.dealrefundfail.dao.DealRefundFailDAO">
+
+	<!-- 退费失败件查询 edit by gaojiaming start-->
+	<select id="queryDealRefundFailPage" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			SELECT pi.pos_no "posNo",
+			       (SELECT def_info
+			          FROM policy_spinfo_detail
+			         WHERE policy_no = p.policy_no
+			           AND def_code = 'ORDER_NUMBER') "orderNo",
+			       pi.policy_no "policyNo",
+			       (SELECT apply_source_desc
+			          FROM uw_apply_source uas, policy p
+			         WHERE uas.apply_source = p.business_source
+			           AND p.policy_no = pi.policy_no) "applySourceDesc",
+			       (SELECT description
+			          FROM product_service_items psi
+			         WHERE psi.service_items = pi.service_items) "serviceItemsDescription",
+			       to_char(pi.accept_date, 'YYYY-MM-DD HH24:MI:SS') "acceptDate",
+			       pi.prem_sum "premSum",
+			       (SELECT MAX(description)
+			          FROM finrule.fin_transfer_result_unify_code
+			         WHERE transfer_result = pi.transfer_result) "transferFailReason",
+			       ppi.problem_item_no "problemItemNo"
+			  FROM pos_info          pi,
+			       pos_apply_files   paf,
+			       pos_apply_batch   pab,
+			       pos_problem_items ppi,
+			       policy            p
+			 WHERE pi.barcode_no = paf.barcode_no
+			   AND paf.pos_batch_no = pab.pos_batch_no
+			   AND pi.pos_no = ppi.pos_no
+			   AND ppi.problem_item_type = '1'
+			   AND ppi.problem_status = '1'
+			   AND pi.prem_success_flag = 'N'
+			   AND pi.policy_no = p.policy_no
+			   AND p.channel_type = '08'
+			   AND pi.prem_flag = '-1'
+			   AND pab.accept_channel_code NOT IN ('1', '2', '3', '6', '13')
+		]]>	
+		<dynamic>	
+			<isNotEmpty property="startDate">
+			<![CDATA[
+			   and trunc(ppi.created_date) >= to_date(#startDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="endDate">
+			<![CDATA[
+			   and trunc(ppi.created_date) <= to_date(#endDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>		
+			<isNotEmpty property="policyNo">
+			<![CDATA[
+			   and p.policy_no=#policyNo#
+			]]>
+			</isNotEmpty>								
+		</dynamic>
+		<![CDATA[
+		   order by ppi.created_date desc
+		]]>				   
+	</select>  		   
+	<!-- 退费失败件查询 edit by gaojiaming end-->
+	
+	
+	<parameterMap class="java.util.HashMap" id="mposParaMap">
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="indicator" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>		
+		<parameter property="phone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="smsContent" javaType="java.lang.String" jdbcType="VARCHAR"  mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="sendMposSms" parameterMap="mposParaMap">
+	<![CDATA[
+		{call l_pos_sms_send.mpos_message(?,?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="mposSendAgentParaMap">
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="indicator" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	
+		<parameter property="question" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>		
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="sendAgentMposSms" parameterMap="mposSendAgentParaMap">
+	<![CDATA[
+		{call l_pos_sms_send.mpos_deny_message(?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+	
+</sqlMap>

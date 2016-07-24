@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.dutychange.dao.DutyChangeDAO">
+     
+     <select id="QUERY_DUTY_INFO_BY_USER" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select count(u.user_id) JUNIOR_COUNT, #value# USER_ID from pos_user_privs u where u.upper_user_id = lower(#value#)
+     </select>
+     
+     <select id="QUERY_JUNIOR_DETAIL_BY_USER" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select u.user_id, u.user_name from pos_user_privs u where u.upper_user_id = lower(#value#)
+     </select>
+     
+     <update id="UPDATE_DUTY_DIRECTOR" parameterClass="java.util.HashMap">
+		update pos_user_privs
+		   set upper_user_id = lower(#directorId#),
+		       updated_date  = sysdate,
+		       updated_user  = user
+		 where upper_user_id = lower(#userId#)
+     </update>
+     
+</sqlMap>

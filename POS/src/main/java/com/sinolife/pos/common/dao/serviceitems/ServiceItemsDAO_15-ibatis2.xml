@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_15">
+	
+	<select id="QUERY_CLIENT_OCCUPATION_INFO" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.ClientInformationDTO">
+		SELECT c.client_no       clientNo,
+		       c.client_name     clientName,
+		       c.occupation_code occupationCode,
+		       o.occupation_desc occupationDesc,
+		       g.description     occupationGradeDesc,
+		       c.work_unit       workUnit,
+		       c.position        position
+		  FROM client_information c,
+		       occupation         o,
+		       occupation_grade   g
+		 WHERE c.client_no = #value#
+		   AND c.occupation_code = o.occupation_code(+)
+		   AND o.occupation_grade = g.occupation_grade(+)
+	</select>
+	
+	<select id="QUERY_PRODUCT_PREM_INFO" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PolicyProductPremDTO">
+		SELECT d.policy_no       policyNo,
+		       c1.client_name    insuredName,
+		       c2.client_name    applicantName,
+		       d.effect_date     effectDate,
+		       m.pay_to_date     paytoDate,
+		       m.prem_status     premStatus,
+		       s.description     premStatusDesc,
+		       m.occupation_code occupationCode,
+		       d.duty_status     dutyStatus,
+		       t.description     dutyStatusDesc
+		  FROM policy              p,
+		       policy_product      d,
+		       policy_product_prem m,
+		       client_information  c1,
+		       client_information  c2,
+		       prem_status         s,
+		       duty_status         t
+		 WHERE (d.insured_no = #clientNo# or (p.applicant_no = #clientNo# and d.is_primary_plan = 'Y'))
+		   AND c1.client_no = d.insured_no
+		   AND p.policy_no = d.policy_no
+		   AND p.applicant_no = c2.client_no
+		   AND m.policy_no = d.policy_no
+		   AND m.prod_seq = d.prod_seq
+		   AND m.prem_status = s.prem_status
+		   AND d.duty_status = t.duty_status
+		   AND d.duty_status = '1'
+		   AND (((select channel_type
+            from policy
+           where policy_no = #policyNo#) = '06' and
+       p.channel_type = '06')       
+       or ((select channel_type
+               from policy
+              where policy_no = #policyNo#) != '06' and
+       p.channel_type != '06'))
+	</select>
+	
+	<select id="QUERY_OCCUPATION_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		SELECT o.OCCUPATION_DESC,
+		       g.description GRADE_DESC
+		  FROM occupation       o,
+		       occupation_grade g
+		 WHERE o.occupation_code = #value#
+		   AND o.occupation_grade = g.occupation_grade
+	</select>
+	
+	<parameterMap id="PROC_ITEM_15_RULECHECK_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="occupationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="processAble" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="processMessage" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_ITEM_15_RULECHECK" parameterMap="PROC_ITEM_15_RULECHECK_MAP">
+		{call l_pos_service_item_15.rulecheck(?,?,?,?,?,?,?)}
+	</procedure>
+
+</sqlMap>

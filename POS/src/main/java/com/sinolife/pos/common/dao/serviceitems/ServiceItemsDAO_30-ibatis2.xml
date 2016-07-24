@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_30">
+	
+	<select id="queryPolicyLoanInfo30" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_30">
+	<![CDATA[
+		SELECT d.description   productStatusDesc,
+		       e.client_name   applicantName,
+		       h.id_type_name  applicantIdTypeName,
+		       e.idno          applicantIdNo,
+		       f.client_name   insuredName,
+		       i.id_type_name  insuredIdTypeName,
+		       f.idno          insuredIdNo,
+		       g.abbr_name     productAbbrName,
+		       g.full_name	   productFullName,
+		       j.loan_interest loanInterest,
+		       b.maturity_date maturitydate
+		  FROM policy              a,
+		       policy_product      b,
+		       policy_product_prem c,
+		       prem_status         d,
+		       client_information  e,
+		       client_information  f,
+		       product             g,
+		       id_type             h,
+		       id_type             i,
+		       pos_loan            j
+		 WHERE a.policy_no = b.policy_no
+		   AND b.policy_no = c.policy_no(+)
+		   AND (c.policy_no is null or b.prod_seq = c.prod_seq)
+		   AND c.prem_status = d.prem_status(+)
+		   AND a.applicant_no = e.client_no(+)
+		   AND b.insured_no = f.client_no(+)
+		   AND b.product_code = g.product_code(+)
+		   AND e.id_type = h.id_type(+)
+		   AND f.id_type = i.id_type(+)
+		   AND a.policy_no = j.policy_no(+)
+		   AND (j.policy_no IS NULL OR j.valid_flag = 'Y')
+		   AND b.is_primary_plan = 'Y'
+		   AND a.policy_no = #value#
+	]]>
+	</select>
+	
+	<select id="queryLoanDeptList" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+	<![CDATA[
+	    SELECT di.dept_no        code,
+	           di.dept_full_name description
+	      FROM department_info di
+	     WHERE EXISTS (SELECT 'x'
+	              FROM department_no_relation dr
+	             WHERE dr.relative_dept_no = di.dept_no
+	               AND dr.dept_no IN (SELECT c.dept_no
+	                                    FROM pos_mortgage_protocol c,
+	                                         (SELECT bi.branch_code
+	                                            FROM branch_info bi
+	                                           WHERE EXISTS (SELECT 'x'
+	                                                    FROM branch_code_relation br
+	                                                   WHERE br.relative_branch_code = bi.branch_code
+	                                                     AND br.branch_code = (SELECT branch_code
+	                                                                             FROM policy
+	                                                                            WHERE policy_no = #value#)
+	                                                     AND br.relative_grade > -1)
+	                                             AND bi.branch_level LIKE nvl('', '%')
+	                                           ORDER BY bi.branch_level) d
+	                                   WHERE c.branch_code = d.branch_code
+	                                     AND c.vailid_flag = 'Y'
+	                                     AND EXISTS (SELECT 'x'
+	                                            FROM pos_mortgage_product pmp,
+	                                                 policy_product       pp
+	                                           WHERE pmp.product_code = pp.product_code
+	                                             AND pmp.protocol_code = c.protocol_code
+	                                             AND pp.policy_no = #value#))
+	               AND dr.relative_grade < 1)
+	       AND di.dept_level in ('06')
+	     ORDER BY di.dept_level, di.dept_full_name
+	]]>
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_9">
+
+	<select id="getLoanPayBackInfo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.LoanPayBackDTO">
+	<![CDATA[
+		SELECT l.pos_no 				"posNo",
+		       l.interest_start_date 	"effectDate",
+		       l.loan_interest_rate 	"loanRate",
+		       l.loan_principal			"loanCash",
+		       l.loan_rate_type			"loanRateType"
+		  FROM pos_loan l
+		 WHERE l.policy_no = #policyNo#
+		   AND l.payback_no IS NULL
+		   AND l.payback_date IS NULL
+		   AND l.valid_flag = 'Y'
+		   AND l.loan_status IN ('1', '2', '3')
+		 ORDER BY l.interest_start_date ASC
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="getLoanAllSumMap">
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="endDate" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="interestSum" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="loanAllSum" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getLoanAllSum" parameterMap="getLoanAllSumMap">
+		{call l_pos_loan_apl.calc_loan_interest_by_posno(?,?,?,?,?,?)}
+	</procedure>
+
+</sqlMap>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.apl.dao.PolicyAplDAO">
+
+	<parameterMap id="PROC_APL_BATCH_PROCESS_SINGLE_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="batchDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_APL_BATCH_PROCESS_SINGLE" parameterMap="PROC_APL_BATCH_PROCESS_SINGLE_MAP">
+		{call l_pos_loan_apl.apl_batch_process_single(?,?,?,?)}
+	</procedure>
+	
+</sqlMap>

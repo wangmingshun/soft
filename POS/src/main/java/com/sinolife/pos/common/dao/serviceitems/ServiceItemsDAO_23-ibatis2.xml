@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_23">
+
+	<select id="QUERY_CLIENT_NAME" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select c.client_name
+		  from client_information c
+		 where c.client_no = #value#
+		   and rownum = 1
+	</select>
+	
+	<select id="QUERY_CLIENT_POLICYS" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PolicyPremInfoDTO">
+		SELECT p.policy_no       policyNo,
+		       m.charging_method chargingMethod,
+		       a.account_seq     accountSeq
+		  FROM policy            p,
+		       policy_prem_info  m,
+		       policy_payor_info a
+		 WHERE p.applicant_no = #applicantNo#
+		   AND p.policy_no = m.policy_no(+)
+		   AND p.policy_no = a.policy_no(+)
+		    and (((select channel_type
+            from policy
+           where policy_no = #policyNo#) = '06' and
+       p.channel_type = '06')       
+       or ((select channel_type
+               from policy
+              where policy_no = #policyNo#) != '06' and
+       p.channel_type != '06'))
+	</select>
+	<select id="QUERY_POL_POLICYS" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyPremInfoDTO">
+		SELECT p.policy_no       policyNo,
+		       m.charging_method chargingMethod,
+		       a.account_seq     accountSeq
+		  FROM policy            p,
+		       policy_prem_info  m,
+		       policy_payor_info a
+		 WHERE p.policy_no = #value#
+		   AND p.policy_no = m.policy_no(+)
+		   AND p.policy_no = a.policy_no(+)
+	</select>
+	     
+		<parameterMap id="QUERY_TSS_POLICY_PROJECT_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="projectCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="projectName" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="orderNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="branchBankCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="projectType" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="agentBranchType" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="finBarCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="p_with_bank"  javaType="java.lang.String"  jdbcType="VARCHAR" mode="OUT"/>			
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="QUERY_TSS_POLICY_PROJECT" parameterMap="QUERY_TSS_POLICY_PROJECT_MAP">
+		{call l_pos_rule_query.query_tss_policy_project(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>	
+</sqlMap>

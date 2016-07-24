@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_33">
+
+	<select id="QUERY_PREM_POS_POLICY_NO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select i.description service_items,
+		       nvl(p.prem_sum, '0') prem_sum,
+		       c.description payment_type,
+		       decode(p.prem_flag, '0', '收付为0', '-1', '付', '+1', '收', '空') prem_flag,
+		       p.prem_name,
+		       b.description bank_abbr,
+		       p.account_no,
+		       decode(p.prem_success_flag, 'Y', '成功', 'N', '失败', '空') prem_success_flag,
+		       p.pos_no
+		  from pos_info p, product_service_items i, charging_method c, bank_info b
+		 where p.pos_no = #posNo#
+		   and p.policy_no = #policyNo#
+		   and p.service_items = i.service_items
+		   and p.payment_type = c.charging_method
+		   and p.bank_code = b.bank_code(+)
+	</select>
+	
+	<select id="QUERY_PREM_POS_FAIL_BY_POLICY_NO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select p.pos_no           as posNo,
+	           p.policy_no        as policyNo,
+	           i.description      as serviceItemName,
+	           t.description      as accountNoType,
+	           p.prem_name        as premName,
+	           b.description      as bankName,
+	           p.account_no       as accountNo
+	      from pos_info p, product_service_items i, charging_method c, bank_info b,FIN_ACCOUNT_NO_TYPE t
+	     where  p.policy_no = #policyNo#
+	       and p.service_items = i.service_items
+	       and p.account_no_type = t.account_no_type
+	       and p.payment_type = c.charging_method
+	       and nvl(p.prem_success_flag,'Y')='N'
+	       and p.bank_code = b.bank_code(+)
+	</select>
+	
+	<select id="QUERY_PREM_POS_BY_POS_NO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select p.pos_no               as posNo,
+		       i.description          as serviceItemName,
+		       nvl(p.prem_sum, '0')   as premSum,
+		       c.description          as paymentType,
+		       decode(p.prem_flag, '0', '收付为0', '-1', '付', '+1', '收', '空') as premFlag,
+		       p.prem_name            as premName,
+		       b.description          as bankName,
+		       p.account_no           as accountNo,
+		       decode(p.prem_success_flag, 'Y', '成功', 'N', '失败', '空') as premSuccessStatus
+		  from pos_info p, product_service_items i, charging_method c, bank_info b,FIN_ACCOUNT_NO_TYPE t
+		 where p.pos_no = #posNo#
+		   and p.service_items = i.service_items
+		   and p.account_no_type = t.account_no_type
+		   and p.payment_type = c.charging_method
+		   and nvl(p.prem_success_flag,'Y')='N'
+		   and p.bank_code = b.bank_code(+)
+	</select>
+	
+	<select id="queryPayFailPremPosInfoByClientNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.pos_no                as posNo,
+		       p.policy_no             as policyNo,
+		       psi.description         as projectName,
+		       to_char(p.accept_date , 'yyyy-MM-dd')       as acceptDate,
+		       p.accept_status_code     as acceptStatusCode,
+		       pas.description         as acceptStatusDescription
+		  from pos_info p
+		  join product_service_items psi on p.service_items=psi.service_items
+		  join pos_accept_status_code pas on p.accept_status_code =
+		                                     pas.accept_status_code
+		 where p.prem_success_flag = 'N'
+		   and p.client_no = #clientNo#
+	</select>
+	
+</sqlMap>

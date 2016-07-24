@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_46">
+	<select id="queryPolicyStatus" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		select count('X') 
+		  from policy_suspend_history p 
+		 where p.business_no_type='5' 
+		   and p.service_suspend_item='56'
+		   and p.cancel_time is null
+		   and p.policy_no=#policyNo#
+	]]>
+	</select>
+	
+</sqlMap>

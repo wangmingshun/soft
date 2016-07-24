@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.acceptlevel.dao.AcceptLevelSetDAO">
+     
+     <select id="QUERY_GRADE_PRIVS_BY_LEVEL" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select p.service_items
+		  from pos_input_grade_privs_set p
+		 where p.input_grade = #value#
+		   and valid_end_date is null
+     </select>
+     
+     <update id="UPDATE_INVALID_EXIST_GRADE_PRIVS" parameterClass="java.lang.String">
+		update pos_input_grade_privs_set
+		   set valid_end_date = sysdate,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where input_grade = #value#
+		   and valid_end_date is null
+     </update>
+     
+     <update id="UPDATE_GRADE_PRIVS" parameterClass="java.util.HashMap">
+		update pos_input_grade_privs_set
+		   set valid_end_date = null,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where input_grade = #grade#
+		   and service_items = #item#
+		   and rownum = 1
+     </update>
+     
+     <insert id="INSERT_GRADE_PRIVS" parameterClass="java.util.HashMap">
+		insert into pos_input_grade_privs_set
+		  (input_grade,
+		   service_items,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#grade#, #item#, sysdate, user, sysdate, user, sysdate)
+     </insert>
+     
+     <update id="UPDATE_SELF_INPUT_END_DATE" parameterClass="java.util.HashMap">
+		update self_input_privs s
+		   set s.valid_end_date = sysdate,
+		       s.updated_date = sysdate
+		 where s.service_items = #item#
+		   and s.valid_end_date is null
+		   and s.user_id in
+		       (select p.user_id from pos_user_privs p where p.input_grade = #grade#)
+     </update>
+     
+     <update id="UPDATE_SELF_INPUT_VALID" parameterClass="java.util.HashMap">
+		update self_input_privs s
+		   set s.valid_end_date = null,
+		       s.updated_date = sysdate
+		 where s.service_items = #item#
+		   and s.valid_end_date is not null
+		   and s.user_id in
+		       (select p.user_id from pos_user_privs p where p.input_grade = #grade#)
+     </update>
+     
+     <insert id="INSERT_SELF_INPUT_PRIVS" parameterClass="java.util.HashMap">
+		insert into self_input_privs
+		  (user_id,
+		   service_items,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		  select p.user_id, #item#, sysdate, user, sysdate, user, sysdate
+		    from pos_user_privs p
+		   where p.input_grade = #grade#
+		     and not exists (select user_id
+		            from self_input_privs
+		           where user_id = p.user_id
+		             and service_items = #item#
+		             and valid_end_date is null)
+     </insert>
+    
+</sqlMap>

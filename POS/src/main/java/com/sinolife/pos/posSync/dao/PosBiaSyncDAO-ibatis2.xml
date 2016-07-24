@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.posSync.dao.PosBiaSyncDAO">
+	
+     <select id="policyRegNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select t.partner_value
+	    from biam_blockdata_partner_result t
+	   where t.partner_key='PolicyRegNo'
+	     and t.ret_flag = '999999'
+	     and t.business_no = #policyNo#
+     </select>
+     
+	<resultMap id="agencyMap" class="java.util.HashMap">
+        <result property="SerialNo" column="SerialNo"/>
+        <result property="AgencyCode" column="AgencyCode"/>
+        <result property="CoverageType"  column="CoverageType"/>
+        <result property="AgencyType"  column="AgencyType"/>
+        <result property="PolicyApplyDate"  column="PolicyApplyDate"/>
+        <result property="EndorsementApplyDate"  column="EndorsementApplyDate"/>
+        <result property="ComCode"  column="ComCode"/>
+     </resultMap> 
+     <select id="getAgencyInfo" parameterClass="java.util.HashMap" resultMap="agencyMap">
+	    select 
+			  '000000000'||pp.prod_seq SerialNo,
+			  bn.organize_no AgencyCode,
+			  pp.product_code CoverageType,
+			  decode(p.channel_type,'03','02','01') AgencyType,
+			  to_char(pc.client_sign_date,'yyyymmddhh24mi')  PolicyApplyDate,
+			  to_char(pi.effective_date,'yyyymmddhh24mi') EndorsementApplyDate,
+			  p.branch_code ComCode
+		 from policy p,policy_product pp,policy_contract pc,pos_info pi,bank_net bn
+		where pp.policy_no=p.policy_no
+		  and pc.policy_no=p.policy_no
+		  and pi.policy_no=p.policy_no
+		  and bn.dept_no=p.department_no
+		  and pp.prod_seq='1'
+		  and pi.pos_no=#posNo#
+		  and p.policy_no=#policyNo#
+     </select>
+     
+	<resultMap id="posRegisterMap" class="java.util.HashMap">
+        <result property="AgencyCode" column="AgencyCode"/>
+        <result property="AreaFlag" column="AreaFlag"/>
+        <result property="EndorsementNo"  column="EndorsementNo"/>
+        <result property="EndorsementType"  column="EndorsementType"/>
+        <result property="EndorsementDate"  column="EndorsementDate"/>
+        <result property="CurrencyCode"  column="CurrencyCode"/>
+        <result property="TotalPremium"  column="TotalPremium"/>
+        <result property="CoverageType"  column="CoverageType"/>
+        <result property="CoverageCode"  column="CoverageCode"/>
+        <result property="CoverageName"  column="CoverageName"/>
+        <result property="EffectiveDate"  column="EffectiveDate"/>
+        <result property="ExpireDate"  column="ExpireDate"/>
+        <result property="Premium"  column="Premium"/>
+     </resultMap> 
+     <select id="posRegister" parameterClass="java.util.HashMap" resultMap="posRegisterMap">
+		select bn.organize_no AgencyCode,
+		       p.branch_code AreaFlag,
+		       pi.pos_no EndorsementNo,
+		       (select decode(count('x'), 0, '01', '02')
+		          from pos_accept_detail pad
+		         where pad.pos_no = pi.pos_no
+		           and pad.pos_object = '2'
+		           and pad.item_no = '011'
+          		   and pad.object_value = pp.prod_seq) EndorsementType,
+		       to_char(pi.effective_date, 'yyyymmddhh24mi') EndorsementDate,
+		       'CNY' CurrencyCode,
+		       (select sum(ppp.period_prem_sum)
+		          from policy_product_prem ppp
+		         where ppp.policy_no = p.policy_no) TotalPremium,
+		        pp.product_code CoverageType,
+		        pp.product_code CoverageCode,
+		        pt.full_name  CoverageName,
+		        to_char(p.effect_date, 'yyyymmddhh24mi') EffectiveDate,
+		        to_char(pp.maturity_date, 'yyyymmddhh24mi')     ExpireDate,
+		        (select sum(ppp.period_prem_sum)
+		          from policy_product_prem ppp
+		         where ppp.policy_no = p.policy_no and ppp.prod_seq=pp.prod_seq) Premium
+		  from policy p, pos_info pi, policy_product pp, bank_net bn,product pt
+		 where p.policy_no = pi.policy_no
+		   and pp.policy_no = p.policy_no
+		   and pt.product_code=pp.product_code
+		   and pp.prod_seq='1'
+		   and p.department_no = bn.dept_no
+		   and pi.pos_no=#posNo#
+		   and p.policy_no=#policyNo#
+     </select>
+     
+     <!-- 根据保单号查询保单基本信息 -->
+	<select id="getPolicyInfo" parameterClass="java.lang.String" resultClass="java.util.HashMap">		
+            SELECT uai.policy_no policyno,
+                   to_char(p.apply_date, 'yyyyMMddHH') insuredate,
+                   p.branch_code areaflag,
+                   to_char(uai.signed_date, 'yyyyMMddHH') billdate,
+                   to_char(pc.client_sign_date, 'yyyyMMddHH') receiptdate,
+                   to_char(pp.effect_date, 'yyyyMMddHH') startdate,
+                   to_char(pp.maturity_date, 'yyyyMMddHH') enddate,
+                   decode(pp.duty_status, '1', '01', '2', '02') policystatus,
+                   '02' insureform,
+                   '02' ApplicantType,
+                   decode(p.channel_type, '01', '04', '02', '08', '99') producertype,
+                   (SELECT emp_name
+                      FROM staff_info
+                     WHERE emp_no = p.agent_no) producername,
+                   (SELECT decode(MAX(up.undwrt_decision), 'A', '01', 'G', '03', 'H', '04', '02')
+                      FROM uw_undwrt_child_task    ct,
+                           uw_plan_undwrt_decision up
+                     WHERE ct.task_code = up.task_code
+                       AND ct.child_task_code = up.child_task_code
+                       AND ct.prod_seq = pp.prod_seq
+                       AND ct.control_no = uai.apply_no) polcheckresult,
+                   (SELECT to_char(nvl(MAX(up.audit_decision_date), ''), 'yyyyMMddHH')
+                      FROM uw_undwrt_child_task    ct,
+                           uw_plan_undwrt_decision up
+                     WHERE ct.task_code = up.task_code
+                       AND ct.prod_seq = pp.prod_seq
+                       AND ct.child_task_code = up.child_task_code
+                       AND ct.control_no = uai.apply_no) checkresultdate,
+                    (
+            SELECT  max(uu.undwrt_decision_desc)
+              FROM uw_undwrt_child_task    uc,
+                   uw_plan_undwrt_decision up,
+                   uw_undwrt_decision      uu
+             WHERE uc.control_no = uai.apply_no
+               AND uc.product_code =  pp.product_code 
+               AND uc.task_code = up.task_code
+               AND uc.child_task_code = up.child_task_code
+               AND up.undwrt_decision = uu.undwrt_decision) refusereason
+              FROM uw_apply_info   uai,
+                   policy          p,
+                   policy_contract pc,
+                   policy_product  pp
+             WHERE p.policy_no = uai.policy_no
+               AND pc.policy_no = p.policy_no
+               AND pp.policy_no = p.policy_no
+               AND pp.is_primary_plan = 'Y'
+               AND uai.policy_no =  #policyNo#
+	</select>
+     
+    	<!-- 根据保单号查询投保人信息 -->
+	<select id="getApplicantInfo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		   SELECT ci.client_name applicantname,
+                   ci.sex_code gender,
+                   to_char(ci.birthday, 'yyyyMMdd') birthday,
+                   ci.id_type credentialtype,
+                   ci.idno credentialno,
+                   pp.relationship insuredrelationship
+              FROM policy             p,
+                   client_information ci,
+                   policy_product     pp
+             WHERE p.policy_no =  #policyNo#
+               AND p.applicant_no = ci.client_no
+               AND pp.policy_no = p.policy_no
+               AND pp.is_primary_plan = 'Y'
+	</select>
+	
+	<!-- 根据保单号查询被保人信息 -->
+	<select id="getInsuredInfo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		   SELECT ci.client_name InsuredName,
+                 ci.sex_code gender,
+                 to_char(ci.birthday, 'yyyyMMdd') birthday,
+                 ci.id_type credentialtype,
+                 ci.idno credentialno,
+                 pp.relationship insuredrelationship,       
+                 (SELECT ad.full_address
+                    FROM client_address ad
+                   WHERE ad.address_seq = pci.address_seq) address,
+                 '0' isabnormal,
+                 '01' insuredtype,
+                 '01' ApplicantRelationship,       
+                 (SELECT COUNT(*)
+                    FROM policy_beneficiary pb
+                   WHERE pb.beneficiary_no != 'B00000000001'
+                     AND pb.policy_no = p.policy_no) isdesignbeneficiary
+            FROM policy              p,
+                 client_information  ci,
+                 policy_product      pp,
+                 policy_contact_info pci
+           WHERE p.policy_no = #policyno#
+             AND pp.insured_no = ci.client_no
+             AND pp.policy_no = p.policy_no
+             AND pci.policy_no = p.policy_no
+             AND pp.is_primary_plan = 'Y'
+	</select>
+	
+	<resultMap class="java.util.HashMap" id="getCoverageMap">
+		<result property="CovPolicyNo" column="CovPolicyNo" javaType="java.lang.String"/>
+		<result property="KindCode" column="KindCode" javaType="java.lang.String"/>
+		<result property="CoverageCode" column="CoverageCode" javaType="java.lang.String"/>
+		<result property="ComCoverageCode" column="ComCoverageCode" javaType="java.lang.String"/>
+		<result property="ComCoverageName" column="ComCoverageName" javaType="java.lang.String"/>
+		<result property="CovStartDate" column="CovStartDate" javaType="java.lang.String"/>
+		<result property="CovEndDate" column="CovEndDate" javaType="java.lang.String"/>
+		<result property="CoverageNature" column="CoverageNature" javaType="java.lang.String"/>
+		<result property="CovBasicAmount" column="CovBasicAmount" javaType="java.lang.String"/>
+		<result property="CovMaxAmount" column="CovMaxAmount" javaType="java.lang.String"/>
+		<result property="CoverageStatus" column="CoverageStatus" javaType="java.lang.String"/>
+		<result property="CovCheckResult" column="CovCheckResult" javaType="java.lang.String"/>
+		<result property="CovCheckResultDate" column="CovCheckResultDate" javaType="java.lang.String"/>
+		<result property="RefuseReason" column="RefuseReason"/>
+	</resultMap>
+	
+	<select id="getCoverage" parameterClass="java.lang.String"  resultMap="getCoverageMap">
+		SELECT p.policy_no CovPolicyNo,
+               '100' KindCode,
+               '109' CoverageCode,
+               pp.product_code ComCoverageCode,
+               '富德生命人寿' ComCoverageName,
+               to_char(pp.effect_date, 'yyyyMMddHH')   CovStartDate,
+               to_char(pp.maturity_date, 'yyyyMMddHH')  CovEndDate,
+               decode(pp.is_primary_plan, 'Y', '01', '02') CoverageNature,
+               pp.base_sum_ins CovBasicAmount,
+               pp.base_sum_ins CovMaxAmount,
+               decode(pp.duty_status, '1', '01', '2', '02') CoverageStatus,
+               (SELECT decode(MAX(up.undwrt_decision), 'A', '01', 'G', '03', 'H', '04', '02')
+                  FROM uw_undwrt_child_task    ct,
+                       uw_plan_undwrt_decision up
+                 WHERE ct.task_code = up.task_code
+                   AND ct.prod_seq = pp.prod_seq
+                   AND ct.child_task_code = up.child_task_code
+                   AND ct.control_no = ai.apply_no) CovCheckResult,
+               (SELECT  to_char(nvl(MAX(up.audit_decision_date), ''), 'yyyyMMddHH')
+                  FROM uw_undwrt_child_task    ct,
+                       uw_plan_undwrt_decision up
+                 WHERE ct.task_code = up.task_code
+                   AND ct.prod_seq = pp.prod_seq
+                   AND ct.child_task_code = up.child_task_code
+                   AND ct.control_no = ai.apply_no) CovCheckResultDate,
+               (
+	            SELECT  max(uu.undwrt_decision_desc)
+	              FROM uw_undwrt_child_task    uc,
+	                   uw_plan_undwrt_decision up,
+	                   uw_undwrt_decision      uu
+	             WHERE uc.control_no = ai.apply_no
+	               AND uc.product_code =  pp.product_code 
+	               AND uc.task_code = up.task_code
+	               AND uc.child_task_code = up.child_task_code
+	               AND up.undwrt_decision = uu.undwrt_decision) RefuseReason        
+          FROM policy         p,
+               uw_apply_info  ai,
+               policy_product pp
+         WHERE p.policy_no = #policyNo# 
+           AND p.policy_no = ai.policy_no
+           AND pp.policy_no = p.policy_no        
+	</select>
+	
+	<resultMap class="java.util.HashMap" id="getBeneficiaryMap">
+		<result property="Beneficiaryname" column="beneficiaryname" javaType="java.lang.String"/>
+		<result property="Gender" column="gender" javaType="java.lang.String"/>
+		<result property="Birthday" column="birthday" javaType="java.lang.String"/>
+		<result property="CredentialType" column="credentialtype" javaType="java.lang.String"/>
+		<result property="CredentialNo" column="credentialno" javaType="java.lang.String"/>
+		<result property="InsuredRelationship" column="insuredrelationship" javaType="java.lang.String"/>
+		<result property="BenefitAllocation" column="benefitallocation" javaType="java.lang.String"/>
+		<result property="BeneficiaryNo" column="beneficiaryno" javaType="java.lang.String"/>
+		<result property="Rate" column="rate" javaType="java.lang.String"/>
+	</resultMap>
+	
+	<select id="getBeneficiary" parameterClass="java.lang.String" resultMap="getBeneficiaryMap">
+		 select        
+	           bi.beneficiary_name beneficiaryname,
+	           bi.sex_code gender,
+	           to_char(bi.birthdate, 'yyyyMMdd')    birthday,
+	           bi.id_type credentialtype,
+	           bi.idno credentialno,
+	           pb.relationship insuredrelationship,
+	           '02' benefitallocation,
+	           pb.benefit_seq beneficiaryno,
+	           pb.benefit_rate rate        
+          FROM policy             p,
+               policy_beneficiary pb,
+               beneficiary_info   bi
+         WHERE p.policy_no = pb.policy_no
+           AND pb.beneficiary_no = bi.beneficiary_no
+           AND p.policy_no = #policyno# 
+	</select>
+	
+</sqlMap>

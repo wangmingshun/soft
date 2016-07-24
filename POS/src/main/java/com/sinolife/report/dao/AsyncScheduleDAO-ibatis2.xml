@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.report.dao.AsyncScheduleDAO">
+	<!-- 查询报表任务  edit by luoyonggang start -->		
+	 <select id="queryReportTask" resultClass="java.util.HashMap">
+	 <![CDATA[
+			select alc.list_code,
+			       alc.user_id,
+			       to_char(alc.submit_time, 'yyyymmddhh24miss') SUBMIT_TIME,
+			       to_char(alc.submit_time, 'yyyy-mm-dd hh24:mi:ss') SUBMIT_TIME_MAIL,
+			       alc.query_index,
+			       (select lct.list_name
+			          from listintf.list_code_tbl lct
+			         where lct.list_code = alc.list_code
+			           and lct.module_code = '04') description,
+			       alc.data_amount  
+			  from listintf.async_list_control alc
+			 where alc.module_code = '04'
+			   and alc.status_code = '2'
+			   and alc.is_valid = 'Y'
+			   and alc.submit_time > sysdate - 1
+			   and rownum < = 50
+	]]>
+	</select>
+	<!-- 查询报表任务  edit by luoyongang end -->
+	
+	<!-- 锁定报表任务  edit by gaojiaming start -->		
+	<select id="lockReportTask" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+        SELECT 'Y'
+		  FROM listintf.async_list_control alc
+			 where alc.module_code = '04'
+			   and alc.list_code = #LIST_CODE#
+			   and alc.user_id = #USER_ID#
+			   and alc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+			   and alc.status_code = '2'
+		   AND ROWNUM = 1
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>	
+	<!-- 锁定报表任务  edit by gaojiaming end -->	
+</sqlMap>

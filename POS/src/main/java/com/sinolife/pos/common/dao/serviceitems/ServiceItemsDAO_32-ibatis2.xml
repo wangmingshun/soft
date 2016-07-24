@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_32">
+	<select id="queryPolicyInfoFor32" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_32">
+	<![CDATA[
+		SELECT m.policy_no        policyno,
+		       m.pay_to_date      paytodate,
+		       n.effect_date      effectdate,
+		       m.prem_status_desc policystatusdesc,
+		       o.client_name      applicantname,
+		       p.client_name      insuredname,
+		       m.product_code     productcode
+		  FROM (SELECT a.policy_no,
+		               a.product_code,
+		               a.prod_seq,
+		               b.pay_to_date,
+		               a.insured_no,
+		               b.prem_status,
+		               c.description prem_status_desc,
+		               decode(a.product_code, 'CIAN_FR1', 0, 1) sort_col
+		          FROM policy_product      a,
+		               policy_product_prem b,
+		               prem_status         c
+		         WHERE a.policy_no = b.policy_no(+)
+		           AND b.prem_status = c.prem_status(+)
+		           AND a.prod_seq = b.prod_seq(+)
+		           AND (a.is_primary_plan = 'Y' OR a.product_code = 'CIAN_FR1')
+		           AND a.duty_status = '1'
+		           AND a.policy_no = #value#
+		         ORDER BY sort_col) m,
+		       policy n,
+		       client_information o,
+		       client_information p
+		 WHERE m.policy_no = n.policy_no
+		   AND n.applicant_no = o.client_no(+)
+		   AND m.insured_no = p.client_no(+)
+		   AND rownum = 1
+	]]>
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.privilege.dao.UserPrivilegeDAO">
+
+    <select id="QUERY_USER_DETAIL_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.user_id,
+		       p.user_name,
+		       p.rank_code,
+		       p.different_place_privs,
+		       p.upper_user_id,
+		       p.counter_no,
+		       p.amount_days_grade,
+		       p.input_grade,
+		       p.inquiry_privs,
+               p.mpos_privs,
+               p.bia_transfail_privs,
+               p.epoint_privs,
+               p.return_prem_privs,
+               p.pos_note_return_privs
+		  from pos_user_privs p
+		 where p.user_id = #userId#
+    </select>
+    
+    <select id="QUERY_SPECIAL_ITEMS_INPUT_GRADE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.service_items code, p.description
+		  from pos_input_grade_privs_set s, product_service_items p
+		 where s.input_grade = #inputGrade#
+		   and s.valid_end_date is null
+		   and s.service_items = p.service_items
+		union
+		select 'S_' || c.special_func || '_' || t.service_items code, c.description
+		  from pos_special_func_item_contrast t, pos_special_func_code c
+		 where t.special_func = c.special_func
+		   and t.service_items in
+		       (select service_items
+		          from pos_input_grade_privs_set
+		         where input_grade = #inputGrade#
+		           and valid_end_date is null)
+    </select>
+    
+    <select id="QUERY_RANK_APROV_SPECIAL" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select c.special_func code, c.description
+		  from pos_rank_special_set s, pos_special_func_code c
+		 where s.rank_code = #rank#
+		   and s.special_type = '2'
+		   and s.special_code = c.special_func
+		   and s.end_date is null
+    </select>
+    
+    <select id="QUERY_SELF_INPUT_PRIVS" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select service_items
+		  from self_input_privs
+		 where user_id = #user#
+		   and valid_end_date is null
+    </select>
+    
+    <select id="QUERY_SELF_SPECIAL_PRIVS" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select s.special_func
+		  from self_special_privs s
+		 where s.user_id = #user#
+		   and valid_end_date is null
+    </select>
+    
+    <select id="QUERY_APROV_FUNC_SPECIAL_PRIVS" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select c.special_func, c.description
+		  from pos_user_special_set s, pos_special_func_code c
+		 where s.user_id = #user#
+		   and s.special_type = '2'
+		   and s.special_code = c.special_func
+		   and s.end_date is null    
+    </select>
+    
+    <select id="QUERY_APROV_SPECIAL_PRIVS" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select nvl(max('Y'), 'N')
+		  from pos_user_special_set s
+		 where s.user_id = #user#
+		   and s.special_type = #type#
+		   and s.end_date is null
+    </select>
+
+    <select id="QUERY_AMOUNT_CHANNEL_ITEMS" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select a.amount_days_grade,
+		       a.service_items,
+		       p.description items_desc,
+		       a.accept_channel_code,
+		       a.source_transfer_sum,
+		       a.notsource_transfer_sum,
+		       a.notself_cash_sum,
+		       a.self_cash_sum,
+		       a.treaty_exceed_sum,
+		       a.interest_free_sum
+		  from pos_amount_days_privs_set a, product_service_items p
+		 where a.amount_days_grade = #amountDaysGrade#
+		   and a.accept_channel_code = #channel#
+		   and a.service_items = p.service_items
+		   and a.valid_end_date is null
+		 order by to_number(a.service_items)
+    </select>
+    
+    <select id="QUERY_AMOUNT_CHANNEL_MONEY" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select min(a.source_transfer_sum) source_transfer_sum,
+		       min(a.notsource_transfer_sum) notsource_transfer_sum,
+		       min(a.notself_cash_sum) notself_cash_sum,
+		       min(a.self_cash_sum) self_cash_sum,
+		       min(a.treaty_exceed_sum) treaty_exceed_sum,
+		       min(a.interest_free_sum) interest_free_sum
+		  from pos_amount_days_privs_set a
+		 where a.amount_days_grade = #amountDaysGrade#
+		   and a.accept_channel_code = #channel#
+		   and a.valid_end_date is null
+    </select>
+    
+    <insert id="INSERT_POS_USER_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		insert into pos_user_privs
+		  (user_id,
+		   upper_user_id,
+		   rank_code,
+		   user_name,
+		   different_place_privs,
+		   counter_no,
+		   amount_days_grade,
+		   input_grade,
+		   inquiry_privs,
+		   bia_transfail_privs,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#userId#,
+		   #upperUserId#,
+		   #rankCode#,
+		   #userName#,
+		   #differentPlacePrivs#,
+		   #counterNo#,
+		   #amountDaysGrade#,
+		   #inputGrade#,
+		   #inquiryPrivs#,
+		   #biaTransFailPrivs#,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+    </insert>
+    
+    <update id="UPDATE_POS_USER_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		update pos_user_privs
+		   set upper_user_id         = #upperUserId#,
+		       rank_code             = #rankCode#,
+		       user_name             = #userName#,
+		       different_place_privs = #differentPlacePrivs#,
+		       counter_no            = #counterNo#,
+		       amount_days_grade     = #amountDaysGrade#,
+		       input_grade           = #inputGrade#,
+		       inquiry_privs         = #inquiryPrivs#,
+		       mpos_privs            = #mposPrivs#，
+		       bia_transfail_privs   =#biaTransFailPrivs#,
+		       epoint_privs          =#epointPrivs#,
+		       return_prem_privs     =#returnpremPrivs#,
+		       pos_note_return_privs =#posNoteReturnPrivs#,
+		       updated_date          = sysdate,
+		       updated_user          = user
+		 where user_id = #userId#
+    </update>
+
+    <update id="UPDATE_POS_USER_PREM_DAYS_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		update pos_user_prem_days_privs
+		   set valid_end_date         = null,
+		       source_transfer_sum    = #amountDaysPrivsDTO.sourceTransferSum#,
+		       notsource_transfer_sum = #amountDaysPrivsDTO.notsourceTransferSum#,
+		       self_cash_sum          = #amountDaysPrivsDTO.selfCashSum#,
+		       notself_cash_sum       = #amountDaysPrivsDTO.notselfCashSum#,
+		       treaty_exceed_sum      = #amountDaysPrivsDTO.treatyExceedSum#,
+		       interest_free_sum      = #amountDaysPrivsDTO.interestFreeSum#,
+		       updated_date           = sysdate,
+		       updated_user           = user
+		 where user_id = #userId#
+		   and service_items = #amountDaysPrivsDTO.serviceItemOdd#
+		   and accept_channel_code = #amountDaysPrivsDTO.acceptChannel#		
+		   and rownum = 1
+    </update>
+    
+    <update id="UPDATE_USER_PREM_DAYS_PRIVS_END_DATE" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		update pos_user_prem_days_privs
+		   set valid_end_date         = sysdate,
+		       updated_date           = sysdate,
+		       updated_user           = user
+		 where user_id = #userId#
+		   and service_items = #amountDaysPrivsDTO.serviceItemOdd#
+		   and accept_channel_code = #amountDaysPrivsDTO.acceptChannel#
+    </update>
+
+    <insert id="INSERT_POS_USER_PREM_DAYS_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		insert into pos_user_prem_days_privs
+		  (user_id,
+		   service_items,
+		   accept_channel_code,
+		   source_transfer_sum,
+		   notsource_transfer_sum,
+		   self_cash_sum,
+		   notself_cash_sum,
+		   treaty_exceed_sum,
+		   interest_free_sum,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#userId#,
+		   #amountDaysPrivsDTO.serviceItemOdd#,
+		   #amountDaysPrivsDTO.acceptChannel#,
+		   #amountDaysPrivsDTO.sourceTransferSum#,
+		   #amountDaysPrivsDTO.notsourceTransferSum#,
+		   #amountDaysPrivsDTO.selfCashSum#,
+		   #amountDaysPrivsDTO.notselfCashSum#,
+		   #amountDaysPrivsDTO.treatyExceedSum#,
+		   #amountDaysPrivsDTO.interestFreeSum#,
+		   sysdate,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+    </insert>
+
+    <update id="SET_SELF_INPUT_PRIVS_END_DATE" parameterClass="java.lang.String">
+		update self_input_privs
+		   set valid_end_date = sysdate, 
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where user_id = #value#
+		   and valid_end_date is null
+    </update>
+    
+    <update id="SET_SELF_SPECIAL_PRIVS_END_DATE" parameterClass="java.lang.String">
+		update self_special_privs
+		   set valid_end_date = sysdate, 
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where user_id = #value#
+		   and valid_end_date is null
+    </update>
+
+    <update id="UPDATE_SELF_INPUT_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		update self_input_privs
+		   set valid_end_date = null, updated_date = sysdate, updated_user = user
+		 where user_id = #userId#
+		   and service_items = #serviceItem#
+		   and rownum = 1
+    </update>
+    
+    <insert id="INSERT_SELF_INPUT_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		insert into self_input_privs
+		  (user_id,
+		   service_items,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#userId#, #serviceItem#, sysdate, user, sysdate, user, sysdate)
+    </insert>
+    
+    <update id="UPDATE_SELF_SPECIAL_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		update self_special_privs
+		   set valid_end_date = null, updated_date = sysdate, updated_user = user
+		 where user_id = #userId#
+		   and special_func = #serviceItem#
+		   and rownum = 1
+    </update>
+    
+    <insert id="INSERT_SELF_SPECIAL_PRIVS" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		insert into self_special_privs
+		  (user_id,
+		   special_func,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#userId#, #serviceItem#, sysdate, user, sysdate, user, sysdate)
+    </insert>
+    
+    <update id="UPDATE_USER_APROV_PRIVS_END_DATE" parameterClass="java.lang.String">
+		update pos_user_special_set
+		   set end_date = sysdate, updated_date = sysdate, updated_user = user
+		 where user_id = #user#
+		   and end_date is null
+    </update>
+    
+    <update id="UPDATE_USER_APROV_SPECIAL" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO">
+		update pos_user_special_set
+		   set end_date = null, updated_date = sysdate, updated_user = user
+		 where user_id = #userId#
+		   and special_type = #specType#
+		   and special_code = decode(#specType#,'1',special_code,'3',special_code,'2',#aprovFuncSpecial#)
+		   and rownum = 1
+    </update>
+    
+    <insert id="INSERT_USER_APROV_SPECIAL" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" >
+		insert into pos_user_special_set
+		  (user_id,
+		   special_type,
+		   special_code,
+		   updated_user,
+		   updated_date,
+		   created_user,
+		   created_date,
+		   start_date)
+		values
+		  (#userId#,
+		   #specType#,
+		   #aprovFuncSpecial#,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate,
+		   sysdate)
+    </insert>
+    
+    <update id="REMOVE_UPPER_POS_USER_PRIVS" parameterClass="java.lang.String">
+		update pos_user_privs
+		   set upper_user_id = null, 
+		       updated_date  = sysdate,
+		       updated_user  = user
+		 where user_id = #value#
+    </update>
+
+    <select id="QUERY_AMOUNT_DAYS_GRADE_VALUE" parameterClass="com.sinolife.pos.setting.user.privilege.dto.UserPrivilegeInfoDTO" resultClass="java.util.HashMap">
+		select a.source_transfer_sum,
+		       a.notsource_transfer_sum,
+		       a.notself_cash_sum,
+		       a.self_cash_sum,
+		       a.treaty_exceed_sum,
+		       a.interest_free_sum
+		  from pos_amount_days_privs_set a
+		 where a.amount_days_grade = #amountDaysGrade#
+		   and a.accept_channel_code = #amountDaysPrivsDTO.acceptChannel#
+		   and a.service_items = #amountDaysPrivsDTO.serviceItemOdd#
+		   and a.valid_end_date is null
+    </select>
+    
+    <select id="QUERY_INPUT_UPPER_ID_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    <![CDATA[
+		select nvl2(max(user_id), 'Y', 'N')
+		  from pos_user_privs u
+		 where u.user_id <> #userId#
+		   and u.user_id = #upperId#
+		 start with u.user_id = #userId#
+		connect by nocycle prior user_id = upper_user_id
+	]]>
+    </select>
+    
+    <select id="QUERY_USER_POS_EXISTS" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select nvl2(max(user_id),'Y','N') from pos_user_privs where user_id = #id#
+	</select>
+	
+	<update id="UPDATE_USER_PREM_PRIVS_END" parameterClass="java.lang.String">
+		update pos_user_prem_days_privs
+		   set valid_end_date = sysdate
+		 where user_id = #userId#
+		   and valid_end_date is null
+    </update>
+
+    <insert id="BATCH_INSERT_POS_USER_PRIVS" parameterClass="java.util.HashMap" >
+		insert into pos_user_privs
+		  (user_id,
+		   upper_user_id,
+		   rank_code,
+		   user_name,
+		   different_place_privs,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date,
+		   counter_no,
+		   amount_days_grade,
+		   input_grade,
+		   inquiry_privs)
+		  select #userId#,
+		         #upperUser#,
+		         (select rank_code from pos_rank_code where description = #rankCode#),
+		         #userName#,
+		         #diffPlace#,
+		         user,
+		         sysdate,
+		         user,
+		         sysdate,
+		         (select counter_no from counter_info where counter_name = #counter#),
+		         (select amount_days_grade
+		            from pos_amount_days_grade
+		           where description = #approvalLevel#),
+		         (select input_grade
+		            from pos_input_grade_code
+		           where description = #inputLevel#),
+		         #inquiryPrivs#
+		    from dual
+    </insert>
+
+    <insert id="BATCH_INSERT_SELF_INPUT_PRIVS" parameterClass="java.lang.String" >
+		insert into self_input_privs
+		  (user_id,
+		   service_items,
+		   valid_start_date,
+		   updated_user,
+		   updated_date,
+		   created_user,
+		   created_date)
+		  select #userId#, p.service_items, sysdate, user, sysdate, user, sysdate
+		    from pos_input_grade_privs_set p
+		   where p.input_grade = (select input_grade from pos_user_privs where user_id = #userId#)
+		     and p.valid_end_date is null
+    </insert>
+    
+    <insert id="BATCH_INSERT_SELF_SPECIAL_PRIVS" parameterClass="java.lang.String" >
+		insert into self_special_privs
+		  (user_id,
+		   special_func,
+		   valid_start_date,
+		   updated_user,
+		   updated_date,
+		   created_user,
+		   created_date)
+		  select #userId#,
+		         c.special_func,
+		         sysdate,
+		         user,
+		         sysdate,
+		         user,
+		         sysdate
+		    from pos_special_func_item_contrast c, pos_input_grade_privs_set p
+		   where p.input_grade =
+		         (select input_grade
+		            from pos_user_privs
+		           where user_id = #userId#)
+		     and p.service_items = c.service_items
+    </insert>
+    
+    <insert id="BATCH_INSERT_USER_APROV_SPECIAL" parameterClass="java.lang.String" >
+		insert into pos_user_special_set
+		  (user_id,
+		   special_type,
+		   special_code,
+		   updated_user,
+		   updated_date,
+		   created_user,
+		   created_date,
+		   start_date)
+		values
+		  (#userId#,
+		   '1',
+		   '1',
+		   user,
+		   sysdate,
+		   user,
+		   sysdate,
+		   sysdate)
+    </insert>
+    
+    <select id="QUERY_USER_PREM_PRIVS" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select min(p.source_transfer_sum) source_transfer_sum,
+		       min(p.notsource_transfer_sum) notsource_transfer_sum,
+		       min(p.self_cash_sum) self_cash_sum,
+		       min(p.notself_cash_sum) notself_cash_sum,
+		       min(p.treaty_exceed_sum) treaty_exceed_sum,
+		       min(p.interest_free_sum) interest_free_sum
+		  from pos_user_prem_days_privs p
+		 where p.user_id = #user#
+		   and p.valid_end_date is null
+	</select>
+	  <select id="QUERY_USER_POS_ACCEPT_PRIVS" parameterClass="java.lang.String" resultClass="java.lang.String">
+		 select decode(count(1),0,'N','Y')
+         from um_ug_user a
+         where a.ug_id = 'POS_BRANCH_ACCEPT'
+          and a.d_flag = 'N' and upper(a.user_id)=upper(#user#)
+	</select>
+    
+</sqlMap>

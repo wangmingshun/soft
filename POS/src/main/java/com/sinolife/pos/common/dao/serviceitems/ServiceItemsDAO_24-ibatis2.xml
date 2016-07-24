@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_24">
+
+	<select id="QUERY_SURVIVAL_COVERAGE" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_24">
+		select s.pay_type        payType,
+		       t1.description    payTypeDesc,
+		       s.frequency       frequency,
+		       s.pay_type_para   payTypePara,
+		       s.pay_period_type payPeriodType,
+		       t2.description    payPeriodTypeDesc,
+		       s.pay_period      payPeriodTypePara
+		  from policy_survival_coverage s,
+		       policy_product           p,
+		       pay_type                 t1,
+		       pay_period_type          t2
+		 where s.policy_no = #policyNo#
+		   and p.policy_no = s.policy_no
+		   and p.prod_seq = s.prod_seq
+		   and p.is_primary_plan = 'Y'
+		   and s.pay_type = t1.pay_type(+)
+		   and s.pay_period_type = t2.pay_period_type(+)
+	</select>
+	
+	<select id="QUERY_SURVIVAL_PRODUCT_CODE" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select p.product_code
+		  from policy_product p
+		 where p.policy_no = #policyNo#
+		   and p.duty_status = '1'
+		   and p.product_code in ('UIAN_AN0', 'UIAN_BN0', 'UIAN_CN0','UBAN_AN1','UBAN_BN1','UIAN_DN1','UIAN_EN1' ,'CIAN_CP1','UNAN_AN1','UIAN_FN0','UNAN_CN1','UEAN_EN1','UEAN_DN1','UBAN_EN0','UIAN_GN0','CBAN_DN1','UBAN_FN1','UEAN_FN1','UEAN_GN1','UEAN_HN1','CNAN_CN1')
+		   and rownum = 1
+	</select>
+	
+	<select id="QUERY_UIAN_AN0_FIRST_PAY_DATE" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select to_char(s.first_pay_date, 'yyyy-mm-dd')
+		  from policy_survival_coverage s, policy_product d
+		 where s.policy_no = #policyNo#
+		   and s.prod_seq = d.prod_seq
+		   and s.policy_no = d.policy_no
+		   and d.product_code in ('UIAN_AN0', 'UIAN_BN0', 'UIAN_CN0','UBAN_AN1','UBAN_BN1','UIAN_DN1','UIAN_EN1' ,'CIAN_CP1','UNAN_AN1','UIAN_FN0','UNAN_CN1','UEAN_EN1','UEAN_DN1','UBAN_EN0','UIAN_GN0','CBAN_DN1','UBAN_FN1','UEAN_FN1','UEAN_GN1','UEAN_HN1','CNAN_CN1')
+		   and d.duty_status = '1'
+		   and rownum = 1
+	</select>
+	
+	<select id="QUERY_EFFECTED_TWO_YEARS" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select add_months(p.effect_date,24) from policy p where p.policy_no = #policyNo#
+	</select>
+	
+	<select id="QUERY_CIAN_CP1_FREQUENCY" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select p.frequency
+		  from policy_product_prem p, policy_product d
+		 where p.policy_no = #policyNo#
+		   and p.policy_no = d.policy_no
+		   and d.product_code in('CIAN_CP1','CNAN_CN1')
+		   and p.prod_seq = d.prod_seq
+		   and d.duty_status = '1'
+		   and rownum = 1
+	</select>
+
+</sqlMap>

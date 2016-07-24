@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.drawtoprepay.dao.DrawToPrepayDAO">
+
+	<select id="QUERY_POLICY_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.policy_no,
+		       to_char(p.effect_date, 'yyyy-mm-dd') effect_date,
+		       a.modal_total_prem,
+		       to_char(b.pay_to_date, 'yyyy-mm-dd') pay_to_date
+		  from policy              p,
+		       policy_prem_info    a,
+		       policy_product_prem b,
+		       policy_product      d
+		 where p.policy_no = #value#
+		   and p.policy_no = a.policy_no
+		   and p.policy_no = b.policy_no
+		   and b.prod_seq = d.prod_seq
+		   and d.policy_no = p.policy_no
+		   and d.is_primary_plan = 'Y'
+	</select>
+	
+	<select id="POLICY_POS_CHECK" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		select p.pos_no pos_no, s.description service_item
+		  from pos_info              p,
+		       policy_product        d,
+		       policy_product_prem   m,
+		       product_service_items s
+		 where p.policy_no = #policyNo#
+		   and p.service_items in ('1','2','4','11','10','13','34','80','82','84','86','88','89')
+		   and p.policy_no = d.policy_no
+		   and d.is_primary_plan = 'Y'
+		   and d.policy_no = m.policy_no
+		   and d.prod_seq = m.prod_seq
+		   and p.effective_date > m.pay_to_date
+		   and p.prem_sum > 0
+		   and p.service_items = s.service_items
+	]]>
+	</select>
+
+	<parameterMap id="POLICY_PREM_TURN_OUT_CHECK_MAP" class="java.util.Map">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="checkFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="POLICY_PREM_TURN_OUT_CHECK" parameterMap="POLICY_PREM_TURN_OUT_CHECK_MAP">
+		{call l_pos_rn_interface.rn_policy_prem_turn_out_check(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="PROC_RN_PREM_TRANSFER_OUT_MAP" class="java.util.Map">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premSum" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="date" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_RN_PREM_TRANSFER_OUT" parameterMap="PROC_RN_PREM_TRANSFER_OUT_MAP">
+		{call l_pos_rn_interface.rn_prem_transfer_out(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="DIVIDEND_COST_ROLLBACK_MAP" class="java.util.Map">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="calcDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="DIVIDEND_COST_ROLLBACK" parameterMap="DIVIDEND_COST_ROLLBACK_MAP">
+		{call l_pos_dividend.dividend_to_cost_rollback_pol(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="SURVIVAL_PREM_ROLLBACK_MAP" class="java.util.Map">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="calcDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="SURVIVAL_PREM_ROLLBACK" parameterMap="SURVIVAL_PREM_ROLLBACK_MAP">
+		{call l_pos_survival.survival_prem_rollback(?,?,?,?)}
+	</procedure>
+	
+	<select id="POLICY_PRIMARY_PAY_TO_DATE" parameterClass="java.lang.String" resultClass="java.util.Date">
+		select p.pay_to_date
+		  from policy_product d, policy_product_prem p
+		 where d.policy_no = #policyNo#
+		   and d.is_primary_plan = 'Y'
+		   and p.policy_no = d.policy_no
+		   and d.prod_seq = p.prod_seq
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO">
+	
+	<select id="QUERY_COMMON_ACCEPT_DETAIL_INPUT" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO">
+	    select b.pos_batch_no batchNo,
+	           b.apply_type_code applyType,
+	           b.accept_channel_code acceptChannel,
+	           b.representor representor,
+	           b.id_type idType,
+	           b.represent_idno representIdNo,
+	           f.barcode_no barcodeNo,
+	           f.relate_barcode relateBarcode,
+	           f.file_pages filePages,
+	           p.service_items serviceItems,
+	           to_char(p.accept_date, 'yyyy-mm-dd') acceptDate,
+	           to_char(f.apply_date, 'yyyy-mm-dd') applyDate,
+	           p.pos_no posNo,
+	           p.policy_no policyNo,
+	           p.client_no clientNo,
+	           i.description serviceItemsDesc,
+	           p.accept_seq acceptSeq,
+	           (select max(to_number(p2.accept_seq))
+		          from pos_apply_files f1,
+		               pos_apply_files f2,
+		               pos_info        p1,
+		               pos_info        p2
+		         where p1.pos_no = p.pos_no
+		           and p1.barcode_no = f1.barcode_no
+		           and f2.pos_batch_no = f1.pos_batch_no
+		           and f2.barcode_no = p2.barcode_no) acceptCount
+	      from pos_apply_batch b, pos_apply_files f, pos_info p, product_service_items i
+	     where p.pos_no = #value#
+	       and p.barcode_no = f.barcode_no
+	       and b.pos_batch_no = f.pos_batch_no
+	       and p.service_items = i.service_items
+	</select>
+	
+	<select id="querySpecialFuncListByServiceItems" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+	<![CDATA[
+		select b.special_func code, b.description description
+		  from pos_special_func_item_contrast a, pos_special_func_code b
+		 where a.special_func = b.special_func
+		  and b.special_func <>'12'
+		   and a.service_items = #value#
+	]]>
+	</select>
+	
+	<select id="querySpecialRuleList" resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+	<![CDATA[
+		select special_rule code, description
+		  from pos_special_rule_code
+		 order by special_rule asc
+	]]>
+	</select>
+	
+	<select id="querySpecialRuleReasonList" resultClass="com.sinolife.pos.common.dto.CodeTableItemDTO">
+	<![CDATA[
+		select special_rule_reason code, description
+		  from pos_special_rule_reason
+		 order by special_rule_reason asc
+	]]>
+	</select>
+	
+	<select id="QUERY_DETAIL_MAX_GROUPNO" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select max(info_group_no) from pos_accept_detail d where d.pos_no = #value#
+	</select>
+
+    <update id="UPDATE_POS_INFO_ACCEPT_SEQ"  parameterClass="java.lang.String">
+    <![CDATA[
+		update pos_info
+		   set accept_seq = accept_seq + 1
+		 where pos_no in (select p1.pos_no
+		                    from pos_info        p0,
+		                         pos_apply_files a0,
+		                         pos_apply_batch b0,
+		                         pos_info        p1,
+		                         pos_apply_files a1
+		                   where p0.pos_no = #posNo#
+		                     and p0.barcode_no = a0.barcode_no
+		                     and a0.pos_batch_no = b0.pos_batch_no
+		                     and b0.pos_batch_no = a1.pos_batch_no
+		                     and a1.barcode_no = p1.barcode_no
+		                     and p1.service_items <> p0.service_items
+		                     and p1.accept_seq > p0.accept_seq)
+	]]>
+    </update>
+    
+    <select id="QUERY_ITEMS_MAX_ACCEPT_SEQ" parameterClass="com.sinolife.pos.common.dto.PosInfoDTO" resultClass="java.lang.String">
+    <![CDATA[
+		SELECT MAX(a.accept_seq) + 1
+		  FROM pos_info a,
+		       pos_info b
+		 WHERE a.barcode_no = b.barcode_no
+		   AND b.pos_no = #posNo#
+		   AND a.service_items = #serviceItems#
+    ]]>
+	</select>
+	
+    <select id="queryUserFuncSpecPrivs" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select special_func
+		  from self_special_privs
+		 where user_id = #user#
+		   and valid_end_date is null
+	</select>
+
+	<select id="queryPosAcceptDetail" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosAcceptDetailDTO">
+	<![CDATA[
+		SELECT a.pos_no "posNo",
+		       a.accept_detail_no "acceptDetailNo",
+		       a.pos_object "posObject",
+		       a.process_type "processType",
+		       a.object_value "objectValue",
+		       a.item_no "itemNo",
+		       a.old_value "oldValue",
+		       a.new_value "newValue",
+		       a.pk_serial "pkSerial",
+		       a.info_group_no "infoGroupNo"
+		  FROM pos_accept_detail a
+		 WHERE a.pos_no = #posNo#
+	]]>
+	<dynamic>
+		<iterate property="procTypeAndItemNoList" prepend="AND" open="(" conjunction="OR" close=")">
+		<![CDATA[
+			a.pos_object = #procTypeAndItemNoList[].posObject# AND a.item_no = #procTypeAndItemNoList[].itemNo#
+		]]>
+		</iterate>
+	</dynamic>
+	</select>
+	
+	
+	<parameterMap id="account_type_rule1_Map" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policy" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="accountTypeRule1" parameterMap="account_type_rule1_Map">
+		{call l_pos_rule_query.account_type_rule1(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="account_type_rule2_Map" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policy" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="accountTypeRule2" parameterMap="account_type_rule2_Map">
+		{call l_pos_rule_query.account_type_rule2(?,?,?,?)}
+	</procedure>	
+		
+	
+	
+	
+</sqlMap>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_12">
+	
+	<select id="isPolicyNeedProcess" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_service_item_12.policy_is_need_process(#policyNo#, #clientNo#, #sexCode#, #birthday#)
+		  FROM dual
+	]]>
+	</select>
+
+  <select id="queryPolicyNoListByClientNoAndChannelcd" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select distinct a.policy_no
+		  from policy a, policy_product b
+     where a.policy_no = b.policy_no
+	   and ((b.is_primary_plan='Y' and a.applicant_no = #clientNo# )or b.insured_no = #clientNo#)
+       /*and b.is_primary_plan='Y'*/
+        AND (((select channel_type
+            from policy
+           where policy_no = #policyNo#) = '06' and
+       a.channel_type = '06')       
+       or ((select channel_type
+               from policy
+              where policy_no = #policyNo#) != '06' and
+       a.channel_type != '06'))
+	   order by a.policy_no
+ 	]]>
+	</select>
+</sqlMap>

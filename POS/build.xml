@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="SL_POS" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- =================================================================== -->
+	<!-- 变量设置 -->
+	<!-- =================================================================== -->
+	<property environment="env" />
+	<property file="build.properties" />
+	<property name="project.root" value="." />
+	<property name="java" value="${project.root}/src/main/java" />
+	<property name="web" value="${project.root}/src/main/webapp" />
+	<property name="res" value="${web}/resources" />
+	<property name="srcres" value="${project.root}/src/main/resource" />
+	<property name="webinf" value="${project.root}/src/main/webapp/WEB-INF" />
+	<property name="lib" value="${webinf}/lib" />
+	<property name="bin" value="${webinf}/classes" />
+	<property name="dist" value="${project.root}/dist" />
+	<property name="report" value="${project.root}/report" />
+	<property name="container" value="${container.home}" />
+	<property name="ivycache" value="${user.home}/.ivy2" />
+	<property name="applet.dir" value="${web}/applet" />
+	<property name="template" value="${project.root}/src/main/template" />
+	<!-- build no.-->
+	<tstamp>
+		<format property="release_date" pattern="yyyyMMddHHmm" />
+	</tstamp>
+
+	<target name="classes-clean" description="清空classes目录">
+		<delete dir="${bin}" />
+	</target>
+	
+	
+	<!-- 重部署157集成环境      start -->
+		<property name="server_157" value="192.168.0.157" />
+		<property name="server_port" value="22" />
+		<property name="ssh_user" value="mwuser" />
+		<property name="ssh_pwd" value="mwuser" />
+		<property name="app_path" value="/mwbase/appsystems/POS_0_INT_0_1/apps" />
+		<property name="appname" value="SL_POS" />
+		
+		<target name="reloadWar">
+			<echo message="update start..."/>                
+	        <scp todir="${ssh_user}:${ssh_pwd}@${server_157}:${app_path}" trust="true"> 
+	        	<fileset dir="${dist}">
+	        	</fileset>
+	        </scp>
+	        <echo message="update end...."/>
+		</target>
+		<target name="shutServer157">
+		    <sshexec host="${server_157}" username="${ssh_user}" password="${ssh_pwd}" trust="true" command="cd /mwbase/tomcat/domains/POS_0_INT_0_1/bin ; ./shutdown.sh"></sshexec>
+		</target>
+		<target name="removeOldWar">
+			<sshexec host="${server_157}" username="${ssh_user}" password="${ssh_pwd}" trust="true" command="cd /mwbase/tomcat/domains/POS_0_INT_0_1 ; rm -rf work"></sshexec>
+			<sshexec host="${server_157}" username="${ssh_user}" password="${ssh_pwd}" trust="true" command="cd /mwbase/appsystems/POS_0_INT_0_1/apps ; rm -rf SL_POS.war"></sshexec>
+		</target>
+		<!-- 执行此命令，自动shutDown，打包上传，startUp (用到两个jar：commons-net-ftp-2.0.jar和jsch-0.1.29.jar)-->
+		<target name="redeployServer157" depends="shutServer157,war,removeOldWar,reloadWar">
+			<!--<sshexec host="${server_157}" username="${ssh_user}" password="${ssh_pwd}" trust="true" command="cd /mwbase/tomcat/domains/POS_0_INT_0_1/bin ; ./startup.sh"></sshexec>-->
+		</target>
+		<!-- 重部署157集成环境                  end -->
+	
+	
+
+	<target name="lib-clean" description="清空包">
+		<delete dir="${lib}" />
+		<delete dir="${web}/sf_home" />
+	</target>
+	<target name="clean" depends="classes-clean,lib-clean" description="清空所有构建文件">
+		<delete dir="${report}" />
+		<delete dir="${srcres}" >
+			<include name="**/*.jasper"/>
+			<include name="**/*.pdf"/>
+		</delete>
+		<delete dir="${project.root}">
+			<include name="**/Thumbs.db"/>
+		</delete>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 设置第三方包下载配置文件 -->
+	<!-- =================================================================== -->
+	<target name="configure-lib" unless="ivy-already-configured" description="设置第三方包配置文件">
+		<ivy:configure url="${ivysettings.url}" />
+		<ivy:cleancache />
+		<property name="ivy-already-configured" value="true"/>
+	</target>
+
+    <target name="get-lib" depends="configure-lib" description="下载或从本地缓存获取第三方包">
+       <ivy:resolve file="ivy.xml" conf="*" />
+       <ivy:retrieve pattern="${lib}/[artifact].[ext]" />
+       <unzip src="${lib}/sf_home_res.jar" dest="${web}"></unzip>
+       <ivy:resolve file="src/main/webapp/sf_home/sf-ivy.xml" conf="*" />
+       <ivy:retrieve pattern="${lib}/[artifact].[ext]" />
+    </target>
+
+	<target name="copyResources" description="拷贝资源文件">
+		<copy todir="${bin}">
+			<fileset dir="${srcres}" includes="**">
+				<exclude name="**.jasper"/>
+				<exclude name="**.pdf"/>
+				<exclude name="**Thumbs.db"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="moveappletjar" depends="get-lib" description="创建applet目录">
+		<echo message="创建applet目录" />
+		<delete dir="${applet.dir}" />
+		<mkdir dir="${applet.dir}" />
+		<copy todir="${applet.dir}" flatten="yes" preservelastmodified="true">
+			<fileset dir="${lib}">
+				<include name="IMApplet.jar" />
+				<include name="jai_core.jar" />
+				<include name="jai_codec.jar" />
+				<include name="antlr.jar" />
+				<include name="sf-im-client.jar" />
+				<include name="jsontools-core.jar" />
+				<include name="com.springsource.org.codehaus.jackson.mapper.jar" />
+				<include name="com.springsource.org.codehaus.jackson.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="compile" depends="get-lib,copyResources,moveappletjar" description="Compile java source">
+		<javac srcdir="${java}" includes="**" excludes="**/applet/**" encoding="utf-8" destdir="${bin}" source="1.6" target="1.6" nowarn="true" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="classpath" />
+		</javac>
+		<copy todir="${bin}">
+			<fileset dir="${java}" includes="**/*.xml" />
+		</copy>
+		<!-- 生成excel的模板-->
+		<copy todir="${bin}">
+		   <fileset dir="${template}" includes="**" />
+		</copy>
+	</target>
+
+	<target name="complieJasper" depends="get-lib,copyResources" description="编译JRXML文件">
+		<!-- 编译JRXML文件 -->
+		<taskdef name="jrc" classname="net.sf.jasperreports.ant.JRAntCompileTask">
+			<classpath refid="classpath"/>
+		</taskdef>
+		<jrc srcdir="${srcres}/jasper_tmpl/POS" destdir="${bin}/jasper_tmpl/POS">
+			<classpath refid="classpath"/>
+		</jrc>
+	</target>
+	
+	<target name="complieJasperWithoutGetLib" depends="copyResources" description="编译JRXML文件，不get-lib">
+		<!-- 编译JRXML文件 -->
+		<taskdef name="jrc" classname="net.sf.jasperreports.ant.JRAntCompileTask">
+			<classpath refid="classpath"/>
+		</taskdef>
+		<jrc srcdir="${srcres}/jasper_tmpl/POS" destdir="${bin}/jasper_tmpl/POS">
+			<classpath refid="classpath"/>
+		</jrc>
+	</target>
+	
+	<path id="classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${bin}" />
+	</path>
+
+	<target name="test" depends="compile,complieJasper" description="Unit test">
+		<mkdir dir="${report}" />
+		<junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes" dir="${project.root}">
+			<formatter type="plain" usefile="flase" />
+			<formatter type="xml" />
+			<test name="TestSuite" todir="${report}">
+			</test>
+			<classpath refid="classpath" />
+		</junit>
+	</target>
+
+	<target name="war" depends="compile,complieJasper">
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		<jar destfile="${dist}/${ant.project.name}.war">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Version" value="${project.version}" />
+			</manifest>
+			<fileset dir="${web}">
+				<exclude name="**/jsp-api.jar" />
+				<exclude name="**/cfg.properties" />
+				<exclude name="**/log4j.properties" />
+					<exclude name="**/instance.cert" />
+			</fileset>
+		</jar>
+	</target>
+
+	<!-- Configure the directory into which the web application is built -->
+	<property name="build" value="${dist}/" />
+
+	<!-- Configure the context path for this application -->
+	<property name="path" value="/${ant.project.name}" />
+
+	<!-- Configure properties to access the Manager application -->
+	<property name="url" value="${deploy.catalina.url}" />
+	<property name="username" value="${deploy.catalina.username}" />
+	<property name="password" value="${deploy.catalina.password}" />
+
+	<!-- Configure the custom Ant tasks for the Manager application -->
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask" />
+	<taskdef name="list" classname="org.apache.catalina.ant.ListTask" />
+	<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask" />
+	<taskdef name="resources" classname="org.apache.catalina.ant.ResourcesTask" />
+	<taskdef name="roles" classname="org.apache.catalina.ant.RolesTask" />
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask" />
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask" />
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask" />
+
+	<target name="deploy" description="Install web application" depends="war">
+		<deploy url="${url}" username="${username}" password="${password}" path="${path}" war="file:${build}${ant.project.name}.war" update="true" />
+	</target>
+
+	<target name="reload" description="Reload web application" depends="war">
+		<reload url="${url}" username="${username}" password="${password}" path="${path}" />
+	</target>
+
+	<target name="undeploy" description="Remove web application">
+		<undeploy url="${url}" username="${username}" password="${password}" path="${path}" />
+	</target>
+
+	<target name="startup">
+		<sshexec host="${remote.host.ip}" username="mwuser" password="mwuser" trust="true" command="/mwbase/tomcat/biztomcats/bin/spos" />
+	</target>
+
+	<target name="shutdown">
+		<sshexec host="${remote.host.ip}" username="mwuser" password="mwuser" trust="true" command="/mwbase/tomcat/biztomcats/bin/dpos" />
+	</target>
+	
+	<!--<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" />
+	<property name="findbugs.home" value="${env.FINDBUGS_HOME}" />
+	<path id="findbugs.lib">
+		<fileset dir="${findbugs.home}/lib">
+			<include name="findbugs-ant.jar"/>
+		</fileset>
+	</path>
+	-->
+	<!--<taskdef name="convertXmlToText" classname="edu.umd.cs.findbugs.anttask.ConvertXmlToTextTask">
+		<classpath refid="findbugs.lib" />
+	</taskdef>	
+	<target name="convertXmlToHtml" description="Convert the findbugs's result to html">
+		<convertXmlToText home="${findbugs.home}" format="html" input="${report}/${ant.project.name}-fb.xml" output="${report}/${ant.project.name}-fb.html"></convertXmlToText>
+	</target>
+	<target name="findbugs" depends="compile,complieJasper" description="Find bugs">
+		<mkdir dir="${report}" />
+		<findbugs home="${findbugs.home}" output="xml" outputFile="${report}/${ant.project.name}-fb.xml" failOnError="true" reportLevel="high" warningsProperty="findbugsFailure">
+			<auxClasspath>
+				<fileset dir="${lib}">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="${env.TOMCAT_HOME}/lib">
+					<include name="jsp-api.jar" />
+				</fileset>
+			</auxClasspath>
+			<auxClasspath path="${env.TOMCAT_HOME}/lib/jsp-api.jar"></auxClasspath>
+			<sourcePath path="${java}" />
+			<auxAnalyzepath path="${bin}"/>
+		</findbugs>
+		<antcall target="convertXmlToHtml" />
+		<fail if="findbugsFailure"/>
+	</target>	-->
+	<target name="exportJarForSL_LINTF" depends="compile,complieJasper" description="打提供给SL_LINTF受理用的JAR包">
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		<jar destfile="${dist}/sl_pos_4_sl_intf.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Version" value="${project.version}" />
+			</manifest>
+			<fileset dir="${java}">
+				<include name="com/sinolife/pos/acceptance/**/service/*Service.java" />
+				<include name="com/sinolife/pos/common/consts/*.java" />
+				<include name="com/sinolife/pos/common/dao/**/*.java" />
+				<include name="com/sinolife/pos/common/dto/**/*.java" />
+				<include name="com/sinolife/pos/common/include/service/*.java" />
+				<include name="com/sinolife/pos/common/util/**/*.java" />
+				<include name="com/sinolife/pos/**/dto/*.java" />
+				<include name="com/sinolife/pos/**/dao/*.java" />
+				<include name="com/sinolife/pos/**/dao/typehandler/*.java" />
+				<include name="com/sinolife/pos/rpc/**/*.java" />
+				<include name="com/sinolife/pos/**/*Handler.java" />
+				<include name="com/sinolife/pos/**/*Helper.java" />
+			</fileset>
+			<fileset dir="${bin}">
+				<include name="com/sinolife/pos/acceptance/**/service/*Service.class" />
+				<include name="com/sinolife/pos/acceptance/**/service/*Service$*.class" />
+				<include name="com/sinolife/pos/common/consts/*.class" />
+				<include name="com/sinolife/pos/common/dao/**/*.class" />
+				<include name="com/sinolife/pos/common/dto/**/*.class" />
+				<include name="com/sinolife/pos/common/include/service/*.class" />
+				<include name="com/sinolife/pos/common/util/**/*.class" />
+				<include name="com/sinolife/pos/**/dto/*.class" />
+				<include name="com/sinolife/pos/**/dao/*.class" />
+				<include name="com/sinolife/pos/**/dao/*$*.class" />
+				<include name="com/sinolife/pos/**/dao/typehandler/*.class" />
+				<include name="com/sinolife/pos/**/*-ibatis2.xml" />
+				<include name="com/sinolife/pos/rpc/**/*.class" />
+				<include name="com/sinolife/pos/**/*Handler.class" />
+				<include name="com/sinolife/pos/**/*Handler$*.class" />
+				<include name="com/sinolife/pos/**/*Helper.class" />
+				<include name="com/sinolife/pos/**/*Helper$*.class" />
+			</fileset>
+			<fileset dir="${webinf}/spring">
+				<include name="accept-relate-context.xml" />
+			</fileset>
+		</jar>
+	</target>
+	<target name="exportJarForESB"  description="打提供给SL_LINTF受理用的JAR包">
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		<jar destfile="${dist}/pos_esb_client.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Version" value="${project.version}" />
+			</manifest>
+			<fileset dir="${java}">
+				<include name="com/sinolife/pos/**/dto/*.java" />
+				<include name="com/sinolife/pos/pubInterface/biz/esb/service/*.java" />
+			</fileset>
+			<fileset dir="${bin}">
+				<include name="com/sinolife/pos/**/dto/*.class" />
+				<include name="com/sinolife/pos/pubInterface/biz/esb/service/*.class" />
+			</fileset>
+			
+		</jar>
+	</target>
+	
+	<target name="exportJarForDTO" description="提供给官网移动展业的dto类jar">
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		<jar destfile="${dist}/sl-pos-dto.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Version" value="${project.version}" />
+			</manifest>
+			<fileset dir="${bin}">
+				<include name="com/sinolife/pos/**/dto/**/*.class" />
+				<include name="com/sinolife/pos/pubInterface/biz/esb/service/*.class" />
+			</fileset>
+		</jar>
+	</target>
+</project>

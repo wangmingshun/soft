@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.posappointmentsync.dao.CommonAppointmentSyncDAO">
+	
+	<!--查询未处理的预约保全,并进行锁定-->	
+	<select id="queryAppointmentSyncList" resultClass="java.util.HashMap">
+	<![CDATA[
+		select pai.pos_no posNo,
+		       pai.service_items serviceItem,
+		       to_char(pai.apply_date, 'yyyy-mm-dd') applyDate
+		  from pos_appointment_info pai
+		 where pai.apply_date <= sysdate 
+		   and pai.status_code = '0' 
+		   and pai.is_valid = 'Y' 
+		   and pai.cancel_time is null
+	]]>
+	</select>
+	
+	<!--锁定单条记录-->	
+	<select id="lockAppointmentDetial" resultClass="java.lang.String">
+	<![CDATA[
+	    select 'Y'
+	    from pos_appointment_info pai
+	    where pai.status_code = '0'
+	      and pai.pos_no=#posNo#
+	    for update nowait
+	]]>
+	</select>
+	
+	<!-- 更新单条记录状态 -->
+	<update id="updateAppointmentDetailStatusCode" parameterClass="java.lang.String">
+	<![CDATA[
+		update pos_appointment_info
+		   set status_code = '1'
+		 where pos_no=#posNo#
+	]]>
+	</update>
+	
+	<update id="updateAppointmentDetailAppointedPosNo" parameterClass="java.util.HashMap">
+	<![CDATA[
+		update pos_appointment_info
+		   set appointed_pos_no = #appointedPosNo#
+		 where pos_no=#posNo#
+	]]>
+	</update>
+	
+	
+	
+	
+     
+</sqlMap>

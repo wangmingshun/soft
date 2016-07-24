@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notice_1_v3" language="groovy" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="57" bottomMargin="85">
+	<property name="ireport.zoom" value="1.2396694214876065"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="style1" isDefault="true" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<style name="table" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="0.0"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="1.0" lineStyle="Solid"/>
+			<leftPen lineWidth="1.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+			<rightPen lineWidth="1.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="dividend_tbl_dataset">
+		<field name="PRODUCT_NAME" class="java.lang.String"/>
+		<field name="BEFORE_DIVIDEND_SUM" class="java.lang.String"/>
+		<field name="DIVIDEND_SUM" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="plandataset">
+		<field name="PRODUCT_NAME" class="java.lang.String"/>
+		<field name="APP_NAME" class="java.lang.String"/>
+		<field name="INS_NAME" class="java.lang.String"/>
+		<field name="EFFECT_DATE" class="java.lang.String"/>
+		<field name="BASE_SUM_INS" class="java.lang.String"/>
+		<field name="PLAN_PREM_SUM" class="java.lang.String"/>
+		<field name="COVERAGE_PERIOD" class="java.lang.String"/>
+		<field name="PREM_TERM" class="java.lang.String"/>
+		<field name="PREM_TIMES" class="java.lang.String"/>
+		<field name="DIVIDEND_OPT" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="CLIENT_ADDRESS" class="java.lang.String"/>
+	<parameter name="CLIENT_POSTALCODE" class="java.lang.String"/>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="NOTE_YEAR" class="java.lang.String"/>
+	<parameter name="INS_NAME" class="java.lang.String"/>
+	<parameter name="EFFECT_DATE" class="java.lang.String"/>
+	<parameter name="PRINT_BARCODE_NO" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="ANN_PREM_SUM" class="java.lang.String"/>
+	<parameter name="DIVIDEND_OPT" class="java.lang.String"/>
+	<parameter name="SUM_DIVIDEND_VALUE" class="java.lang.String"/>
+	<parameter name="PART_DIVIDEND_VALUE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_ADDRESS" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_NAME" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_POSTALCODE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_TELEPHONE" class="java.lang.String"/>
+	<parameter name="SERVICE_TELEPHONE_A" class="java.lang.String"/>
+	<parameter name="SERVICE_TELEPHONE_B" class="java.lang.String"/>
+	<parameter name="DIVIDEND_TBL" class="java.util.List"/>
+	<parameter name="DIVIDENT_OPT_MEMO" class="java.lang.String"/>
+	<parameter name="DIVIDEND_PERIOD" class="java.lang.String"/>
+	<parameter name="DIVIDEND_TOTAL_SUM" class="java.lang.String"/>
+	<parameter name="COMPANY_NAME" class="java.lang.String"/>
+	<parameter name="PREM_TIMES" class="java.lang.String"/>
+	<parameter name="REMARKS" class="java.lang.String"/>
+	<parameter name="APP_NAME" class="java.lang.String"/>
+	<parameter name="PRODUCT_NAME" class="java.lang.String"/>
+	<parameter name="BASE_SUM_INS" class="java.lang.String"/>
+	<parameter name="PLAN_PREM_SUM" class="java.lang.String"/>
+	<parameter name="COVERAGE_PERIOD" class="java.lang.String"/>
+	<parameter name="PREM_TERM" class="java.lang.String"/>
+	<parameter name="PLAN" class="java.util.List"/>
+	<parameter name="BEFORE_DIVIDEND_SUM" class="java.lang.String"/>
+	<parameter name="ADD_DIVIDEND_SUM" class="java.lang.String"/>
+	<parameter name="DIVIDENT_OPT_MEMO2" class="java.lang.String"/>
+	<parameter name="parameter2" class="java.lang.String"/>
+	<parameter name="isShowImage" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_path" class="java.lang.String"/>
+	<group name="group2">
+		<groupExpression><![CDATA[$V{PAGE_NUMBER}]]></groupExpression>
+		<groupHeader>
+			<band height="1"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="614">
+				<staticText>
+					<reportElement style="style1" x="0" y="11" width="514" height="30"/>
+					<textElement textAlignment="Center">
+						<font size="16" isBold="true"/>
+					</textElement>
+					<text><![CDATA[生命人寿保险股份有限公司简介]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="style1" x="2" y="52" width="505" height="562"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" lineSpacing="1_1_2">
+						<font size="10"/>
+					</textElement>
+					<text><![CDATA[         生命人寿保险股份有限公司是一家全国性的专业寿险公司，成立于2002年3月4日，总部现位于深圳。股东由深圳市富德金融投资控股有限公司、深圳市华信投资控股有限公司等资金雄厚的企业构成。公司现注册资本107.75亿元，是国内资本实力最强的寿险公司之一。
+         公司遵从“爱心、服务、创新、价值”的经营理念，秉持“内诚于心，外信于行”的核心价值观，不断倡导求新、求变、求发展。
+         截至目前，生命人寿总资产达到千亿元，确立了中国加入WTO后新兴寿险公司领军企业的地位。生命人寿一直致力于科学前瞻的人才战略，引进了大批业内外优秀的高端人才。公司拥有一支由业界知名寿险管理人才组成的优秀经营管理团队，有丰富的行业经验和影响力，高层次的经营管理者和高素质员工队伍是生命人寿专业、健康经营的有力保证 。
+         生命人寿建立了覆盖全国重点省市区域的营销网络和多元化服务平台，目前共拥有近900个分支机构和服务网点（含在筹），超过13万人的管理和销售人员。生命人寿已搭建起一个完整而富有特色的保额分红产品体系。这一体系从客户生命周期出发，以保额分红为主体，以保障型附加险和万能累积账户为两翼，集保障和长期储蓄功能为一体，充分体现出寿险回归保障的产品设计理念，为全国350多万客户提供包括人寿保险、意外险、健康险和养老保险在内的全方位风险保障解决方案和投资理财计划。
+         生命人寿秉承“关爱”的服务理念，通过覆盖全国重点省市的近900个服务网点、95535客服热线24小时的全天候服务，生命人寿与客户之间搭建起一座零距离、个性化的沟通桥梁。将客户服务贯穿于整个企业运作之中，把客户满意作为自己的全部工作和最终目标，生命人寿赢得了良好的社会口碑与极佳的客户赞同。“1234”特色关爱理赔服务，即“500元以下1天给付、住院客户2天探视、理赔客户3天内给付、预付理赔客户4天内赔款到家，”使保险向着更人性化、更诚信的方向发展。
+         生命人寿作为一家优秀的企业，在积极追求可持续价值增长的同时，致力于各类公益活动，履行企业的职责和义务。公司在南方冰灾、汶川地震、玉树地震等灾难发生后，积极主动奉献爱心，先后捐款捐物达千万元。公司还为中国维和警察和家属捐赠保额达5亿的意外伤害保险。2010年初，公司成立了 “生命关爱基金”，成为业内首家专门为营销员队伍提供特别关爱和保障的爱心基金。
+         自成立以来，生命人寿相继获得了“亚洲品牌500强”、“中国寿险行业十大最具影响力知名品牌”、“中国最具成长性保险公司”、“十大最值得信赖的寿险公司” 、“金融中国•2010年度最具综合实力保险品牌”、 “2011年度最受信赖保险公司”等荣誉称号。
+         目前，生命军团在原有生命人寿的基础上，生命资管、华信财产保险公司、生命置地、五星保险销售公司等相继开业，香港资产管理公司已获批筹，标志着生命人寿从单一寿险公司开始向综合金融集团转变，生命集团化蓝图渐行渐近。
+         面向未来，生命人寿确立了“以价值为核心，以科学发展观为统领，以寿险行业的发展规律为指导，以全面优化公司法人治理为手段，强化经营，努力建设稳健、可持续发展的和谐生命”的基本指导思想，致力于发展成为业务结构合理、经营管理规范、制度机制完善、拥有可持续竞争优势的新兴寿险公司典范，为客户、为员工、为股东、为社会创造最大价值。
+]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="655" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="150" width="515" height="16"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled">
+					<font isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["尊敬的<style isUnderline=\"true\"> "+$P{CLIENT_NAME}+" </style>先生/女士： "]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="-1" y="166" width="515" height="35"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" lineSpacing="1_1_2" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　您好！非常感谢您对本公司的信任和支持。本公司<style isUnderline=\"true\"> "+$P{NOTE_YEAR}+" </style>年红利已经公布，您投保的编号为<style isUnderline=\"true\"> "+$P{POLICY_NO}+" </style>保单年度红利已分配完毕，现将相关信息通报如下:"]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" mode="Transparent" x="17" y="77" width="316" height="35"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{PRINT_BARCODE_NO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="30" y="65" width="196" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_NAME}+" 先生/女士收"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="30" y="22" width="223" height="21"/>
+				<textElement>
+					<font fontName="宋体" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="30" y="43" width="223" height="26"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="2" y="124" width="516" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[红利通知信]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 1" style="table" positionType="Float" x="2" y="220" width="514" height="46" isRemoveLineWhenBlank="true"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="plandataset">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{PLAN})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="518">
+						<jr:detailCell style="table_TD" height="49" rowSpan="1">
+							<textField>
+								<reportElement style="style1" x="355" y="14" width="162" height="14"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["保单生效日："+$F{EFFECT_DATE}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement style="style1" x="355" y="38" width="160" height="11"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["红利处理方式："+$F{DIVIDEND_OPT}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement style="style1" x="185" y="13" width="159" height="14"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["被保险人姓名："+$F{INS_NAME}]]></textFieldExpression>
+							</textField>
+							<line>
+								<reportElement x="344" y="14" width="1" height="35"/>
+								<graphicElement>
+									<pen lineWidth="0.5"/>
+								</graphicElement>
+							</line>
+							<textField>
+								<reportElement style="style1" x="185" y="26" width="159" height="15"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["年度保费："+$F{PLAN_PREM_SUM}]]></textFieldExpression>
+							</textField>
+							<line>
+								<reportElement x="176" y="14" width="1" height="35"/>
+								<graphicElement>
+									<pen lineWidth="0.5"/>
+								</graphicElement>
+							</line>
+							<line>
+								<reportElement x="0" y="14" width="517" height="1"/>
+								<graphicElement>
+									<pen lineWidth="0.5"/>
+								</graphicElement>
+							</line>
+							<textField>
+								<reportElement style="style1" x="185" y="39" width="159" height="10"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["累计已交保费期数："+$F{PREM_TIMES}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement style="style1" x="0" y="0" width="508" height="15"/>
+								<textElement>
+									<font size="8" isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["险种名称："+$F{PRODUCT_NAME}]]></textFieldExpression>
+							</textField>
+							<line>
+								<reportElement x="0" y="38" width="517" height="1"/>
+								<graphicElement>
+									<pen lineWidth="0.5"/>
+								</graphicElement>
+							</line>
+							<textField>
+								<reportElement style="style1" x="355" y="26" width="162" height="15"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["保险期间："+$F{COVERAGE_PERIOD}]]></textFieldExpression>
+							</textField>
+							<line>
+								<reportElement x="0" y="26" width="517" height="1"/>
+								<graphicElement>
+									<pen lineWidth="0.5"/>
+								</graphicElement>
+							</line>
+							<textField>
+								<reportElement style="style1" x="7" y="38" width="169" height="11"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["交费期间："+$F{PREM_TERM}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement style="style1" x="7" y="15" width="169" height="11"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["投保人姓名："+$F{APP_NAME}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement style="style1" x="7" y="27" width="170" height="11"/>
+								<textElement>
+									<font size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA["基本保险金额："+$F{BASE_SUM_INS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="266" width="99" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[二、您的分红信息]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="1" y="252" width="306" height="0"/>
+			</frame>
+			<staticText>
+				<reportElement x="1" y="201" width="99" height="19"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[一、您的保单信息]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="2" y="306" width="494" height="15"/>
+				<textElement textAlignment="Left" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["1．截至上期已分配红利金额：<style isUnderline=\"true\"> "+$P{BEFORE_DIVIDEND_SUM}+" </style>元"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="286" width="128" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[●截止上期累计红利信息：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="1" y="321" width="128" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[●本年度红利信息：]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="2" y="341" width="239" height="15"/>
+				<textElement textAlignment="Left" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["1．当期红利金额：<style isUnderline=\"true\"> "+$P{ADD_DIVIDEND_SUM}+" </style>元"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" x="253" y="341" width="261" height="15"/>
+				<textElement textAlignment="Left" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["2．累积红利金额：<style isUnderline=\"true\"> "+$P{DIVIDEND_TOTAL_SUM}+" </style>元 "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="0" y="356" width="515" height="18"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["以上"+$P{REMARKS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="413" width="211" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[三、红利分配政策及红利分配总额说明]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="443" width="515" height="26"/>
+				<textElement verticalAlignment="Top"/>
+				<text><![CDATA[       根据中国保险监督管理委员会有关规定，我司将不低于70%的分红业务可分配盈余分配给客户。该红利分配方案经外部审计后报中国保险监督管理委员会备案。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="1" y="467" width="92" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[2．红利分配额度]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="-1" y="482" width="519" height="14"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　<style isUnderline=\"true\"> "+$P{NOTE_YEAR}+" </style>年度公司红利分配额度为<style isUnderline=\"true\"> "+$P{SUM_DIVIDEND_VALUE}+" </style>元，拟分配给投保人的红利总额为<style isUnderline=\"true\"> "+$P{PART_DIVIDEND_VALUE}+" </style>元。"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="197" y="509" width="299" height="15"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[富 德 生 命 人 寿 保 险 股 份 有 限 公 司]]></text>
+			</staticText>
+			<textField pattern="　　　　yyyy年MM月dd日">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="219" y="524" width="277" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="300" y="551" width="216" height="12"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["服务电话："+$P{COMPANY_SERVICE_TELEPHONE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="2" y="551" width="299" height="12"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["销售机构：富德生命人寿保险股份有限公司"+$P{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="3" y="563" width="299" height="12"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["地址："+$P{COMPANY_SERVICE_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="300" y="563" width="216" height="12"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["邮政编码："+$P{COMPANY_SERVICE_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="428" width="92" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[1．红利分配政策]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="0" y="374" width="529" height="39"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　"+$P{DIVIDENT_OPT_MEMO}+"<style isBold=\"true\">"+"请谨防以保险分红为名的诈骗行为；为避免信息泄露，请保护好您的个人信息，不要随意透露给他人"+" </style>"+$P{DIVIDENT_OPT_MEMO2}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="365" y="0" width="142" height="125">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{isShowImage})]]></printWhenExpression>
+				</reportElement>
+				<imageExpression class="java.lang.String"><![CDATA[$P{image_path}+"notice_logo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

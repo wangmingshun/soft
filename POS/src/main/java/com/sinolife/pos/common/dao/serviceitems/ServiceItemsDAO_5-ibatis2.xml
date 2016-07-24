@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_5">
+
+    <select id="QUERY_PRIMARY_DIVID" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		SELECT l_pos_pub.is_div_product(p.product_code) primary_div_flag, p.prod_seq
+		  FROM policy_product p
+		 WHERE p.policy_no = #policyNo#
+		   and p.is_primary_plan = 'Y'
+    </select>
+    
+	<select id="QUERY_FULL_PRODUCT_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		  SELECT distinct pd.product_code,
+		       pd.full_name || '(' || pd.product_code || ')' full_name,
+		       l_pos_pub.is_long_product(pd.product_code) long_flag,
+		       l_pos_pub.is_div_product(pd.product_code) dividend_flag,
+		       l_pos_service_item_5.special_value(pd.product_code,'C',null) cal_type,
+		       ppf.prem_period,
+		       ppf.cover_period
+		  FROM product              pd,
+		       product_prem_factor  ppf,
+		       policy               p,
+		       product_sale_control psc
+		 WHERE pd.ins_type IN ('2', '3')
+		   AND pd.product_code = ppf.product_code(+)
+		   AND ppf.factor_type(+) = '1'
+		   AND pd.product_code NOT IN (SELECT t.product_code
+		                                FROM policy_product t
+		                               WHERE t.policy_no = #policyNo#
+		                                 AND t.duty_status = '1')
+		   AND p.policy_no = #policyNo#
+		   AND pd.product_code = psc.product_code
+		   AND p.channel_type = psc.channel_type
+		   AND psc.start_date <= to_date(#applyDate#,'yyyy-mm-dd')
+		   AND (psc.end_date is null or psc.end_date >= to_date(#applyDate#,'yyyy-mm-dd'))
+		   AND EXISTS (SELECT br.branch_code
+		          FROM branch_code_relation br
+		         WHERE br.branch_code = p.branch_code
+		           AND br.relative_grade > -1
+		           AND br.relative_branch_code = psc.branch_code)
+	]]>
+	</select>
+
+	<select id="QUERY_PREM_RATE_PREM_PERIOD" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select distinct t.prem_period
+		  from prem_rate_tbl t
+		 where t.product_code = #productCode#
+		   and (t.end_date is null or t.end_date > sysdate)
+		   and t.prem_period_type = #typeValue#
+		 order by t.prem_period
+	]]>
+	</select>
+	
+	<select id="QUERY_PREM_RATE_COVER_PERIOD" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select distinct t.cover_period
+		  from prem_rate_tbl t
+		 where t.product_code = #productCode#
+		   and (t.end_date is null or t.end_date > sysdate)
+		   and t.cover_period_type = #typeValue#
+		 order by t.cover_period
+	]]>
+	</select>
+    
+</sqlMap>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.mortgageprotocol.dao.MortgageProtocolDAO">
+
+     <select id="QUERY_BRANCH_MORTGAGE_PROTOCOL" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.protocol_code,
+		       p.branch_code,
+		       p.dept_no,
+		       i.branch_name,
+		       b.dept_full_name,
+		       to_char(p.start_date, 'yyyy-mm-dd') start_date,
+		       to_char(p.end_date, 'yyyy-mm-dd') end_date,
+		       d.product_code,
+		       t.full_name || '（' || t.product_code || '）' product_name
+		  from pos_mortgage_protocol p,
+		       department_info       b,
+		       pos_mortgage_product  d,
+		       branch_info           i,
+		       product               t
+		 where p.branch_code in
+		       (SELECT branch_code
+		          FROM branch_info
+		         START WITH branch_code = #branchCode#
+		        CONNECT BY PRIOR branch_code = parent_branch)
+		   and p.dept_no = b.dept_no
+		   and p.vailid_flag = 'Y'
+		   and p.protocol_code = d.protocol_code
+		   and p.branch_code = i.branch_code
+		   and d.product_code = t.product_code
+		 order by p.protocol_code
+     </select>
+     
+     <insert id="INSERT_MORTGAGE_PROTOCOL" parameterClass="java.util.HashMap">
+		insert into pos_mortgage_protocol
+		  (protocol_code,
+		   branch_code,
+		   dept_no,
+		   start_date,
+		   end_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#protocolCode#,
+		   #branchCode#,
+		   #bankCode#,
+		   to_date(#startDate#,'yyyy-mm-dd'),
+		   to_date(#endDate#,'yyyy-mm-dd'),
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+     </insert>
+     
+     <insert id="INSERT_MORTGAGE_PRODUCT" parameterClass="java.util.HashMap">
+		insert into pos_mortgage_product
+		  (protocol_code,
+		   product_code)
+		values
+		  (#protocolCode#,
+		   #productCode#)
+     </insert>
+     
+     <update id="UPDATE_PROTOCOL_VAILID_FLAG" parameterClass="java.lang.String">
+		update pos_mortgage_protocol
+		   set vailid_flag = 'N', updated_date = sysdate, updated_user = user
+		 where protocol_code = #value#
+     </update>
+     
+     <update id="UPDATE_MORTGAGE_PROTOCOL" parameterClass="java.util.HashMap">
+		update pos_mortgage_protocol
+		   set end_date     = to_date(#endDate#, 'yyyy-mm-dd'),
+		       updated_date = sysdate,
+		       updated_user = user
+		 where protocol_code = #protocolCode#
+     </update>
+     
+     <select id="QUERY_BRANCH_BANK_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select d.dept_full_name || '（' || d.dept_no || '）' bank_name
+		  from department_info d
+		 where d.dept_type = '03'
+		   and d.branch_code in
+		       (SELECT branch_code
+		          FROM branch_info
+		         START WITH branch_code = #branchCode#
+		        CONNECT BY PRIOR branch_code = parent_branch)
+		   and d.is_valid = 'Y'
+     </select>
+
+</sqlMap>

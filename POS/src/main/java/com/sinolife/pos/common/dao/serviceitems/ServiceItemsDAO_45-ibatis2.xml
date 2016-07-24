@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_45">
+	<select id="queryAppointmentInfo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosAppointmentInfoDTO">
+	<![CDATA[
+		select a.pos_no "posNo",
+	           a.service_items "serviceItem",
+	           d.description "serviceItemDesc",
+	           a.apply_date "appointmentDate",
+	           a.created_user "acceptUser",
+	           (select p.new_value 
+	              from pos_accept_detail p
+	             where p.pos_no=a.pos_no
+	               and p.item_no='157'
+	               and p.pos_object='1') "premName",
+	           (select p.new_value 
+	              from pos_accept_detail p
+	             where p.pos_no=a.pos_no
+	               and p.item_no='158'
+	               and p.pos_object='1') "bankCode",
+	           (select bi.description 
+	              from pos_accept_detail p,bank_info bi
+	             where p.new_value=bi.bank_code
+	               and p.pos_no=a.pos_no
+	               and p.item_no='158'
+	               and p.pos_object='1') "bankName",
+	           (select p.new_value 
+	              from pos_accept_detail p
+	             where p.pos_no=a.pos_no
+	               and p.item_no='159'
+	               and p.pos_object='1') "accountNo"
+	      from pos_appointment_info a,
+	           pos_info b,
+	           bank_info c,
+	           product_service_items d
+	     where a.pos_no=b.pos_no
+	       and b.bank_code=c.bank_code(+)
+	       and a.service_items=d.service_items
+	       and a.status_code = '0' 
+	       and a.is_valid = 'Y' 
+	       and a.cancel_time is null
+	       and b.policy_no=#policyNo#
+	]]>
+	</select>
+	
+	<select id="checkServiceItemsIsExist" parameterClass="java.util.Map" resultClass="java.lang.String">
+	<![CDATA[
+	   select psi.description 
+         from pos_appointment_info p,
+              pos_info pi,
+              product_service_items psi
+        where p.pos_no=pi.pos_no
+          and p.service_items=psi.service_items
+          and p.is_valid='Y'
+          and p.status_code='0'
+          and p.cancel_time is null
+          and p.service_items=#serviceItem#
+          and pi.policy_no=#policyNo#
+	]]>
+	</select>
+	
+	<select id="checkPolicyProductCode" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+	   select count('x')
+	     from policy p,
+	          policy_product pp
+	    where p.policy_no=pp.policy_no
+	      and p.policy_no=#policyNo#
+	      and pp.product_code='UBAN_BN1'
+	      and (pp.duty_status = '1' or pp.lapse_reason = '8')
+	]]>
+	</select>
+	
+	<resultMap id="applicantInfoMap" class="java.util.HashMap">
+		<result property="idType" column="idType"/>
+		<result property="idNo" column="idNo"/>
+		<result property="clientName" column="clientName"/>
+	</resultMap>
+	<select id="queryApplicantInfo" parameterClass="java.lang.String" resultMap="applicantInfoMap">
+	<![CDATA[
+		select ci.id_type idType,
+		       ci.idno idNo,
+		       ci.client_name clientName 
+		  from client_information ci 
+		 where ci.client_no=#clientNo#
+	]]>
+	</select>
+	
+	<select id="checkLoanPayBack" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select count('x')
+		  from policy p, pos_loan pl
+		 where p.policy_no = pl.policy_no
+		   and p.duty_status = '1'
+		   and pl.loan_status = '1'
+		   and pl.valid_flag = 'Y'
+		   and pl.policy_no=#policyNo#
+	]]>
+	</select>
+	
+</sqlMap>

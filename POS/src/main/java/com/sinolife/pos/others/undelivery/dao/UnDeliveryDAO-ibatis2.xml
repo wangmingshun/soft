@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.undelivery.dao.UnDeliveryDAO">
+
+    <update id="UPDATE_NOTE_MAIN_RETURN_REASON" parameterClass="java.util.HashMap">
+		update pos_note_main
+		   set return_flag   = 'Y', 
+		       return_reason = #returnReason#,
+		       return_date = sysdate
+		 where detail_sequence_no = #sequence#
+    </update>
+
+	<!-- 获取通知信息 edit by gaojiaming start-->
+	<select id="getNoteMainBySequence" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select detail_sequence_no
+		  from pos_note_main a
+		 where a.detail_sequence_no = #detailSequenceNo#
+		 and rownum=1
+	]]>
+	</select>	
+	<!-- 获取通知信息 edit by gaojiaming end-->
+	
+	<parameterMap class="java.util.HashMap" id="insertPosNoteReturnManageMap">
+		<parameter property="p_detail_sequence_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_upload_user" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insertPosNoteReturnManage" parameterMap="insertPosNoteReturnManageMap">
+		{call l_pos_pub.insert_pos_note_return_manage(?,?,?,?)}
+	</procedure>
+	
+	<!--信函问题件代办列表-->
+	<select id="queryNoteByCriteria" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+		<![CDATA[
+			select a.note_return_no     "problemItemNo",
+				   b.description        "posNo",
+			       a.policy_no          "posInfo.policyNo",
+			       a.detail_sequence_no "posInfo.barcodeNo",
+			       a.upload_user        "submitter",
+			       a.upload_date        submitDate,
+			       decode(a.deal_status,'N','未处理','已处理')"problemStatusDesc",
+			       a.deal_user          "posInfo.acceptor",
+			       '退信处理'         "problemItemTypeDesc"
+			  from pos_note_return_manage a ,pos_note_type b
+			       where a.deal_user = #accessor#
+			       and   a.note_type =b.note_type
+			       and   a.deal_status ='N'
+			       and   a.is_valid ='Y' 
+		]]>
+	</select>
+	<!--根据条形码查询问题件-->
+	<select id="queryBarcodeNoByID" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+		<![CDATA[
+			 select a.note_return_no "problemItemNo",
+			       decode(a.deal_status,'N','未处理','已处理') "problemStatusDesc", 
+			       '退信处理' "problemItemTypeDesc", 
+			       a.upload_user "submitter", 
+			       a.policy_no "posNo", 
+			       a.detail_sequence_no "detailSequenceNo", 
+			       b.description "noteType", 
+			       d.return_reason "problemContent",
+			       d.client_name "clientName",
+			       d.client_address "clientAddress",
+			       (select b.phone_no from client_phone b where b.phone_seq=c.phone_seq) "phoneNo", 
+			       a.deal_user "dealUser",
+			       a.deal_type "dealType"
+			  from pos_note_return_manage a , 
+			       policy_contact_info c,
+			       pos_note_main d,
+			       pos_note_type b
+			 where a.detail_sequence_no = #barcodeNo#
+			       and a.policy_no = c.policy_no
+			       and a.detail_sequence_no=d.detail_sequence_no
+			       and a.note_type =b.note_type
+			       and a.is_valid='Y'
+			       and a.deal_status ='N'
+			       and a.policy_no = #policyNo#
+			       and a.note_return_no = #problemItemNo#
+		]]>
+	</select>
+	<!--修改状态-->
+	<update id="updateStatusDesc" parameterClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+		<![CDATA[
+			update pos_note_return_manage a 
+			   set a.deal_status = #problemStatusDesc# 
+			 where a.detail_sequence_no = #detailSequenceNo#
+		]]>
+	</update>
+	<!---->
+	<resultMap id="getPolicyNoListMap" class="java.util.HashMap">
+		<result property="clientNo" column="clientNo"/>
+        <result property="policyNo" column="policyNo"/>
+        <result property="acceptor"  column="acceptor"/>
+	</resultMap>
+	<select id="getPolicyNoList" parameterClass="java.util.HashMap" resultMap="getPolicyNoListMap">
+		<![CDATA[
+			select b.client_no clientNo,
+			       a.policy_no policyNo, 
+			       a.deal_user acceptor 
+			  from pos_note_return_manage a,
+			  	   pos_note_main b
+			 where a.policy_no = #policyNo#
+			 	   and a.note_return_no =#problemItemNo#
+			       and a.policy_no = b.policy_no
+			       and a.detail_sequence_no=b.detail_sequence_no
+			       and a.deal_status ='N'
+			       and a.is_valid='Y'
+		]]>
+	</select>
+	
+	<!--地址错误更改处理意见-->
+	<parameterMap class="java.util.HashMap" id="getDealTypeMap">
+		<parameter property="detailSequenceNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="dealDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="dealType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="dealDesc" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getDealType" parameterMap="getDealTypeMap">
+		{call l_pos_pub.update_pos_note_return_manage(?,?,?,?,?,?,?)}
+	</procedure>
+	<!-- 更新处理人 -->
+	<update id="senderHandoverSubmit" parameterClass="java.util.HashMap">
+		<![CDATA[
+		update pos_note_return_manage
+		   set deal_user = #letterManagerNew#
+		 where deal_user = #letterManager#
+		       and is_valid  = 'Y'
+		       and deal_status = 'N'
+		]]> 
+    </update>
+    <!-- 查询新信函管理员是否有权限-->
+	<select id="letterManagerNew" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		select count(*)
+	       from um_ug_user a, pub_user_branch_oper_privs b
+	      where a.ug_id = 'POS_NOTE_MANAGER'
+	        and a.user_id = b.um_user_id
+	        and b.valid_flag = 'Y'
+	        and a.d_flag='N'        
+	        and b.operation_type = 'POS_LIST'
+	        and a.user_id = #letterManagerNew#
+	]]>
+	</select>	    
+</sqlMap>

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notice_7_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="57" bottomMargin="85">
+	<property name="ireport.zoom" value="1.6105100000000048"/>
+	<property name="ireport.x" value="237"/>
+	<property name="ireport.y" value="613"/>
+	<style name="default_style" isDefault="true" hAlign="Left" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="REFUND_DATE" class="java.lang.String"/>
+	<parameter name="PRODUCT_FULL_NAME" class="java.lang.String"/>
+	<parameter name="LOAN_SUM" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_NAME" class="java.lang.String"/>
+	<parameter name="SERVICE_TELEPHONE_A" class="java.lang.String"/>
+	<parameter name="SERVICE_TELEPHONE_B" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_POSTALCODE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_TELEPHONE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_ADDRESS" class="java.lang.String"/>
+	<parameter name="COMPANY_NAME" class="java.lang.String"/>
+	<parameter name="CLIENT_ADDRESS" class="java.lang.String"/>
+	<parameter name="CLIENT_POSTALCODE" class="java.lang.String"/>
+	<parameter name="PRINT_BARCODE_NO" class="java.lang.String"/>
+	<parameter name="CLAC_DATE" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="553" splitType="Stretch">
+			<staticText>
+				<reportElement style="default_style" x="0" y="131" width="555" height="32"/>
+				<textElement textAlignment="Center">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[保单贷款即将逾期提醒函]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" x="190" y="173" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[先生/女士：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" x="0" y="173" width="41" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[尊敬的]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="33" y="173" width="157" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_NAME}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" x="33" y="191" width="157" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="default_style" x="20" y="202" width="235" height="16"/>
+				<textElement textAlignment="Justified" lineSpacing="Single"/>
+				<text><![CDATA[非常感谢您对本公司的信任和支持。您投保的编号为]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="255" y="216" width="146" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="default_style" x="0" y="231" width="99" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="255" y="202" width="146" height="16"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_NO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="0" y="218" width="99" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_DATE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" x="22" y="278" width="517" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" x="22" y="304" width="517" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="default_style" x="21" y="329" width="518" height="1"/>
+			</line>
+			<line>
+				<reportElement style="default_style" x="21" y="278" width="1" height="51"/>
+			</line>
+			<line>
+				<reportElement style="default_style" x="539" y="278" width="1" height="52"/>
+			</line>
+			<staticText>
+				<reportElement style="default_style" x="39" y="280" width="100" height="25"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[主保险合同名称]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" x="39" y="305" width="193" height="24"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[保单贷款本息合计金额（人民币）]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="232" y="278" width="1" height="51"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="244" y="279" width="284" height="25"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{PRODUCT_FULL_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" x="498" y="305" width="38" height="25"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[元]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="244" y="305" width="246" height="24"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{LOAN_SUM}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" x="188" y="443" width="83" height="23"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[服务电话]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="440" y="375" width="1" height="68"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="default_style" x="250" y="489" width="305" height="20"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[富德生命人寿保险股份有限公司]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="176" y="376" width="1" height="90"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="default_style" x="22" y="465" width="517" height="1"/>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="289" y="443" width="249" height="22"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_TELEPHONE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="yyyy年MM月dd日">
+				<reportElement style="default_style" x="250" y="529" width="306" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="179" y="376" width="261" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{SERVICE_TELEPHONE_A}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="250" y="509" width="305" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="482" y="398" width="56" height="44"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="default_style" x="441" y="399" width="40" height="43"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[邮编]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="default_style" x="39" y="376" width="100" height="23"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[客户服务热线]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="278" y="442" width="1" height="23"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="440" y="376" width="98" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{SERVICE_TELEPHONE_B}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" x="538" y="376" width="1" height="90"/>
+			</line>
+			<line>
+				<reportElement style="default_style" x="22" y="398" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="179" y="399" width="261" height="43"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" x="177" y="442" width="362" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="default_style" x="20" y="341" width="516" height="20"/>
+				<textElement/>
+				<text><![CDATA[如有疑问，请于本公司联系,本公司将竭诚为您提供完善的服务。]]></text>
+			</staticText>
+			<line>
+				<reportElement style="default_style" x="22" y="376" width="1" height="90"/>
+			</line>
+			<line>
+				<reportElement style="default_style" x="481" y="398" width="1" height="45"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="39" y="399" width="127" height="66"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_NAME}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="default_style" x="22" y="375" width="517" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="401" y="202" width="154" height="16"/>
+				<textElement/>
+				<text><![CDATA[保险合同下的贷款约定还款日为]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="99" y="218" width="456" height="15"/>
+				<textElement/>
+				<text><![CDATA[。如未还款，逾期期间的利率将按当时的贷款利率再加一个百分点执行。为避免影响您的个人利益，]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="233" width="555" height="12"/>
+				<textElement/>
+				<text><![CDATA[请您尽快联系本公司服务人员为您办理保单贷款清偿手续。如您已申请保单还款且还款成功，则可忽略本信函信息。截至]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="30" y="17" width="223" height="22"/>
+				<textElement verticalAlignment="Top">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="30" y="39" width="223" height="26"/>
+				<textElement verticalAlignment="Top">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="30" y="79" width="340" height="35"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="3of9" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{PRINT_BARCODE_NO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="default_style" x="30" y="65" width="196" height="14"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_NAME}+" 收"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="246" width="87" height="14"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLAC_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="77" y="245" width="479" height="15"/>
+				<textElement/>
+				<text><![CDATA[，保险合同贷款信息如下：
+]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

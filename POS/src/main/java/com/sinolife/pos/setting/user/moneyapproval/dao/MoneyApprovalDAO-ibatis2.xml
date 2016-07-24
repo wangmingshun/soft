@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.moneyapproval.dao.MoneyApprovalDAO">
+    
+    <insert id="INSERT_POS_AMOUNT_DAYS_PRIVS_SET" parameterClass="com.sinolife.pos.setting.user.moneyapproval.dto.PosAmountDaysPrivsDTO" >
+		insert into pos_amount_days_privs_set
+		  (amount_days_grade,
+		   service_items,
+		   accept_channel_code,
+		   source_transfer_sum,
+		   notsource_transfer_sum,
+		   notself_cash_sum,
+		   self_cash_sum,
+		   treaty_exceed_sum,
+		   interest_free_sum,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#amountDaysGrade#,
+		   #serviceItemOdd#,
+		   #acceptChannel#,
+		   #sourceTransferSum#,
+		   #notsourceTransferSum#,
+		   #notselfCashSum#,
+		   #selfCashSum#,
+		   #treatyExceedSum#,
+		   #interestFreeSum#,
+		   sysdate, 
+		   user,
+		   sysdate, 
+		   user,
+		   sysdate)
+    </insert>
+    
+    <update id="UPDATE_AMOUNT_DAYS_END_DATE" parameterClass="com.sinolife.pos.setting.user.moneyapproval.dto.PosAmountDaysPrivsDTO" >
+		update pos_amount_days_privs_set
+		   set valid_end_date         = sysdate,
+		       updated_date           = sysdate,
+		       updated_user           = user
+		 where amount_days_grade = #amountDaysGrade#
+		   and service_items = #serviceItemOdd#
+		   and accept_channel_code = #acceptChannel#
+    </update>
+    
+    <update id="UPDATE_AMOUNT_DAYS_PRIVS" parameterClass="com.sinolife.pos.setting.user.moneyapproval.dto.PosAmountDaysPrivsDTO" >
+		update pos_amount_days_privs_set
+		   set valid_end_date         = null,
+		       source_transfer_sum    = #sourceTransferSum#,
+		       notsource_transfer_sum = #notsourceTransferSum#,
+		       notself_cash_sum       = #notselfCashSum#,
+		       self_cash_sum          = #selfCashSum#,
+		       treaty_exceed_sum      = #treatyExceedSum#,
+		       interest_free_sum      = #interestFreeSum#,
+		       updated_date           = sysdate,
+		       updated_user           = user
+		 where amount_days_grade = #amountDaysGrade#
+		   and service_items = #serviceItemOdd#
+		   and accept_channel_code = #acceptChannel#
+		   and rownum = 1
+    </update>
+    
+    <select id="QUERY_AMOUNT_DAYS_PRIVS_SET" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select decode(max(a.source_transfer_sum), null, '空',max(a.source_transfer_sum)) source_transfer_sum,
+		       decode(max(a.notsource_transfer_sum), null, '空',max(a.notsource_transfer_sum)) notsource_transfer_sum,
+		       decode(max(a.notself_cash_sum), null, '空',max(a.notself_cash_sum)) notself_cash_sum,
+		       decode(max(a.self_cash_sum), null, '空',max(a.self_cash_sum)) self_cash_sum,
+		       decode(max(a.treaty_exceed_sum), null, '空',max(a.treaty_exceed_sum)) treaty_exceed_sum,
+		       decode(max(a.interest_free_sum), null, '空',max(a.interest_free_sum)) interest_free_sum
+		  from pos_amount_days_privs_set a
+		 where a.amount_days_grade = #amountDaysGrade#
+		   and a.accept_channel_code = #acceptChannel#
+		   and a.service_items = #serviceItem#
+		   and a.valid_end_date is null
+    </select>
+    
+</sqlMap>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_14">
+	
+	<parameterMap class="java.util.HashMap" id="isPremOverDateBeforePayToDateParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_paid_up_pre_pay_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isPremOverDateBeforePayToDate" parameterMap="isPremOverDateBeforePayToDateParaMap">
+		{ call l_pos_service_item_14.rulecheck(?,?,?,?)}
+	</procedure>
+</sqlMap>

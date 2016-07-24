@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.sms.dao.SmsDAO">
+
+	<parameterMap class="java.util.HashMap" id="smsParaMap">
+		<parameter property="branchCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />		
+		<parameter property="channelType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="forceSend" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="vip" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	
+		<parameter property="arrangeTime" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="sendText" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="mobileType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>			
+		<parameter property="count" jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="sendBatchSms" parameterMap="smsParaMap">
+	<![CDATA[
+		{call l_pos_sms_send.send_batch_sms(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="mposParaMap">
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="indicator" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>		
+		<parameter property="phone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="smsContent" javaType="java.lang.String" jdbcType="VARCHAR"  mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="sendMposSms" parameterMap="mposParaMap">
+	<![CDATA[
+		{call l_pos_sms_send.mpos_message(?,?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="mposSendAgentParaMap">
+		<parameter property="posNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="indicator" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	
+		<parameter property="question" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>		
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="sendAgentMposSms" parameterMap="mposSendAgentParaMap">
+	<![CDATA[
+		{call l_pos_sms_send.mpos_deny_message(?,?,?,?,?)}
+	]]>
+	</procedure>
+	
+	
+</sqlMap>

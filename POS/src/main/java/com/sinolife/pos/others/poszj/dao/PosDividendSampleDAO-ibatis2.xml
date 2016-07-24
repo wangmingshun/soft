@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.poszj.dao.PosDividendSampleDAO">
+	
+	<!-- 抽样 -->
+     <parameterMap id="QUERY_ZJ_SAMPLE_MAP" class="java.util.HashMap" >
+        <parameter property="acceptor"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="branchCode"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="serviceItems"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="posNum"      jdbcType="NUMBER" javaType="java.lang.Integer" mode="IN" />
+		<parameter property="user"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 查询清单，并插入临时表-->
+	<procedure id="QUERY_ZJ_SAMPLE" parameterMap="QUERY_ZJ_SAMPLE_MAP">
+		{call l_pos_list_query.pos_quality_sample_list(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	<!--
+	<insert id="QUERY_ZJ_SAMPLE2" parameterClass="java.util.HashMap">
+		insert into pos_quality_check_info(pos_no,quality_checker)
+			select pos_no,#user# quality_checker
+		  from (select distinct p.pos_no
+		          from pos_info p 
+		         where  p.branch_code like #branchCode$%$# 
+		           <dynamic prepend="and">
+			           <isNotNull property="serviceItems">          
+				           <![CDATA[ p.service_items in ]]>          
+				           <iterate property="serviceItems" conjunction="," open="(" close=")"> 
+				                        #serviceItems[]#          
+				           </iterate>    
+			           </isNotNull>
+		            </dynamic>		          
+		           and p.effective_date between startDate
+		           and endDate +1
+		          <dynamic>
+				       <isNotEmpty prepend="and" property="accepteUserId">
+				          p.acceptor=#accepteUserId#
+				       </isNotEmpty>
+			       </dynamic>
+			       not Exists (select 1 from  pos_quality_check_info f where p.pos_no = f.pos_no) 
+		         order by dbms_random.random)
+		 where rownum <![CDATA[ <  ]]> #posNum#+1
+	 
+	</insert>
+	-->
+	
+	
+	<select id="QUERY_ALL_ZJ_INFO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	  <![CDATA[ 	
+		select p.policy_no,
+	       p.pos_no,
+	       (select s.description
+	          from product_service_items s
+	         where s.service_items = p.service_items) service_item,
+	       (select c.client_name
+	          from client_information c
+	         where c.client_no = p.client_no) client_name,
+	        p.effective_date
+			  from pos_quality_check_info f,pos_info p
+		 where p.pos_no = f.pos_no	 	   
+			   and f.quality_checker=#LoginUserName#
+			   and (f.quality_result='' or f.quality_result is null)
+	   ]]>
+	</select>
+	
+	<select id="QUERY_ZJ_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap" >
+		select f.quality_problem_type payType,
+	      	 f.quality_result       resultSet,
+	      	 f.quality_problem_desc problem,
+	      	 f.point score
+  		  from pos_quality_check_info f
+  		 where pos_no=#posNo#
+    </select>
+	
+	<update id="UPDATE_ZJ_INFO" parameterClass="java.util.HashMap">
+		update pos_quality_check_info
+		   set quality_problem_type = #payType#,
+		       quality_result = #resultSet#,
+		       quality_problem_desc = #problem#,
+		       point    = #score#,
+		       quality_checker = #user#,
+		       quality_check_time=sysdate
+		 where pos_no = #posNo#
+     </update>
+
+		
+</sqlMap>

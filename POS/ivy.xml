@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="http://www.jayasoft.fr/org/ivyrep/ivy-doc.xsl"?>
+<ivy-module version="1.1">
+	<info organisation="com.sino" module="SL_POS" status="integration"
+		revision="1.0.0" />
+	<dependencies>
+	    <dependency org="fakepath" name="activation" rev="1.1"/>
+	    <dependency org="fakepath" name="antlr" rev="2.7.7"/>
+	    <dependency org="fakepath" name="apache-mime4j" rev="0.6"/>
+	    <dependency org="fakepath" name="aopalliance" rev="1.0"/> 
+	    <dependency org="fakepath" name="c3p0" rev="0.9.1.2.1"/>
+	    <dependency org="fakepath" name="carol" rev="2.1.9"/>   
+		<dependency org="fakepath" name="carol-interceptors" rev="2.1.9"/>
+		<dependency org="fakepath" name="cglib" rev="2.2"/> 
+		<dependency org="fakepath" name="com.springsource.com.thoughtworks.xstream" rev="1.3.1"/>
+        <dependency org="fakepath" name="com.springsource.javax.resource" rev="1.5.0"/>
+        <dependency org="fakepath" name="com.springsource.org.aspectj.weaver" rev="1.6.8.RELEASE"/>
+        <dependency org="fakepath" name="com.springsource.org.codehaus.jackson" rev="1.4.3"/>
+        <dependency org="fakepath" name="com.springsource.org.codehaus.jackson.mapper" rev="1.4.3"/>
+        <dependency org="fakepath" name="com.springsource.org.objectweb.asm" rev="3.1.0"/>
+        <dependency org="fakepath" name="commons-logging" rev="1.1.3"/>     
+        <dependency org="fakepath" name="commons-lang" rev="2.4"/>     
+        <dependency org="fakepath" name="commons-beanutils" rev="1.8.0"/>
+        <dependency org="fakepath" name="commons-codec" rev="1.8.0"/>
+        <dependency org="fakepath" name="commons-collections" rev="3.1"/>
+        <dependency org="fakepath" name="commons-digester" rev="2.0"/>
+        <dependency org="fakepath" name="commons-fileupload" rev="1.2.2"/> 
+        <dependency org="fakepath" name="commons-io" rev="2.0"/>
+        <dependency org="fakepath" name="commons-net" rev="3.0.1"/>
+        <dependency org="fakepath" name="oro" rev="2.0.8"/>
+        <dependency org="fakepath" name="commons-pool" rev="1.0"/> 
+        <dependency org="fakepath" name="dom4j" rev="1.6.1"/>
+        <dependency org="fakepath" name="ehcache-core" rev="2.3.0"/>
+        <dependency org="fakepath" name="ejb3-persistence" rev="1.0"/>
+        <dependency org="fakepath" name="hibernate3" rev="1.0"/>
+        <dependency org="fakepath" name="hibernate-jpa" rev="2.0-api-1.0.0.Final"/>
+        <dependency org="fakepath" name="hibernate-validator" rev="4.1.0.Final"/>
+        <dependency org="fakepath" name="hessian" rev="4.0.7"/>
+        <dependency org="fakepath" name="hsqldb" rev="2.0"/>
+        <dependency org="fakepath" name="httpclient" rev="4.0.3"/>
+        <dependency org="fakepath" name="httpmime" rev="4.0.3"/>
+        <dependency org="fakepath" name="httpcore" rev="4.0.1"/>
+        <dependency org="fakepath" name="ibatis" rev="2.3.4.726"/>
+        <dependency org="fakepath" name="jetty-client" rev="7.1.6.v20100715"/>
+        <dependency org="fakepath" name="jetty-http" rev="7.1.6.v20100715"/>
+        <dependency org="fakepath" name="jetty-io" rev="7.1.6.v20100715"/>
+        <dependency org="fakepath" name="jetty-util" rev="7.1.6.v20100715"/>
+        <dependency org="fakepath" name="jsontools-core" rev="1.8"/> 
+        <dependency org="fakepath" name="jsontools-log4j" rev="1.3"/>
+        <dependency org="fakepath" name="joda-time" rev="2.0.1"/>
+        <dependency org="fakepath" name="ezmorph" rev="1.0.6"/>    
+        <dependency org="fakepath" name="json-lib" rev="2.3"/>
+        <dependency org="fakepath" name="jotm-client" rev="2.1.9"/>
+        <dependency org="fakepath" name="jotm-core" rev="2.1.9"/>
+        <dependency org="fakepath" name="jstl" rev="1.1.2"/>
+        <dependency org="fakepath" name="jta" rev="1.1"/>
+        <dependency org="fakepath" name="jdom" rev="1.1.1"/>
+        <dependency org="fakepath" name="javassist" rev="3.12.0"/>
+        <dependency org="fakepath" name="jcl-over-slf4j" rev="1.5.8"/>
+        <dependency org="fakepath" name="log4j" rev="1.2.13"/>
+        <dependency org="fakepath" name="log4jdbc4" rev="1.2.1"/>
+        <dependency org="fakepath" name="mail" rev="1.4.3"/>
+        <dependency org="fakepath" name="ojdbc" rev="6"/> 
+        <dependency org="fakepath" name="org.springframework.aop" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.asm" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.aspects" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.beans" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.binding" rev="2.2.1.RELEASE"/>       
+        <dependency org="fakepath" name="org.springframework.context" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.context.support" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.core" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.expression" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.faces" rev="2.2.1.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.instrument" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.instrument.tomcat" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.jdbc" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.jms" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.js" rev="2.2.1.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.js.resources" rev="2.2.1.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.orm" rev="3.0.3.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.oxm" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.test" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.transaction" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.web" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.web.portlet" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.web.servlet" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.web.struts" rev="3.0.5.RELEASE"/>
+        <dependency org="fakepath" name="org.springframework.webflow" rev="2.2.1.RELEASE"/>
+        <dependency org="fakepath" name="servlet-api" rev="2.5"/>  
+        <dependency org="fakepath" name="slf4j-api" rev="1.5.8"/>
+        <dependency org="fakepath" name="slf4j-log4j12" rev="1.5.8"/>
+        <dependency org="fakepath" name="slf4j-api" rev="1.5.8"/> 
+        <dependency org="fakepath" name="standard" rev="1.1.2"/>  
+        <dependency org="fakepath" name="tiles-api" rev="2.2.2"/>
+        <dependency org="fakepath" name="tiles-core" rev="2.2.2"/>
+        <dependency org="fakepath" name="tiles-el" rev="2.2.2"/>
+        <dependency org="fakepath" name="tiles-jsp" rev="2.2.2"/>
+        <dependency org="fakepath" name="tiles-servlet" rev="2.2.2"/>
+        <dependency org="fakepath" name="xapool" rev="2.1.9.1"/>        
+        <dependency org="fakepath" name="ui" rev="1.0.2"/>
+        <dependency org="fakepath" name="validation-api" rev="1.0.0"/>
+        <dependency org="fakepath" name="velocity" rev="1.7"/>          
+        <dependency org="fakepath" name="slf4j-log4j12" rev="1.5.8"/>
+        <dependency org="fakepath" name="junit" rev="4.8.1"/>
+        <dependency org="fakepath" name="org.hamcrest.core" rev="1.1.0.v20090501071000"/>        
+        <dependency org="fakepath" name="gwt-servlet" rev="2.4"/>
+        
+        <dependency org="fakepath" name="spring-flex-core" rev="1.5.0"/>
+	   <dependency org="fakepath" name="flex-messaging-common" rev="4.0.1.21287"/>
+	   <dependency org="fakepath" name="flex-messaging-core" rev="4.0.1.21287"/>
+       <dependency org="fakepath" name="flex-messaging-opt" rev="4.0.1.21287"/>
+       <dependency org="fakepath" name="flex-messaging-proxy" rev="4.0.1.21287"/>
+       <dependency org="fakepath" name="flex-messaging-remoting" rev="4.0.1.21287"/>
+       <dependency org="fakepath" name="flex-rds-server" rev="4.0.1.21287"/>
+        
+        
+        <!-- Indigo打印依赖包 -->
+        <dependency org="fakepath" name="sf-print-indigoclient" rev="0.2.0"/>
+		<dependency org="fakepath" name="prt-framework-util" rev="1.0"/>
+        
+        <!-- 非Indigo打印依赖包 -->
+		<dependency org="fakepath" name="groovy-all" rev="1.7.5"/>
+		<dependency org="fakepath" name="itext" rev="2.1.7"/>
+		<dependency org="fakepath" name="iTextAsian" rev="1.0.0"/>
+		<dependency org="fakepath" name="sf-jasperreports" rev="3.7.6"/>
+		<dependency org="fakepath" name="barbecue" rev="1.6"/>
+		<dependency org="fakepath" name="sf-print-client" rev="0.2.1"/>
+		<dependency org="fakepath" name="fonts" rev="0.1.2"/>
+		
+		<!-- 影像查看程序包 -->
+		<dependency org="fakepath" name="IMApplet" rev="1.3.15" />
+		
+		<!-- 影像展现程序依赖包 -->
+		<dependency org="fakepath" name="jai_codec" rev="1.1.4"/>
+		<dependency org="fakepath" name="jai_core" rev="1.1.4"/>
+		
+		<!-- 影像查询客户端依赖的包 -->
+		<dependency org="fakepath" name="comons-httpclent" rev="3.0" />
+		
+		<!-- 影像查询接口包 -->
+		<dependency org="fakepath" name="sf-im-client" rev="1.2.4" />
+		
+		<!-- 定时任务依赖包 -->
+		<dependency org="fakepath" name="quartz" rev="1.8.4"/>
+		
+		<!-- 规则引擎依赖包 -->
+		<dependency org="fakepath" name="sf-ilog-client" rev="1.0"/>
+		<dependency org="fakepath" name="sf-ilog-posbom" rev="1.2.16"/>
+		<dependency org="fakepath" name="sf-ilog-uwbom" rev="2.2.2"/>		
+		<dependency org="fakepath" name="jxl" rev="1.0.0"/>		
+		<!-- SF框架依赖包 -->
+		<dependency org="fakepath" name="sf_home_res" rev="1.0.8" />		
+	    <!-- 电子印章-->
+	    <dependency org="fakepath" name="IDGClientAPI_Axis14" rev="1.0.0"/>
+	    <!-- IDG框架依赖包 -->
+	    <dependency org="fakepath" name="efsrpc" rev="0.1.1"/>
+	    <dependency org="fakepath" name="axis" rev="1.0.1"/>
+        <dependency org="fakepath" name="axis-ant" rev="1.0.0"/>
+        <dependency org="fakepath" name="axis-schema" rev="1.0.0"/>
+        <dependency org="fakepath" name="commons-discovery" rev="1.0.0"/>
+        <dependency org="fakepath" name="IDGClientAPI_Axis14" rev="1.0.0"/>
+        <dependency org="fakepath" name="jaxen" rev="1.1-beta-7"/>
+        <dependency org="fakepath" name="jaxrpc" rev="1.0.0"/>
+        <dependency org="fakepath" name="saaj" rev="1.0.0"/>
+        <dependency org="fakepath" name="wsdl4j" rev="1.6"/>		
+	    <dependency org="fakepath" name="efs-esb-client" rev="1.1.6" />
+	</dependencies>
+</ivy-module> 

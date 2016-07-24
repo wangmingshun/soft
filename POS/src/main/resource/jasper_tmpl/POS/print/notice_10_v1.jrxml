@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notice_10_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="57" bottomMargin="85">
+	<property name="ireport.zoom" value="1.2396694214876522"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="style1" isDefault="true" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<style name="table" style="style1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" style="style1" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" style="style1" mode="Opaque" backcolor="#FFFFFF" hAlign="Center">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" style="style1" mode="Opaque" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="subData">
+		<queryString language="SQL">
+			<![CDATA[]]>
+		</queryString>
+		<field name="INTEREST_MONTH_LEFT" class="java.lang.String"/>
+		<field name="INTEREST_RATE_LEFT" class="java.lang.String"/>
+		<field name="INTEREST_MONTH_RIGHT" class="java.lang.String"/>
+		<field name="INTEREST_RATE_RIGHT" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="CLIENT_POSTALCODE" class="java.lang.String"/>
+	<parameter name="CLIENT_ADDRESS" class="java.lang.String"/>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="PRODUCT_DESC" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="EFFECT_DATE" class="java.lang.String"/>
+	<parameter name="INSURED_NAME" class="java.lang.String"/>
+	<parameter name="REPORT_PERIOD" class="java.lang.String"/>
+	<parameter name="BEGIN_VALUE" class="java.lang.String"/>
+	<parameter name="PERIOD_PREM_SUM" class="java.lang.String"/>
+	<parameter name="ADD_PREM_SUM" class="java.lang.String"/>
+	<parameter name="TOTAL_PREM_SUM" class="java.lang.String"/>
+	<parameter name="INTEREST_SUM" class="java.lang.String"/>
+	<parameter name="CONTINUE_BONUS_SUM" class="java.lang.String"/>
+	<parameter name="PERIOD_INITIAL_COST" class="java.lang.String"/>
+	<parameter name="ADD_INITIAL_COST_SUM" class="java.lang.String"/>
+	<parameter name="PART_GET_SUM" class="java.lang.String"/>
+	<parameter name="RISK_PREM_SUM" class="java.lang.String"/>
+	<parameter name="POLICY_MANAGE_SUM" class="java.lang.String"/>
+	<parameter name="FINAL_VALUE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_TELEPHONE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_POSTALCODE" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_NAME" class="java.lang.String"/>
+	<parameter name="COMPANY_SERVICE_ADDRESS" class="java.lang.String"/>
+	<parameter name="POL_ANNIVERSARY" class="java.lang.String"/>
+	<parameter name="INTEREST_RATE_LIST" class="java.util.List"/>
+	<parameter name="PRINT_BARCODE_NO" class="java.lang.String"/>
+	<parameter name="COMPANY_NAME" class="java.lang.String"/>
+	<parameter name="isShowImage" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="image_path" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<variable name="polno_1" class="java.lang.Integer" calculation="Count">
+		<variableExpression><![CDATA[]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="616" splitType="Stretch">
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="459" width="516" height="13"/>
+				<textElement/>
+				<text><![CDATA[注：1、上表所列为本次报告期间内的每月结算利率；]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="472" width="516" height="13"/>
+				<textElement/>
+				<text><![CDATA[　　2、每月1号公布的结算利率适用于上月；]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="485" width="516" height="13"/>
+				<textElement/>
+				<text><![CDATA[　　3、更详细的结算利率公告信息可登陆本公司网站http://www.sino-life.com查询。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="498" width="515" height="13"/>
+				<textElement/>
+				<text><![CDATA[如有疑问，请与本公司联络，本公司将竭诚为您提供完善的服务。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="199" y="571" width="315" height="15"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[富 德 生 命 人 寿 保 险 股 份 有 限 公 司]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="0" y="138" width="515" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="16" isBold="true" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[个人保单年度报告书（万能险）]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="236" width="516" height="1"/>
+			</line>
+			<line>
+				<reportElement style="style1" x="-1" y="236" width="1" height="194"/>
+			</line>
+			<line>
+				<reportElement style="style1" x="514" y="236" width="1" height="194"/>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="236" width="111" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[保险合同号]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="248" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" x="128" y="236" width="1" height="193"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" x="-1" y="260" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="248" width="111" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[保单生效日]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="272" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="260" width="111" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[被保险人]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="284" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="272" width="111" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[本次报告期间]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="296" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="284" width="112" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[报告期初个人账户价值]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="64" y="296" width="1" height="121"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" x="128" y="308" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="296" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[趸缴/期缴保费]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="321" y="296" width="1" height="121"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" x="128" y="320" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="308" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[追加保险费]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="332" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="320" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[累计保险费]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="344" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="332" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[账户结算利息]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="64" y="356" width="451" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="344" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[持续奖金给付]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="368" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="356" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[趸缴/期缴保费初始费用]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="380" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="368" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[追加保险费初始费用]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="392" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="380" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[部分领取]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="128" y="404" width="387" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="392" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[保单管理费]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="416" width="516" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="139" y="404" width="131" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[风险保费]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="65" y="319" width="63" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[增加]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="65" y="379" width="63" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[减少]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="0" y="333" width="64" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[报告期间]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="0" y="346" width="64" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[个人账户]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" x="0" y="359" width="64" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[价值变动]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" x="-1" y="429" width="516" height="1"/>
+			</line>
+			<staticText>
+				<reportElement style="style1" x="17" y="416" width="172" height="13"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[报告期末个人账户价值]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="-1" y="431" width="140" height="15"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[账户结算利率：]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table" style="table" positionType="Float" x="0" y="446" width="514" height="10"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="subData">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{INTEREST_RATE_LIST})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="128">
+						<jr:columnHeader style="table_CH" height="12" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="128" height="12"/>
+								<textElement textAlignment="Center">
+									<font isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[月度]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement style="table_TD" x="0" y="0" width="128" height="12"/>
+								<textElement textAlignment="Center">
+									<font isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INTEREST_MONTH_LEFT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="129">
+						<jr:columnHeader style="table_CH" height="12" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="129" height="12"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[年利率]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement style="table_TD" x="0" y="0" width="129" height="12"/>
+								<textElement textAlignment="Center">
+									<font isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INTEREST_RATE_LEFT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="128">
+						<jr:columnHeader style="table_CH" height="12" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="128" height="12"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[月度]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement style="table_TD" x="0" y="0" width="128" height="12"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INTEREST_MONTH_RIGHT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="129">
+						<jr:columnHeader style="table_CH" height="12" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="129" height="12"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[年利率]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement style="table_TD" x="0" y="0" width="129" height="12"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INTEREST_RATE_RIGHT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<textField>
+				<reportElement style="style1" x="0" y="169" width="513" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["尊敬的<style isUnderline=\"true\"> "+$P{CLIENT_NAME}+" </style>先生/女士："]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="236" width="249" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_NO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="0" y="184" width="515" height="52"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="1_1_2" markup="styled"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　非常感谢您对本公司的信任和支持。<style isUnderline=\"true\"> "+$P{POL_ANNIVERSARY}+" </style>是您的保单合同周年日，根据您所投保的<style isUnderline=\"true\"> "+$P{PRODUCT_DESC}+" </style>合同条款的约定，特对您所持有的保险合同个人账户信息报告如下：（金额单位：人民币元）"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="248" width="249" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{EFFECT_DATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="260" width="249" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{INSURED_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="272" width="249" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REPORT_PERIOD}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="284" width="249" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{BEGIN_VALUE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="296" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{PERIOD_PREM_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="308" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{ADD_PREM_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="320" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{TOTAL_PREM_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="332" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{INTEREST_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="344" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CONTINUE_BONUS_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="356" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{PERIOD_INITIAL_COST}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="368" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{ADD_INITIAL_COST_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="380" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{PART_GET_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="392" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_MANAGE_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="335" y="404" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{RISK_PREM_SUM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" x="139" y="416" width="150" height="13"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{FINAL_VALUE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="　　　　yyyy年MM月dd日">
+				<reportElement style="style1" positionType="Float" x="240" y="601" width="274" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="style1" positionType="Float" x="240" y="586" width="274" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　　　"+$P{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement positionType="Float" x="0" y="511" width="515" height="55"/>
+				<line>
+					<reportElement style="style1" positionType="Float" x="0" y="3" width="1" height="52"/>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="3" width="515" height="1"/>
+				</line>
+				<staticText>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="1" y="3" width="102" height="12"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[客户服务热线]]></text>
+				</staticText>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="400" y="15" width="1" height="25"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="103" y="3" width="412" height="12"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[95535/4008200035]]></text>
+				</staticText>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="236" y="39" width="1" height="16"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="54" width="515" height="1"/>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="15" width="515" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="514" y="4" width="1" height="51"/>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="103" y="3" width="1" height="51"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="103" y="39" width="412" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="350" y="15" width="1" height="25"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="104" y="41" width="132" height="13"/>
+					<textElement textAlignment="Center"/>
+					<text><![CDATA[服务电话]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="241" y="41" width="274" height="13"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_TELEPHONE}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="351" y="15" width="49" height="26"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[邮编]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="1" y="16" width="102" height="38"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_NAME}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="401" y="16" width="114" height="24"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_POSTALCODE}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="style1" positionType="Float" mode="Transparent" x="104" y="15" width="246" height="26"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$P{COMPANY_SERVICE_ADDRESS}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="42" width="223" height="24"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_ADDRESS}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="22" width="223" height="21"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_POSTALCODE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" x="30" y="65" width="206" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{CLIENT_NAME}+" 先生/女士收"]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="17" y="77" width="316" height="35"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{PRINT_BARCODE_NO}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<image>
+				<reportElement x="362" y="0" width="153" height="138">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{isShowImage})]]></printWhenExpression>
+				</reportElement>
+				<imageExpression class="java.lang.String"><![CDATA[$P{image_path}+"notice_logo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

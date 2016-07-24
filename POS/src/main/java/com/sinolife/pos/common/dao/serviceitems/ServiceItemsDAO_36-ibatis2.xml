@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_36">
+	
+	<select id="queryPolicyProductList36" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyProductDTO">
+	<![CDATA[
+		SELECT a.product_code "productCode",
+		       b.prem_status "premInfo.premStatus",
+		       c.description "premInfo.premStatusDesc",
+		       a.base_sum_ins "baseSumIns",
+		       b.frequency "premInfo.frequency",
+		       d.description || '缴' "premInfo.frequencyDesc",
+		       b.period_prem_sum "premInfo.periodPremSum",
+		       b.pay_to_date "premInfo.payToDate",
+		       e.client_name "insuredName"
+		  FROM policy_product      a,
+		       policy_product_prem b,
+		       prem_status         c,
+		       frequency           d,
+		       client_information  e
+		 WHERE a.policy_no = b.policy_no(+)
+		   AND (b.prod_seq IS NULL OR a.prod_seq = b.prod_seq)
+		   AND b.prem_status = c.prem_status(+)
+		   AND b.frequency = d.frequency(+)
+		   AND a.insured_no = e.client_no(+)
+		   AND a.policy_no = #value#
+		 ORDER BY a.prod_seq
+	]]>
+	</select>
+	
+</sqlMap>

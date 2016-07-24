@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.posSync.dao.CommonSyncDAO">
+	
+     <!--查询未同步的数据-->	
+	 <select id="queryNotSyncList" resultClass="java.util.HashMap">
+	 <![CDATA[
+		select a.control_pk control_pk,
+        	   a.business_type business_type, 
+               a.business_no business_no, 
+               a.business_no_type business_no_type,
+               a.sync_status sync_status,
+               b.policy_no policyNo
+        from pub_sync_control a,
+             pos_info b
+       where a.business_no = b.pos_no
+         and a.sync_status = 'N'
+	]]>
+	</select>
+	
+     <!--锁定单条记录-->	
+	 <select id="lockPosSyncJobDetial" resultClass="java.lang.String">
+	 <![CDATA[
+        select 'Y'
+        from pub_sync_control a
+        where a.control_pk = #controlPk#
+        for update nowait
+	]]>
+	</select>
+	
+	<!-- 写入同步额外信息 edit by wangmingshun start -->
+	<parameterMap id="insertSyncDetailParaMap" class="java.util.HashMap">
+		<parameter property="p_business_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_data_key" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_data_value" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insertSyncDetail" parameterMap="insertSyncDetailParaMap">
+		{call pubcde.l_pub_pos_interface.insert_sync_detail(?,?,?,?,?,?,?)}
+	</procedure>	 
+	<!-- 写入同步额外信息 edit by wangmingshun end -->	
+	 
+	<!-- 置废同步控制信息 edit by wangmingshun start -->	 
+	<parameterMap id="cancelSyncControlParaMap" class="java.util.HashMap">
+		<parameter property="p_business_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="cancelSyncControl" parameterMap="cancelSyncControlParaMap">
+		{call pubcde.l_pub_pos_interface.cancel_sync_control(?,?,?,?,?)}
+	</procedure>	 
+	<!-- 置废同步控制信息 edit by wangmingshun end -->	 
+	
+	<!-- 更新同步状态 edit by wangmingshun start -->	 
+	<parameterMap id="updateSyncControlParaMap" class="java.util.HashMap">
+		<parameter property="p_business_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_sync_status" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_failure_reason" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="updateSyncControl" parameterMap="updateSyncControlParaMap">
+		{call pubcde.l_pub_pos_interface.update_sync_control_status(?,?,?,?,?,?,?)}
+	</procedure>	 
+	<!-- 更新同步状态 edit by wangmingshun end -->
+	
+	<select id="getAgencyQueryCode" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select b.data_value
+  		  from pub_sync_control a, pub_sync_extra_detail b
+		 where a.control_pk = b.control_pk
+		   and a.is_valid = 'Y'
+		   and a.business_type = #businessType#
+		   and a.business_no = #businessNo#
+		   and a.business_no_type = #businessNoType#
+		   and b.data_key = #dataKey#
+	</select>	
+     
+</sqlMap>

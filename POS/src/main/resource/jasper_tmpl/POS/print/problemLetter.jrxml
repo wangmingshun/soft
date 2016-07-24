@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bigRefundApplicationForm_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="525" leftMargin="35" rightMargin="35" topMargin="35" bottomMargin="35">
+	<property name="ireport.zoom" value="1.3310000000000308"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="152"/>
+	<style name="defaultStyle" isDefault="true" hAlign="Left" vAlign="Top" markup="styled" isBlankWhenNull="true" fontName="宋体" fontSize="10" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<parameter name="CLIENT_NAME" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="POS_NO" class="java.lang.String"/>
+	<parameter name="BARCODE_NO" class="java.lang.String"/>
+	<parameter name="APPLICANT_NAME" class="java.lang.String"/>
+	<parameter name="INSURED_NAME" class="java.lang.String"/>
+	<parameter name="APPLY_DATE" class="java.lang.String"/>
+	<parameter name="PROBLEM_CONTENT" class="java.lang.String"/>
+	<parameter name="PRINT_DATE" class="java.lang.String"/>
+	<parameter name="EMP_NAME" class="java.lang.String"/>
+	<parameter name="EMP_DEPT" class="java.lang.String"/>
+	<parameter name="EMP_NO" class="java.lang.String"/>
+	<parameter name="EMP_TEL" class="java.lang.String"/>
+	<parameter name="CLIENT_TEL" class="java.lang.String"/>
+	<parameter name="CLIENT_ADDRESS" class="java.lang.String"/>
+	<parameter name="PRINT_BARCODE" class="java.lang.String"/>
+	<parameter name="SERVICE_ITEMS" class="java.lang.String"/>
+	<parameter name="CLIENT_ZIP" class="java.lang.String"/>
+	<parameter name="PROBLEM_ITEM_NO" class="java.lang.String"/>
+	<parameter name="END_DAYS" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="766" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement style="defaultStyle" positionType="Float" mode="Transparent" x="0" y="88" width="525" height="87"/>
+				<textElement verticalAlignment="Top" lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["尊敬的客户："+$P{CLIENT_NAME}+"\n　　您好！\n　　我们在对您提交的保全申请的材料进行审核的过程中，存在以下事项需要您进行修正、调整及提供相关材料。本函件是合同的组成部分，为使您的利益不受损害，如您需对函件具体内容进行说明，务必请相关合同权利人亲笔签字并及时反馈，使之具有法律效力。"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="195" width="525" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="defaultStyle" positionType="Float" mode="Transparent" x="0" y="175" width="525" height="20"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[富 德 生 命 人 寿 保 险 股 份 有 限 公 司]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="defaultStyle" positionType="Float" mode="Transparent" x="24" y="196" width="199" height="72"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保单号："+$P{POLICY_NO}+"\n条形码："+$P{BARCODE_NO}+"\n申请项目："+$P{SERVICE_ITEMS}+"\n申请日期："+$P{APPLY_DATE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="defaultStyle" positionType="Float" mode="Transparent" x="223" y="196" width="225" height="72"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保全号："+$P{POS_NO}+"\n投保人："+$P{APPLICANT_NAME}+"\n被保人："+$P{INSURED_NAME}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="269" width="525" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="defaultStyle" positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="272" width="525" height="226"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["问题事项和提示：\n　　"+$P{PROBLEM_CONTENT}+"\n（以上手写无效）\n\n客户说明："]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="552" width="525" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="defaultStyle" positionType="Float" mode="Transparent" x="0" y="553" width="525" height="213"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　接到本通知函后，请您在百忙之中仔细阅读函件的问题事项，对具体内容进行指正或说明，按相关提示进行回复，<style isBold=\"true\">在以上说明栏进行具体说明。</style>同时为使您不失去本次相关保障，<style isBold=\"true\">务请在下发问题函后及时进行回复，</style>如果我们没有收到您的回应，将会导致本次保全延期付费处理。\n　　<style isBold=\"true\">特别提示：</style>\n　　　　1.需要重新填写的申请材料，请将资料随本函件一同返回；\n　　　　2.需要提供相关资料的，请携相关资料至本公司服务门店办理；\n　　　　3.本通知的回复以书面为准，必须由相关合同权利人亲笔签名确认相关内容；\n　　　　4.如有疑问请拨打本公司咨询电话：95535\n　　打印日期："+$P{PRINT_DATE}+"　　业务员："+$P{EMP_NAME}+"　　业务员部门："+$P{EMP_DEPT}+"\n　　业务员代码："+$P{EMP_NO}+"　　业务员电话："+$P{EMP_TEL}+"　　客户电话："+$P{CLIENT_TEL}+"\n　　客户通讯地址："+$P{CLIENT_ADDRESS}+"　　邮编："+$P{CLIENT_ZIP}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="326" height="35"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="3of9" drawText="true" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{PRINT_BARCODE}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField>
+				<reportElement style="defaultStyle" x="0" y="506" width="525" height="38"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["　　投保人签字：　　　　　　　　　　　　　　　　　　　　被保人/监护人签字：\n　　签字日期：　　　　　　年　月　日　　　　　　　　　　签字日期：　　　　　　　　　年　月　日"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="defaultStyle" x="0" y="60" width="525" height="22"/>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["保全问题函"+$P{PROBLEM_ITEM_NO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

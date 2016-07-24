@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_16">
+	
+	<select id="getAcceptDetailNewValue" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select p.new_value
+		  from pos_accept_detail p
+		 where p.pos_no = #posNo#
+		   and p.pos_object = '1'
+		   and p.item_no = '014'
+	]]>
+	</select>
+
+</sqlMap>

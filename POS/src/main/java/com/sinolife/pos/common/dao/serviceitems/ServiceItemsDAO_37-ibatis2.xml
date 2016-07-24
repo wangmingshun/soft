@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_37">
+	<parameterMap class="java.util.HashMap" id="getValueAndWithdrawTimeParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_policy_value" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_withdraw_time" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getValueAndWithdrawTime" parameterMap="getValueAndWithdrawTimeParaMap">
+	<![CDATA[
+		{call l_pos_insurance_request.get_value_and_withdraw_time(?,?,?)}
+	]]>
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="queryPolicyFundAmountParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_prod_seq" javaType="java.lang.Integer" jdbcType="NUMERIC" mode="IN"/>
+		<parameter property="p_request_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="p_financial_products_list" jdbcType="ARRAY" javaType="java.util.List" typeHandler="com.sinolife.pos.common.dao.typehandler.FinancialProductsArrayHandler" mode="IN"/>
+		<parameter property="p_total_amount" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="queryPolicyFundAmount" parameterMap="queryPolicyFundAmountParaMap">
+		{call l_pos_inv_rule_interface.query_policy_fund_amount(?,?,?,?,?,?,?)}
+	</procedure>
+</sqlMap>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.survdivdraw.dao.SurvivalDividendSampleDAO">
+
+	<select id="QUERY_PRODUCT_1" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.prod_seq,
+		       d.product_code,
+		       d.full_name || '（' || d.product_code || '）' product_name
+		  from policy_survival_coverage s, policy_product p, product d
+		 where s.policy_no = #value#
+		   and s.policy_no = p.policy_no
+		   and s.prod_seq = p.prod_seq
+		   and p.product_code = d.product_code
+		   and p.duty_status = '1'
+	</select>
+	
+	<select id="QUERY_PRODUCT_2" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.prod_seq,
+		       d.product_code,
+		       d.full_name || '（' || d.product_code || '）' product_name
+		  from policy_product p, product d
+		 where p.policy_no = #value#
+		   and p.product_code = d.product_code
+		   and p.duty_status = '1'
+		   and l_pos_pub.is_div_product(p.product_code) = 'Y'	
+	</select>
+	
+	<parameterMap id="sampleIdvlSurvivalMap" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="prodSeq" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_SAMPLE_IDVL_1" parameterMap="sampleIdvlSurvivalMap">
+		{call l_pos_survival.draw_survival_due_idvl(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="PREPARE_TO_PAY_SINGLE_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="prodSeq" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="tailDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PREPARE_TO_PAY_SINGLE" parameterMap="PREPARE_TO_PAY_SINGLE_MAP">
+		{call l_pos_survival.prepare_to_pay_single(?,?,?,?,?,?)}
+	</procedure>
+	
+	
+	<parameterMap id="sampleIdvlDividendMap" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="prodSeq" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="applyDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_SAMPLE_IDVL_2" parameterMap="sampleIdvlDividendMap">
+		{call l_pos_dividend.draw_dividend_to_cost(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="sampleIdvlNoticeMap" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_SAMPLE_IDVL_NOTICE_1" parameterMap="sampleIdvlNoticeMap">
+		{call l_pos_survival.draw_survival_due_idvl_notice(?,?,?,?,?)}
+	</procedure>
+	 
+	<parameterMap id="sampleIdv2NoticeMap" class="java.util.HashMap">
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="dueMonth" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_SAMPLE_IDVL_NOTICE_2" parameterMap="sampleIdv2NoticeMap">
+		{call l_pos_dividend.draw_dividend_to_cost_notice(?,?,?,?)}
+	</procedure>
+	
+			
+</sqlMap>

@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notice_14_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="57" bottomMargin="85">
+	<property name="ireport.zoom" value="1.331000000000047"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="408"/>
+	<style name="style1" isDefault="true" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<style name="table" markup="styled" isBlankWhenNull="true" fontName="SansSerif" fontSize="10" isBold="true" isItalic="true" isUnderline="true" isStrikeThrough="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="0.0"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="1.0" lineStyle="Solid"/>
+			<leftPen lineWidth="1.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+			<rightPen lineWidth="1.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Transparent" backcolor="#FFFFFF" hAlign="Center" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4" isUnderline="true">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="default_style" isDefault="true" hAlign="Left" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<style name="table 4_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="dividend_tbl_dataset">
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="PRODUCT_NAME" class="java.lang.String"/>
+		<field name="BEFORE_DIVIDEND_SUM" class="java.lang.String"/>
+		<field name="DIVIDEND_SUM" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="POLICY_PRODUCT">
+		<parameter name="CURRENCY" class="java.lang.Byte">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<field name="POLICY_NO" class="java.lang.String"/>
+		<field name="APP_NAME" class="java.lang.String"/>
+		<field name="INS_NAME" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SUM_INS" class="java.lang.String"/>
+		<field name="POLICY_VALUE" class="java.lang.String"/>
+		<field name="MATURITY_DATE" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="New Dataset 2"/>
+	<subDataset name="Table Dataset 1"/>
+	<subDataset name="Table Dataset 2"/>
+	<parameter name="APP_NAME" class="java.lang.String"/>
+	<parameter name="MATURITY_DATE" class="java.lang.String"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="ANN_PREM_SUM" class="java.lang.String"/>
+	<parameter name="MATURTY_DATE" class="java.lang.String"/>
+	<parameter name="POLICY_VALUE" class="java.lang.String"/>
+	<parameter name="CURRENCY" class="java.lang.String"/>
+	<parameter name="SUM_INS" class="java.lang.String"/>
+	<parameter name="APP_IDNO" class="java.lang.String"/>
+	<parameter name="APP_ID_TYPE" class="java.lang.String"/>
+	<parameter name="APPLLY_DATE" class="java.lang.String"/>
+	<parameter name="POLICY_PRODUCT" class="java.util.List"/>
+	<parameter name="APPLLY_TIME" class="java.lang.String"/>
+	<parameter name="P_APPLLY_DATE" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="574" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="282" y="171" width="70" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{APP_ID_TYPE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="104" y="172" width="71" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{APP_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="33" width="555" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[保单信息查询告知函]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="172" width="103" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[投保人(Policyholder)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="176" y="171" width="105" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[证件类型(Document)]]></text>
+			</staticText>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="185" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="170" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="351" y="171" width="89" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[证件号(Doc.No.)]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="440" y="171" width="114" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{APP_IDNO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="114" width="557" height="16"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled">
+					<font isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["兹证明<style isUnderline=\"true\"> "+$P{APP_NAME}+" </style>先生/女士在我公司的有效保险合同如下：(截止到 "+$P{APPLLY_DATE}+")"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="103" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="175" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="280" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="440" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="351" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="555" y="171" width="1" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="268" width="554" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[说明：上述现金价值的取值为本函件查询日所对应的现金价值。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="283" width="554" height="13"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Note:This cash surrender value is the Cash Value shown above, at the date of this confirming letter.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="-1" y="308" width="555" height="25"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[本函件仅用于证明保险合同在查询日时的状态，如有疑问，可致电我公司全国统一客服热线95535 、4008200035或向我公司工作人员咨询。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="333" width="554" height="37"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[We confirm the information in above table as of the date of issuing this Confirmation, subject to the terms and conditions of the insurance policy hereinbefore mentioned. You can call our hot-line 95535 、4008200035 for more information.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="-1" y="382" width="576" height="16"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[本函件涉及客户个人信息，建议根据法律规定合法使用。我公司对任何人员非法使用本函件所产生的后果不承担任何法律责任。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="-1" y="398" width="555" height="28"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Personal information sated in this confirmation is deemed to be confidential and shall be utilized under the law of PRC. We will take no responsibility of your usage of this Confirmation. ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="439" width="554" height="17"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[本函件包括中英文版本，两种文字有抵触时，以中文文本为准。]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="-2" y="456" width="554" height="17"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[This Confirmation is issued in both Chinese and English, and Chinese will be prevail.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="0" y="130" width="115" height="17"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[We hereby confirm that]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 4" style="default_style" positionType="Float" stretchType="RelativeToBandHeight" x="0" y="199" width="555" height="46" isRemoveLineWhenBlank="true"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="POLICY_PRODUCT">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRMapCollectionDataSource($P{POLICY_PRODUCT})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="84">
+						<jr:columnHeader style="table 1_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="83" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[保险合同号码
+Policy No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="1" y="0" width="83" height="30"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{POLICY_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="77">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="77" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[投保人
+Policyholder]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="77" height="30"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{APP_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="66">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="65" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[被保险人
+Insured]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="66" height="30"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{INS_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="73">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="72" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[币种
+Currency]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="73" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="10"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="81">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="81" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[保险金额
+（单位：元）
+Sum Assured
+( Unit:Yuan)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement positionType="Float" x="0" y="0" width="81" height="30"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{SUM_INS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="73">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="3" y="0" width="70" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[现金价值
+（单位：元）
+Cash Value
+(Unit:Yuan)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="3" y="0" width="70" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="10"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{POLICY_VALUE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="101">
+						<jr:columnHeader style="table 4_CH" height="51" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="101" height="51"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[保险责任终止日
+Expiry Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 1_TD" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="101" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{MATURITY_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="228" y="131" width="430" height="17"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[has the following insurance policy（ies）in our company：(This is to certify that]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="103" y="130" width="115" height="17"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<line>
+				<reportElement x="103" y="147" width="115" height="1"/>
+			</line>
+			<staticText>
+				<reportElement style="style1" positionType="Float" x="0" y="53" width="555" height="21"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONFIRMATION OF INSURANCE]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="style1" positionType="Float" mode="Transparent" x="1" y="148" width="557" height="16"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled">
+					<font isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["up to  "+$P{APPLLY_TIME}+")"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="407" y="495" width="145" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{P_APPLLY_DATE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

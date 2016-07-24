@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.user.dutyrelations.dao.DutyRelationsDAO">
+
+     <select id="QUERY_GRADE_SPECIAL_FUNC" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select special_func
+		  from pos_grade_special_func_privs
+		 where rank_code = #value#
+		   and valid_end_date is null
+     </select>
+     
+     <select id="QUERY_RANK_APROV_FUNC_SPECIALS" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select s.special_code
+		  from pos_rank_special_set s
+		 where s.rank_code = #rank#
+		   and s.special_type = '2'
+		   and s.end_date is null
+     </select>
+     
+     <select id="QUERY_GRADE_PRIVS_SET" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.amount_days_grade, p.input_grade, p.different_place_privs
+		  from pos_grade_privs_set p
+		 where p.rank_code = #value#
+		   and p.valid_end_date is null
+		   and rownum = 1
+     </select>
+     
+     <select id="QUERY_RANK_SPECIAL_PRIVS" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select nvl(max('Y'),'N')
+		  from pos_rank_special_set s
+		 where s.rank_code = #rank#
+		   and s.special_type = #type#
+		   and s.end_date is null
+     </select>
+
+     <update id="UPDATE_GRADE_PRIVS_SET_END_DATE" parameterClass="java.lang.String">
+		update pos_grade_privs_set
+		   set valid_end_date = sysdate,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where rank_code = #value#
+     </update>
+     
+     <update id="UPDATE_GRADE_PRIVS_SET" parameterClass="java.util.HashMap">
+		update pos_grade_privs_set
+		   set valid_end_date        = null,
+		       amount_days_grade     = #amountGrade#,
+		       input_grade           = #inputGrade#,
+		       different_place_privs = #difPlace#,
+		       updated_date          = sysdate,
+		       updated_user          = user
+		 where rank_code = #rank#
+		   and rownum = 1
+     </update>
+		        
+     <update id="UPDATE_GRADE_SPECIAL_FUNC_PRIVS_END_DATE" parameterClass="java.lang.String">
+		update pos_grade_special_func_privs
+		   set valid_end_date = sysdate,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where rank_code = #value#
+		   and valid_end_date is null
+     </update>
+     
+     <update id="UPDATE_RANK_APROV_SPECIAL_PRIVS_END_DATE" parameterClass="java.lang.String">
+		update pos_rank_special_set
+		   set end_date = sysdate, updated_date = sysdate, updated_user = user
+		 where rank_code = #rank#
+		   and end_date is null
+     </update>
+     
+     <insert id="INSERT_GRADE_PRIVS_SET" parameterClass="java.util.HashMap">
+		insert into pos_grade_privs_set
+		  (rank_code,
+		   amount_days_grade,
+		   input_grade,
+		   different_place_privs,
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#rank#, #amountGrade#, #inputGrade#, #difPlace#, sysdate,
+		   user,
+		   sysdate, 
+		   user, 
+		   sysdate)
+     </insert>
+     
+     <update id="UPDATE_GRADE_SPECIAL_FUNC_PRIVS" parameterClass="java.util.HashMap">
+		update pos_grade_special_func_privs
+		   set valid_end_date = null,
+		       updated_date   = sysdate,
+		       updated_user   = user
+		 where rank_code = #rank#
+		   and special_func = #special#
+		   and rownum = 1
+     </update>
+     
+     <insert id="INSERT_GRADE_SPECIAL_FUNC_PRIVS" parameterClass="java.util.HashMap">
+		insert into pos_grade_special_func_privs
+		  (special_func, 
+		   rank_code, 
+		   valid_start_date,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#special#, #rank#, sysdate,
+		   user, 
+		   sysdate, 
+		   user, 
+		   sysdate)
+     </insert>
+     
+     <update id="UPDATE_RANK_APROV_SPECIAL_PRIVS" parameterClass="java.util.HashMap">
+		update pos_rank_special_set
+		   set end_date = null, updated_date = sysdate, updated_user = user
+		 where rank_code = #rank#
+		   and special_type = #specialType#
+		   and special_code = decode(#specialType#,'1',special_code,'3',special_code,'2',#special#)
+		   and rownum = 1
+     </update>
+     
+     <insert id="INSERT_RANK_SPECIAL_PRIVS_SET" parameterClass="java.util.HashMap">
+		insert into pos_rank_special_set
+		  (rank_code,
+		   special_type,
+		   special_code,
+		   updated_user,
+		   updated_date,
+		   created_user,
+		   created_date,
+		   start_date)
+		values
+		  (#rank#, #specialType#, #special#, user, sysdate, user, sysdate, sysdate)
+     </insert>
+          
+</sqlMap>

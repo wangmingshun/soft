@@ -1,0 +1,1376 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.report.dao.ListDAO">
+
+	<select id="selectReceiptDelayList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+		SELECT b.branch_name,
+		       decode(p.channel_type, '01', '个险', '02', '银代', '03', '经代') channel,
+		       p.policy_no,
+		       c.client_name,
+		       l_pos_service_item_1.get_phone_by_clientno(p.applicant_no) client_phone,
+		       to_char(t.provide_date,'yyyy-mm-dd') provide_date,
+		       to_char(r.record_date,'yyyy-mm-dd') record_date,
+		       r.unarrive_cause
+		  FROM policy                    p,
+		       pos_policy_receipt_putoff r,
+		       branch_info               b,
+		       client_information        c,
+		       policy_contract           t
+		 WHERE p.policy_no = r.policy_no
+		   AND p.branch_code = b.branch_code
+		   AND p.applicant_no = c.client_no
+		   AND p.policy_no = t.policy_no
+		   AND r.record_date >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		   AND r.record_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1
+	]]>
+			<isNotEmpty prepend="AND" property="branchCode">
+              p.branch_code IN (SELECT branch_code
+                           FROM branch_info
+                          START WITH branch_code = #branchCode#
+                         CONNECT BY PRIOR branch_code = parent_branch)
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="channel">
+			  p.channel_type = #channel#
+			</isNotEmpty>
+	</select>
+
+	<select id="selectSurvivalInvestList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+		select b.branch_full_name,
+		       i.policy_no,
+		       c.client_no,
+		       c.client_name,
+		       decode(i.invest_state, '1', '未调查', '2', '已调查回销') invest_state,
+		       to_char(i.death_date, 'yyyy-mm-dd') death_date,
+		       i.investgator,
+		       to_char(i.feedback_date, 'yyyy-mm-dd') feedback_date,
+		       i.remark
+		  from pos_survival_invest i, policy p, client_information c, branch_info b
+		 where i.sample_month < add_months(to_date(#yearMonth#, 'yyyy-mm'), 1)
+		   and i.sample_month >= to_date(#yearMonth#, 'yyyy-mm')
+		   and i.policy_no = p.policy_no
+		   and i.client_no = c.client_no
+		   and p.branch_code = b.branch_code
+		   and p.branch_code in
+		       (SELECT b.branch_code
+		          from branch_info b
+		         START WITH b.branch_code = #branchCode#
+		        CONNECT BY PRIOR b.branch_code = b.parent_branch)
+		 order by p.branch_code
+	]]>     
+	</select>
+               
+	<parameterMap id="policyMoveQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		 <parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="policyMoveQuery" parameterMap="policyMoveQueryMap">
+		{call l_pos_list_query.policy_move_query(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="posProcessListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="posProcessListQuery" parameterMap="posProcessListQueryMap">
+		{call l_pos_list_query.pos_process_list_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="specialPosListQueryMap" class="java.util.HashMap">
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="functionType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="ruleType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+	 	<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 
+	 	<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="specialPosListQuery" parameterMap="specialPosListQueryMap">
+		{call l_pos_list_query.special_pos_list_query(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="surplusListQueryMap" class="java.util.HashMap">
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+	 	<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 
+	 	<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="surplusListQuery" parameterMap="surplusListQueryMap">
+		{call l_pos_list_query.surplus_pos_list_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="unchargedPosListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="unchargedPosListQuery" parameterMap="unchargedPosListQueryMap">
+		{call l_pos_list_query.uncharged_pos_list_query(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="mortgagePosListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="productCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="bankCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="mortgagePosListQuery" parameterMap="mortgagePosListQueryMap">
+		{call l_pos_list_query.mortgage_pos_list_query(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="posProcessListOtherQueryMap" class="java.util.HashMap">
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="posProcessListOtherQuery" parameterMap="posProcessListOtherQueryMap">
+		{call l_pos_list_query.pos_process_list_other_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="transferFailPosListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="bankCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="transStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="transferFailPosListQuery" parameterMap="transferFailPosListQueryMap">
+		{call l_pos_list_query.transfer_fail_pos_list_query(?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="autoPolicyListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="autoPolicyListQuery" parameterMap="autoPolicyListQueryMap">
+		{call l_pos_list_query.auto_policy_list_query(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="policyToLapseListQueryMap" class="java.util.HashMap">
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="policyToLapseListQuery" parameterMap="policyToLapseListQueryMap">
+		{call l_pos_list_query.policy_to_lapse_list_query(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="survCoverInLapsedPolicyMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="survCoverInLapsedPolicy" parameterMap="survCoverInLapsedPolicyMap">
+		{call l_pos_list_query.surv_cover_in_lapsed_policy(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="posToRollbackListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="bizType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="isError" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="posToRollbackListQuery" parameterMap="posToRollbackListQueryMap">
+		{call l_pos_list_query.pos_to_rollback_list_query(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="planForSurvCoverListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="productCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+        <parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="planForSurvCoverListQuery" parameterMap="planForSurvCoverListQueryMap">
+		{call l_pos_list_query.plan_for_surv_cover_list_query(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="posApproveListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="approveUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="posApproveListQuery" parameterMap="posApproveListQueryMap">
+		{call l_pos_list_query.pos_approve_list_query(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="posProblemListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="problemStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="posProblemListQuery" parameterMap="posProblemListQueryMap">
+		{call l_pos_list_query.pos_problem_list_query(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="unscanedMaterialListQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="delayDays" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="unscanedMaterialListQuery" parameterMap="unscanedMaterialListQueryMap">
+		{call l_pos_list_query.unscaned_material_list_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="operationTimeEffectQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="serviceItem" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="operUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="operationTimeEffectQuery" parameterMap="operationTimeEffectQueryMap">
+		{call l_pos_list_query.operation_time_effect_query(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<!-- 
+	<select id="selectReturnNoteList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+	select n.detail_sequence_no sequence,
+       n.policy_no policy_no,
+       n.client_name client_name,
+       n.client_address client_address,
+       n.client_postalcode postal_code,
+       t.description channel,
+       decode(m.frequency, '1', '趸缴', '期缴') frequency,
+       '是' return_flag,
+       n.return_reason return_reason,
+       to_char(n.print_date, 'yyyy-mm-dd') print_date
+    from pos_note_main n, policy p, channel_type_tbl t, policy_prem_info m
+    where ((n.note_type not in ('1', '2', '10', '11') and
+       n.print_date >= to_date(#dateFrom#, 'yyyy-mm-dd') and
+       n.print_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1) 
+       or
+       (n.note_type  in ('1', '2', '10', '11') and
+       n.note_created_date >= to_date(#dateFrom#, 'yyyy-mm-dd') and
+       n.note_created_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1))
+   and p.branch_code in
+       (SELECT b.branch_code
+          from branch_info b
+         START WITH b.branch_code = #branchCode#
+        CONNECT BY PRIOR b.branch_code = b.parent_branch)
+   and n.return_flag = 'Y'
+   and n.policy_no = p.policy_no
+   and p.channel_type = t.channel_type
+   and n.policy_no = m.policy_no(+)
+	]]>
+	</select>
+    -->
+    <!--退信数据清单 -->	
+	<parameterMap id="posReturnNoteListMap"  class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="startDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="endDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 退信数据清单 -->	
+	<procedure id="posReturnNoteList" parameterMap="posReturnNoteListMap">
+	<![CDATA[
+		{call l_pos_list_query.pos_return_note_list(?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+	 
+	<parameterMap id="queryVipClientInfoMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="vipGrade" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="queryVipClientInfo" parameterMap="queryVipClientInfoMap">
+		{call l_pos_list_query.query_vip_client_info(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="wrongInfoPolicyQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="num" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="wrongInfoPolicyQuery" parameterMap="wrongInfoPolicyQueryMap">
+		{call l_pos_list_query.wrong_info_policy_query(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="chargeSuccessPolicyQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="chargeSuccessPolicyQuery" parameterMap="chargeSuccessPolicyQueryMap">
+		{call l_pos_list_query.charge_success_policy_query(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="clientNoticeQueryMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="noteType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="clientNoticeQuery" parameterMap="clientNoticeQueryMap">
+		{call l_pos_list_query.client_notice_query(?,?,?,?,?,?,?)}
+	</procedure>
+
+	<select id="selectToConfirmReceipt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+		select b.branch_full_name,
+		       decode(p.business_source, '3', '银保通', e.description) channel_type,
+		       p.policy_no,
+		       ca.client_name applicant_name,
+		       decode(ca.sex_code, '1', '男', '女') applicant_sex,
+		       l_pos_service_item_1.get_phone_by_clientno(ca.client_no) applicant_phone,
+		       ci.client_name insured_name,
+		       h.prem_term,
+		       g.coverage_period,
+		       h.ann_standard_prem,
+		       i.full_name product_full_name,
+		       c.provide_date,
+		       c.client_sign_date,
+		       c.confirm_date,
+		       d.scan_time,
+		       j.agent_no,
+		       k.emp_name agent_name,
+		       (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),
+                            '1',
+                            '移动展业',
+                            '2',
+                            '手机APP',
+                            '3',
+                            '微信',
+                            '传统回执') 
+            	from policy_contract pc
+            	where pc.policy_no=p.policy_no) RECEIPT_BUSINESS_SOURCE,
+			   	uas.apply_source_desc                            
+		  from policy_contract     c,
+		       policy              p,
+		       image_doc_index     d,
+		       image_file_index    f,
+		       branch_info         b,
+		       channel_type_tbl    e,
+		       client_information  ca,
+		       policy_product      g,
+		       client_information  ci,
+		       policy_product_prem h,
+		       product             i,
+		       policy_agent        j,
+		       staff_info          k,
+		       uw_apply_info       l,
+		       policy_contract     pc,
+		       uw_apply_source     uas
+		 where d.scan_time >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		   and d.scan_time < to_date(#dateTo#, 'yyyy-mm-dd') + 1
+		   and p.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code = #branchCode#
+		        connect by prior branch_code = parent_branch)
+		   and c.sign_flag in ('S','E')
+		   and c.media_type = '1'
+		   and c.policy_no = p.policy_no
+		   and c.policy_no = l.policy_no
+		   and l.apply_bar_code = f.image_main_index
+		   and f.file_id = d.file_id
+		   and (f.bar_code like '116701%' or f.bar_code like '1179%')
+		   and p.branch_code = b.branch_code
+		   and p.channel_type = e.channel_type
+		   and p.applicant_no = ca.client_no
+		   and p.policy_no = g.policy_no
+		   and g.is_primary_plan = 'Y'
+		   and g.insured_no = ci.client_no
+		   and g.policy_no = h.policy_no
+		   and g.prod_seq = h.prod_seq
+		   and g.product_code = i.product_code
+		   and j.policy_no = p.policy_no
+		   and j.agent_no = k.emp_no(+)
+		   and p.policy_no = pc.policy_no
+		   and uas.apply_source = p.business_source
+	]]>
+	</select>
+	
+	<select id="selectProblemReceipt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select c.branch_full_name,
+		       decode(b.business_source, '3', '银保通', d.description) channel_type,
+		       b.policy_no,
+		       ca.client_name applicant_name,
+		       decode(ca.sex_code, '1', '男', '女') applicant_sex,
+		       l_pos_service_item_1.get_phone_by_clientno(ca.client_no) applicant_phone,
+		       ci.client_name insured_name,
+		       f.prem_term,
+		       e.coverage_period,
+		       f.ann_standard_prem,
+		       g.full_name product_full_name,
+		       h.provide_date,
+		       h.client_sign_date,
+		       h.confirm_date,
+		       (select max(a2.scan_time)
+		          from image_file_index a1, image_doc_index a2, uw_apply_info a3
+		         where a3.policy_no = b.policy_no
+		           and a3.apply_bar_code = a1.image_main_index
+		           and (a1.bar_code like '116701%' or a1.bar_code like '1179%')
+		           and a1.file_id = a2.file_id) scan_time,
+		       k.agent_no,
+		       l.emp_name agent_name,
+		       a.note,
+		       (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),
+                            '1',
+                            '移动展业',
+                            '2',
+                            '手机APP',
+                            '3',
+                            '微信',
+                            '传统回执') 
+            	from policy_contract pc
+            	where pc.policy_no=b.policy_no) RECEIPT_BUSINESS_SOURCE,
+			  	uas.apply_source_desc APPLY_SOURCE_DESC,
+			  	a.created_date  CREATED_DATE                           
+		  from pos_receipt_deal    a,
+		       policy              b,
+		       branch_info         c,
+		       channel_type_tbl    d,
+		       client_information  ca,
+		       client_information  ci,
+		       policy_product      e,
+		       policy_product_prem f,
+		       product             g,
+		       policy_contract     h,
+		       policy_agent        k,
+		       staff_info          l,
+		       uw_apply_source     uas
+		 where a.receipt_status = '2'
+		   and a.updated_date >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		   and a.updated_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1
+		   and a.policy_no = b.policy_no
+		   and b.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code = #branchCode#
+		        connect by prior branch_code = parent_branch)
+		   and b.branch_code = c.branch_code
+		   and b.channel_type = d.channel_type
+		   and b.policy_no = e.policy_no
+		   and e.is_primary_plan = 'Y'
+		   and ca.client_no = b.applicant_no
+		   and ci.client_no = e.insured_no
+		   and e.policy_no = f.policy_no
+		   and e.prod_seq = f.prod_seq
+		   and e.product_code = g.product_code
+		   and h.policy_no = b.policy_no
+		   and k.policy_no = b.policy_no
+		   and k.agent_no = l.emp_no
+		   and uas.apply_source = b.business_source
+	]]>
+	</select>
+	
+	<select id="selectDelayMemoReceipt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+		select c.branch_full_name,
+		       decode(b.business_source, '3', '银保通', d.description) channel_type,
+		       b.policy_no,
+		       e.client_name applicant_name,
+		       decode(e.sex_code, '1', '男', '女') applicant_sex,
+		       l_pos_service_item_1.get_phone_by_clientno(e.client_no) applicant_phone,
+		       f.client_name insured_name,
+		       h.prem_term,
+		       g.coverage_period,
+		       h.ann_standard_prem,
+		       i.full_name product_full_name,
+		       j.provide_date,
+		       k.agent_no,
+		       l.emp_name agent_name,
+		       a.record_date,
+		       a.unarrive_cause,
+		       decode(j.sign_flag,'Y','是','否') sign_flag,
+		       (select decode(max(pc.RECEIPT_BUSINESS_SOURCE),
+                            '1',
+                            '移动展业',
+                            '2',
+                            '手机APP',
+                            '3',
+                            '微信',
+                            '传统回执') 
+            	from policy_contract pc
+            	where pc.policy_no=b.policy_no) RECEIPT_BUSINESS_SOURCE
+		  from pos_policy_receipt_putoff a,
+		       policy                    b,
+		       branch_info               c,
+		       channel_type_tbl          d,
+		       client_information        e,
+		       client_information        f,
+		       policy_product            g,
+		       policy_product_prem       h,
+		       product                   i,
+		       policy_contract           j,
+		       policy_agent              k,
+		       staff_info                l
+		 where a.record_date >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		   and a.record_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1
+		   and a.policy_no = b.policy_no
+		   and b.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code = #branchCode#
+		        connect by prior branch_code = parent_branch)
+		   and b.branch_code = c.branch_code
+		   and b.channel_type = d.channel_type
+		   and b.applicant_no = e.client_no
+		   and b.policy_no = g.policy_no
+		   and g.is_primary_plan = 'Y'
+		   and g.insured_no = f.client_no
+		   and g.policy_no = h.policy_no
+		   and g.prod_seq = h.prod_seq
+		   and g.product_code = i.product_code
+		   and b.policy_no = j.policy_no
+		   and j.media_type = '1'
+		   and b.policy_no = k.policy_no
+		   and k.agent_no = l.emp_no
+	]]>
+	</select>
+
+	<select id="selectDateChangedReceipt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    <![CDATA[
+		select (select branch_name
+		          from branch_info
+		         where is_valid = 'Y'
+		           and branch_level = '02'
+		         start with branch_code = p.branch_code
+		        connect by prior parent_branch = branch_code) branch2,
+		       (select branch_name
+		          from branch_info
+		         where is_valid = 'Y'
+		           and branch_level = '03'
+		         start with branch_code = p.branch_code
+		        connect by prior parent_branch = branch_code) branch3,
+		       (select description
+		          from channel_type_tbl
+		         where channel_type = p.channel_type) channel_type,
+		       p.policy_no policy_no,
+		       (select max(bar_code)
+		          from image_file_index ifi, image_doc_index idi, uw_apply_info uai
+		         where ifi.image_main_index = uai.apply_bar_code
+		           and uai.policy_no = p.policy_no
+		           and idi.valid_flag <> 'N'
+		           and ifi.file_id = idi.file_id
+		           and (ifi.bar_code like '116701%' or ifi.bar_code like '117901%')) bar_code,
+		       decode(lg.column_name,
+		              'CLIENT_SIGN_DATE',
+		              '签署日期',
+		              'CONFIRM_DATE',
+		              '回销日期') data_type,
+		       lg.old_value old_value,
+		       lg.new_value new_value,
+		       lg.processor processor,
+		       to_char(lg.process_date, 'YYYY-MM-DD HH24:MI:SS') process_date,
+		       (select decode(max(pc.receipt_business_source),
+		                      '1',
+		                      '移动展业',
+		                      '2',
+		                      '手机APP',
+		                      '3',
+		                      '微信',
+		                      '传统回执')
+		          from policy_contract pc
+		         where pc.policy_no = p.policy_no) receipt_business_source,
+		       lg.remark remark
+		  from pos_pol_contract_log lg, policy p
+		 where lg.policy_no = p.policy_no
+		   and lg.process_date >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		   and lg.process_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1
+		   and p.branch_code in (select relative_branch_code
+                            from branch_code_relation
+                           where branch_code = #branchCode#
+                             and relative_grade <= 0)
+		 order by lg.process_date
+	]]>
+	</select>
+	
+	<parameterMap id="queryReceiptFeedbackProportionMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="queryResult" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_QUERY_RESULT" 
+		 typeHandler="com.sinolife.pos.report.dao.typehandler.ArrayPosQueryResultHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="queryReceiptFeedbackProportion" parameterMap="queryReceiptFeedbackProportionMap">
+		{call l_pos_list_query.receipt_feedback_proportion(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="selectTodealSampleInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select b.branch_full_name,
+		       s.policy_no,
+		       t.full_name product_name,
+		       to_char(s.get_due_date,'yyyy-mm-dd') get_due_date,
+		       s.get_due_sum,
+		       to_char(s.review_get_due_date,'yyyy-mm-dd') review_get_due_date,
+		       s.review_get_due_sum,
+		       decode(s.review_result, 'Y', '通过', 'N', '不通过', '') review_result,
+		       s.reviewer,
+		       decode(s.review_confirm_result,
+		              '1',              '通过',
+		              '2',            '不通过',
+		              '3',      '个单数据异常', '') review_confirm_result,
+		       s.review_confirmer,
+		       s.result_desc
+		  from pos_sample_info s, product t, policy p, branch_info b
+		 where s.survival_seq is not null
+		   and s.product_code = t.product_code
+		   and s.policy_no = p.policy_no
+		   and p.branch_code = b.branch_code
+		<dynamic>
+			<isNotEmpty prepend="AND" property="branchCode">
+			       p.branch_code in
+			       (select branch_code
+			          from branch_info
+			         start with branch_code = #branchCode#
+			        connect by prior branch_code = parent_branch)
+			   <![CDATA[
+			   and s.get_due_date >= to_date(#dateMonth# || '-01', 'yyyy-mm-dd')
+			   and s.get_due_date < add_months(to_date(#dateMonth# || '-01', 'yyyy-mm-dd'), 1)
+			   ]]>
+			</isNotEmpty>
+			<isEmpty prepend="AND" property="branchCode">
+				(s.review_result is null or s.review_confirm_result is null)
+			</isEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="selectPosAmountDaysPrivsSet" resultClass="java.util.HashMap">
+		select g.description            amount_grade,
+		       c.description            accept_channel,
+		       s.description            service_item,
+		       a.source_transfer_sum,
+		       a.notsource_transfer_sum,
+		       a.notself_cash_sum,
+		       a.self_cash_sum,
+		       a.treaty_exceed_sum,
+		       a.interest_free_sum
+		  from pos_amount_days_privs_set a,
+		       pos_amount_days_grade     g,
+		       product_service_items     s,
+		       pos_accept_channel_code   c
+		 where a.amount_days_grade = g.amount_days_grade
+		   and s.service_items = a.service_items
+		   and a.accept_channel_code = c.accept_channel_code
+		 order by a.amount_days_grade, a.accept_channel_code, a.service_items
+	</select>
+	
+
+	<select id="selectPostalNotesGather" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT m.pdf_upload_date directory_name,
+		       COUNT(DISTINCT(m.pdf_name)) file_count,
+		       SUM(local_count) local_count_sum,
+		       SUM(other_count) other_count_sum
+		  FROM (SELECT to_char(t.pdf_upload_date, 'yyyymmdd') pdf_upload_date,
+		               t.pdf_name,
+		               CASE
+		                  WHEN t.is_local = 'Y' THEN
+		                   1
+		                  ELSE
+		                   0
+		               END local_count,
+		               CASE
+		                  WHEN t.is_local = 'N' THEN
+		                   1
+		                  ELSE
+		                   0
+		               END other_count
+		          FROM pos_note_main t
+		         WHERE t.pdf_name IS NOT NULL
+		           AND t.pdf_upload_date IS NOT NULL
+		           AND t.is_local IS NOT NULL
+		           AND t.pdf_name <> 'x'
+		           AND t.pdf_name <> 'pas'
+		           AND t.client_address is not  null
+		           and t.im_file_id is null 
+		           AND t.business_date > DATE '2011-12-02'
+		           AND t.pdf_upload_date >= to_date(#dateFrom#, 'yyyy-mm-dd')
+		           AND t.pdf_upload_date < to_date(#dateTo#, 'yyyy-mm-dd') + 1) m
+		 GROUP BY m.pdf_upload_date
+		 ORDER BY m.pdf_upload_date
+	]]>
+	</select>
+
+	<!--邮储通知书打印清单 -->	
+	<parameterMap id="selectPostalNotesMap"  class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="startDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="endDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="policyNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="noteType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 邮储通知书打印清单 -->	
+	<procedure id="selectPostalNotes" parameterMap="selectPostalNotesMap">
+	<![CDATA[
+		{call l_pos_list_query.postal_note_list(?,?,?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+	
+	
+	<!-- 查询清单报表需要显示的字段信息 -->
+<select id="getListCode" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+<![CDATA[
+	SELECT a.display_desc displayDesc, a.column_name columnName
+	  FROM pos_list_collumn_rel a
+	 where a.list_code = #listCode#
+	   and a.is_valid = 'Y'
+	 order by a.display_seq
+]]>	
+</select>
+	
+	<!--状态变更清单 -->	
+	<parameterMap id="stateChangeListMap"  class="java.util.HashMap">
+		<parameter property="startDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="endDate"  jdbcType="DATE" javaType="java.util.Date"  mode="IN"></parameter>
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="updateType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"></parameter>
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 调查清单 -->	
+	<procedure id="stateChangeList" parameterMap="stateChangeListMap">
+	<![CDATA[
+		{call l_pos_list_query.state_change_list(?,?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+	
+	
+	<!--保全处理清单查询 -->	
+	<parameterMap id="processListQueryMap"  class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="acceptChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />	
+		<parameter property="serviceItems" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="processListQuery" parameterMap="processListQueryMap">
+	<![CDATA[
+		{call l_pos_list_query.pos_process_list_query(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+    
+    <!--保全影像扫描清单查询 -->	
+	<parameterMap id="imageListQueryMap"  class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="imageListQuery" parameterMap="imageListQueryMap">
+	<![CDATA[
+		{call l_pos_list_query.pos_image_list_query(?,?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+	
+	<!--保全时效清单查询 -->	
+	<parameterMap id="effectiveListQueryMap"  class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="effectiveListQuery" parameterMap="effectiveListQueryMap">
+	<![CDATA[
+		{call l_pos_list_query.pos_effective_list_query(?,?,?,?,?,?,?,?)}		
+	]]>
+	</procedure>
+     
+	<!-- 取得清单数量 -->
+	<select id="getListCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		select count(1) from pos_list_temp a where a.query_index =#queryIndex#	
+		
+		
+	</select>	
+        
+ 	<!-- 查询随机码是否存在 -->
+   	
+   	<select id="queryCode" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		
+		select count(1) from POS_MATURE_RPT_EXTRACT_CONTROL  where EXTRACT_CODE =#code#	
+				
+	</select>
+   	
+   	<!-- 查询满期提取清单控制表的sequence -->
+   	
+   	<select id="querySequence" resultClass="java.lang.Integer">
+		
+	SELECT 	POSDATA.SEQ_POS_CONTROL_PK_SERIAL.nextval from dual
+	
+	</select>
+	<!-- 插入随机码 -->
+   	<insert id="insertCode" parameterClass="java.util.HashMap" >
+		insert into POS_MATURE_RPT_EXTRACT_CONTROL
+		  (FILE_NAME,
+		   EXTRACT_CODE,
+		   BRANCH_CODE,
+		   DEPT_NO,
+		   MATURE_PAY_START_DATE,
+		   MATURE_PAY_END_DATE,
+		   TRANS_AUTH_INDI,
+		   MOBILE_NO,
+		   EXTRACT_FLAG,
+		   LIST_CODE)
+		values
+		  (#FILE_NAME#,
+		  #EXTRACT_CODE#,
+		  #BRANCH_CODE#,
+		  #DEPT_NO#,		  
+		  TO_DATE(#MATURE_PAY_START_DATE#,'yyyy-mm-dd'),
+		  TO_DATE(#MATURE_PAY_END_DATE#,'yyyy-mm-dd'),
+		  #TRANS_AUTH_INDI#,
+		  #MOBILE_NO#,
+		  #EXTRACT_FLAG#,
+		  #LIST_CODE#)
+    </insert>
+    <parameterMap id="sms_send_ver_code_map" class="java.util.HashMap">
+		<parameter property="FILE_NAME" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="EXTRACT_CODE" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="BRANCH_CODE" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="MOBILE_NO" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+	
+		<parameter property="FLAG" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="MESSAGE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<!-- 发送短信 -->
+	<procedure id="sms_send_ver_code" parameterMap="sms_send_ver_code_map">
+		{call l_pos_sms_send.sms_send_ver_code(?,?,?,?,?,?)}
+	</procedure>
+	<!-- 根据随机码查询信息 -->
+	<select id="queryByMessageCode" resultClass="java.util.HashMap">
+		
+	     SELECT * FROM POS_MATURE_RPT_EXTRACT_CONTROL PL 
+	              WHERE PL.EXTRACT_CODE=#EXTRACT_CODE#
+	
+	</select>
+	 <!-- 更新提取标志 -->
+	<update id="updateMessageFlag" parameterClass="java.util.HashMap" >
+	     UPDATE POS_MATURE_RPT_EXTRACT_CONTROL
+	       SET EXTRACT_FLAG = 'Y'          
+	     WHERE EXTRACT_CODE=#EXTRACT_CODE#
+		 
+     </update>
+	
+	<!-- 查询往清单临时表写数据的参数 -->
+	<select id="queryParamMap" resultClass="java.util.HashMap">
+		
+	 SELECT
+		 l_pos_pub_interface.get_senior_branch_info(p_branch_code  => p.branch_code,
+                                                           p_branch_level => '03',
+                                                           p_code_or_name => 'NAME')THREEBRANCHCODE,
+		  (SELECT DI.DEPT_FULL_NAME
+		     FROM DEPARTMENT_INFO DI
+		    WHERE DI.DEPT_NO = P.DEPARTMENT_NO) DEPTNO,
+	
+		 P.POLICY_NO POLICYNO,
+	
+		 (SELECT PRODUCT.FULL_NAME
+		    FROM PRODUCT PRODUCT
+		   WHERE PRODUCT.PRODUCT_CODE = PSD.PRODUCT_CODE) POLICYNAME,
+		
+		 (SELECT CI.CLIENT_NAME
+		    FROM CLIENT_INFORMATION CI
+		   WHERE CI.CLIENT_NO = P.APPLICANT_NO) CLIENTNAME  ,
+	
+		 PSD.PAY_DUE_DATE PAYDUEDATE,
+	
+		 PSD.PAY_DUE_SUM PAYDUESUM,
+	
+		 (SELECT CP.PHONE_NO
+		    FROM CLIENT_PHONE CP
+		   WHERE CP.PHONE_SEQ = PCI.MOBILE_PHONE_SEQ) PHONENO,
+	
+		 (SELECT CP.PHONE_NO FROM CLIENT_PHONE CP WHERE CP.PHONE_SEQ = PCI.PHONE_SEQ) BPHONENO,
+	
+		 (SELECT CP.PHONE_NO
+		    FROM CLIENT_PHONE CP
+		   WHERE CP.PHONE_SEQ = PCI.HOME_PHONE_SEQ) ATEL,
+		
+		 (SELECT CP.PHONE_NO
+		    FROM CLIENT_PHONE CP
+		   WHERE CP.PHONE_SEQ = PCI.OFFICE_PHONE_SEQ) OTEL,
+		 (SELECT IT.ID_TYPE_NAME
+		    FROM CLIENT_INFORMATION CI, POLICY_PRODUCT PP, ID_TYPE IT
+		   WHERE CI.CLIENT_NO = PP.INSURED_NO
+		     AND PP.POLICY_NO = PSD.POLICY_NO
+		     AND PP.PROD_SEQ = PSD.PROD_SEQ
+		     AND CI.ID_TYPE = IT.ID_TYPE) IDTYPE,
+		 (SELECT CI.IDNO
+		    FROM CLIENT_INFORMATION CI, POLICY_PRODUCT PP
+		   WHERE CI.CLIENT_NO = PP.INSURED_NO
+		     AND PP.POLICY_NO = PSD.POLICY_NO
+		     AND PP.PROD_SEQ = PSD.PROD_SEQ) IDNUM,
+		     
+		    (SELECT TRANS_AUTH_INDI FROM  POS_MATURE_RPT_EXTRACT_CONTROL  WHERE EXTRACT_CODE=#EXTRACT_CODE#) TRANS_AUTH_INDI
+		     
+		  FROM POLICY              P,
+		       POLICY_CONTACT_INFO PCI,
+		       POS_SURVIVAL_DUE    PSD,
+		       POS_SURVIVAL_DUTY   PSD1,
+		       POLICY_BENEFICIARY  PB
+		 WHERE
+		 PCI.POLICY_NO = P.POLICY_NO
+		   AND PSD.POLICY_NO = P.POLICY_NO
+		   AND PSD.VALID_FLAG = 'Y'
+		   AND PSD.PRODUCT_CODE = PSD1.PRODUCT_CODE
+		   AND PSD.SURVIVAL_PAY_DUTY = PSD1.SURVIVAL_PAY_DUTY
+		   AND PSD1.SURVIVAL_TYPE = '1'
+		   <![CDATA[
+		   AND PSD.PAY_DUE_DATE >= DATE '2012-01-01' 
+		   AND PSD.PAY_DUE_DATE <= DATE '2012-05-01' 
+		   ]]>
+		   AND PSD.POLICY_NO = PB.POLICY_NO
+		 
+		   AND PB.BENEFIT_TYPE IN ('1', '4') 
+    
+		 <dynamic>
+		<isNotEmpty property="TRANS_AUTH_INDI">
+		<![CDATA[
+		    AND PB.TRANSFER_GRANT_FLAG = #TRANS_AUTH_INDI#
+		]]>
+	
+		</isNotEmpty>
+	   </dynamic>
+	
+	</select>
+	
+	<!-- 查询清单，并插入临时表 满期金提取 -->
+        <parameterMap id="queryPayList_map" class="java.util.HashMap">
+        
+		<parameter property="EXTRACT_CODE"    jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="BRANCH_CODE"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="DEPT_NO"         jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="MATURE_PAY_START_DATE"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="MATURE_PAY_END_DATE"        jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="TRANS_AUTH_INDI" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+
+	    <parameter property="LISTCODE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="RECODENUMBER"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="QUERYINDEX" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="FLAG" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="MESSAGE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 查询清单，并插入临时表-->
+	<procedure id="queryPayList" parameterMap="queryPayList_map">
+		{call l_pos_list_query.pos_pay_list_query(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<!-- 查询清单，并插入临时表 满期金提取 -->
+        <parameterMap id="querySurrPayList_map" class="java.util.HashMap">
+        
+		<parameter property="EXTRACT_CODE"    jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="BRANCH_CODE"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="DEPT_NO"         jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="MATURE_PAY_START_DATE"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="MATURE_PAY_END_DATE"        jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+
+	    <parameter property="LISTCODE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="RECODENUMBER"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="QUERYINDEX" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="FLAG" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="MESSAGE" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 查询清单，并插入临时表-->
+	<procedure id="querySurrPayList" parameterMap="querySurrPayList_map">
+		{call l_pos_list_query.pos_surr_pay_list_query(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+   	
+	 <!-- 质检清单 -->
+     <parameterMap id="queryQualityList_map" class="java.util.HashMap">
+        <parameter property="acceptor"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="branchCode"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+	    <parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 查询清单，并插入临时表-->
+	<procedure id="queryQualityList" parameterMap="queryQualityList_map">
+		{call l_pos_list_query.pos_quality_list_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<!-- 保单冻结清单 -->
+    <parameterMap id="queryFreezeList_map" class="java.util.HashMap">
+        <parameter property="branchCode"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+	    <parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<!-- 查询清单，并插入临时表-->
+	<procedure id="queryFreezeList" parameterMap="queryFreezeList_map">
+		{call l_pos_list_query.pos_quality_freeze_list(?,?,?,?,?,?,?,?)}
+	</procedure> 
+	
+	<!-- 协议退保/满期业务清单 -->
+	<parameterMap id="agreementPosListQueryMap" class="java.util.HashMap">
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="functionType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="policyChannelType" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+	 	<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 
+	 	<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="agreementPosListQuery" parameterMap="agreementPosListQueryMap">
+		{call l_pos_list_query.ccs_agreement_pos_list_query(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+		<!-- 重复电话号码停用清单 -->
+    <parameterMap id="queryStopPhoneList_map" class="java.util.HashMap">
+        <parameter property="branchCode"     jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate"      jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+	    <parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+		<!-- 查询清单，并插入临时表-->
+	<procedure id="queryStopPhoneList" parameterMap="queryStopPhoneList_map">
+		{call l_pos_list_query.pos_stop_phone_list(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	    <!-- 退保清单 -->
+    <parameterMap id="insuranceListMap" class="java.util.HashMap">
+       <parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="acceptChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />	
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="insuranceListQuery" parameterMap="insuranceListMap">
+		{call l_pos_list_query.pos_insurance_list(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	    <!-- 期撤清单 -->
+    <parameterMap id="hesitateListMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="acceptChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="hesitateListQuery" parameterMap="hesitateListMap">
+		{call l_pos_list_query.pos_hesitate_to_revoke_list(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+		<!-- 贷款清单 -->
+    <parameterMap id="loanListMap" class="java.util.HashMap">
+		<parameter property="branchCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="startDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="endDate" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN" />
+		<parameter property="accepteUserId" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="acceptStatus" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="counterNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="acceptChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="policyChannel" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />		
+		<parameter property="listCode" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter> 		
+		<parameter property="recordNumber"  jdbcType="NUMERIC" javaType="java.math.BigDecimal"  mode="OUT"></parameter> 
+		<parameter property="queryIndex" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>  
+		<parameter property="flag" jdbcType="VARCHAR"    javaType="java.lang.String" mode="OUT"></parameter>
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"></parameter>
+	</parameterMap>
+	<procedure id="loanListQuery" parameterMap="loanListMap">
+		{call l_pos_list_query.policy_loan_list(?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	<!-- 生成异步清单提取任务 edit by gaojiaming start-->
+    <insert id="insertReportTask" parameterClass="java.util.HashMap" >
+		insert into pos_list_control
+		  (list_code,
+		   user_id,
+		   submit_time,
+		   parameters,
+		   Proc_status,
+		   is_valid,
+		   file_name)
+		values
+		  (#list_code#,
+		   #user_id#,
+		   sysdate,
+		   #parameters#,
+		   '0',
+		   'Y',
+		   #fileName#)
+    </insert>	
+	<!-- 生成异步清单提取任务 edit by gaojiaming start-->  
+	<!-- 异步清单任务查询 edit by gaojiaming start-->
+	<select id="queryReportTask" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			SELECT a.user_id,
+				   a.list_code,
+			       to_char(a.submit_time,'yyyy-mm-dd hh24:mi:ss') SUBMIT_TIME,
+			       to_char(a.java_end_time,'yyyy-mm-dd hh24:mi:ss') JAVA_END_TIME,
+			       b.description,
+			       a.im_file_id,
+			       a.row_num,
+			       case a.is_valid
+			         when 'Y' then
+			          '有效'
+			         else
+			          '无效'
+			       end is_valid,
+			       case a.proc_status
+			         when '0' then
+			          '未开始'
+			         when '4' then
+			          '已完成'
+			         else
+			          '处理中'
+			       end proc_status
+			  FROM POS_LIST_CONTROL a, pos_list_code b
+			 WHERE a.list_code = b.list_code
+			 	   and a.is_valid = 'Y'
+			 	   and a.user_id=#user_id#
+		]]>	
+		<dynamic>	
+			<isNotEmpty property="startDate">
+			<![CDATA[
+			   and trunc(a.SUBMIT_TIME) >= to_date(#startDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="endDate">
+			<![CDATA[
+			   and trunc(a.submit_time) <= to_date(#endDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>	
+		</dynamic>
+		<![CDATA[
+		   order by a.submit_time desc
+		]]>				   
+	</select>  
+	<!-- 异步清单任务查询 edit by gaojiaming start-->	 
+	<!-- 更新报表任务状态和开始时间  edit by gaojiaming end -->		
+	<update id="updateReportTaskStart" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update pos_list_control plc
+			   set plc.java_start_time = sysdate, 
+			       plc.proc_status = '3'
+			 where plc.list_code = #LIST_CODE#
+			   and plc.user_id = #USER_ID#
+			   and plc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务状态和开始时间 edit by gaojiaming end -->	
+	<!-- 更新报表任务状态和开始时间  edit by gaojiaming end -->		
+	<update id="updateReportTaskEnd" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update pos_list_control plc
+			   set plc.java_end_time = sysdate,
+			       plc.proc_status   = '4',
+			       plc.im_file_id    = #fileID#,
+			       plc.file_name    =#fileName#
+			 where plc.list_code = #LIST_CODE#
+			   and plc.user_id = #USER_ID#
+			   and plc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务状态和开始时间 edit by gaojiaming end -->				
+	<!-- 校验同一用户同一清单是否重复提交edit by gaojiaming start-->
+	<select id="checkReportTaskStatus" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select count(*)
+			  from pos_list_control t
+			 where t.list_code = #listCode#
+			   and t.user_id = #user_id#
+			   and t.proc_status <> '4'
+			   and t.is_valid = 'Y'
+		]]>				   
+	</select>  
+	<!-- 校验同一用户同一清单是否重复提交 edit by gaojiaming start-->	
+	<!-- 下载获取对应文件名edit by gaojiaming start-->
+	<select id="getDownLoadFileName" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select t.file_name
+			  from pos_list_control t
+			 where t.im_file_id = #imFileId#
+			   and t.user_id = #userId#
+			   and rownum = 1 
+		]]>				   
+	</select>  
+	<!-- 下载获取对应文件名 edit by gaojiaming start-->	
+
+	<!-- 更新报表任务有效性  edit by gaojiaming end -->		
+	<update id="updatePosListControlIsValid" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update pos_list_control plc
+			   set is_valid = 'N'
+			 where plc.list_code = #listCode#
+			   and plc.user_id = #userId#
+			   and plc.submit_time = to_date(#submitTime#, 'yyyy-mm-dd hh24:mi:ss')
+		]]>
+	 </update>
+	<!-- 更新报表任务有效性 edit by gaojiaming end -->	
+	
+</sqlMap>

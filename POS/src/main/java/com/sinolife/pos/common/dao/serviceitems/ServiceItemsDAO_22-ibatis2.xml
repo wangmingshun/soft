@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_22">
+	<select id="isBeneficiaryImportantAlt" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y') is_beneficiary_important_alt
+		  FROM pos_accept_detail p
+		 WHERE p.pos_no = #value#
+		   AND p.pos_object = '4'
+		   AND p.item_no IN ('001', '004', '006', '007', '008', '009', '011', '012')
+		   AND EXISTS (SELECT 'x'
+		          FROM pos_accept_detail a
+		         WHERE a.pos_no = p.pos_no
+		           AND a.pos_object = '4'
+		           AND a.item_no = '020'
+		           AND a.new_value = '1')
+	]]>
+	</select>
+	
+	<select id="isBeneficiaryInsuredSameLimit" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select 'Y' from dual
+	]]>
+	</select>
+	
+	<select id="getCanDoPwm" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select poscde.l_pos_service_item_22.fun_get_cando_pwm(#policyNo#) from dual
+	]]>
+	</select>
+	
+	
+</sqlMap>

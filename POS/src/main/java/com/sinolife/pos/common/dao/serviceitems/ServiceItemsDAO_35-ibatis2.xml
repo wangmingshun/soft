@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_35">
+
+	<parameterMap id="payablePremMap" class="java.util.HashMap">
+	    <parameter property="result" javaType="java.math.BigDecimal" jdbcType="NUMERIC"  mode="OUT"/>
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="periodType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="premPeriod" javaType="java.math.BigDecimal" jdbcType="NUMERIC"  mode="IN"/>
+	   	</parameterMap>
+	<procedure id="getInsuredPayablePremProd" parameterMap="payablePremMap">
+		<![CDATA[
+		{?= call l_pos_uw_interface.get_insured_payable_prem_prod(?,?,?,?)}
+		]]>
+	</procedure>	
+</sqlMap>

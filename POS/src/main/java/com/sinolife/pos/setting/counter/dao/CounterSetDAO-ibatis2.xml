@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.counter.dao.CounterSetDAO">
+     
+     <select id="QUERY_COUNTER_INFO_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	 <![CDATA[
+	 	select c.counter_no,
+		       c.branch_code counter_branch,
+		       c.counter_name,
+		       c.counter_type,
+		       c.counter_director,
+		       c.counter_phone,
+		       c.counter_fax,
+		       c.address counter_addr,
+		       c.zip counter_post,
+		       c.open_time
+		  from counter_info c
+		 where c.branch_code = #value#
+		   and c.close_time is null
+		   and to_number(c.counter_no) < 900
+     ]]>
+     </select>
+     
+     <select id="QUERY_COUNTER_INFO_LIST_SON" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	 <![CDATA[
+	 	select c.counter_no,
+		       c.branch_code counter_branch,
+		       c.counter_name,
+		       c.counter_type,
+		       c.counter_director,
+		       c.counter_phone,
+		       c.counter_fax,
+		       c.address counter_addr,
+		       c.zip counter_post,
+		       c.open_time
+		  from counter_info c
+		 where c.branch_code in (
+			 SELECT branch_code
+	           FROM branch_info
+	          START WITH branch_code = #branchCode#
+	        CONNECT BY PRIOR branch_code = parent_branch
+		 	)
+		   and c.close_time is null
+		   and to_number(c.counter_no) < 900
+     ]]>
+     </select>
+
+    <insert id="INSERT_COUNTER_INFO" parameterClass="java.util.HashMap" >
+    <![CDATA[
+		insert into counter_info
+		  (counter_no,
+		   branch_code,
+		   counter_type,
+		   counter_name,
+		   address,
+		   zip,
+		   counter_phone,
+		   counter_fax,
+		   open_time,
+		   counter_director,
+		   establish_time,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  ((select lpad(nvl(max(to_number(counter_no)) + 1, 1), 3, '0') from counter_info where to_number(counter_no) < 900),
+		   #counterBranch#,
+		   #counterType#,
+		   #counterName#,
+		   #counterAddr#,
+		   #counterPost#,
+		   #counterPhone#,
+		   #counterFax#,
+		   #counterTime#,
+		   #counterDirector#,
+		   sysdate,
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+	]]>
+    </insert>
+
+    <update id="DELETE_COUNTER_INFO"  parameterClass="java.lang.String">
+		update counter_info
+		   set close_time = sysdate, updated_date = sysdate, updated_user = user
+		 where counter_no = #value#
+		   and close_time is null
+    </update>
+
+    <update id="UPDATE_COUNTER_INFO"  parameterClass="java.util.HashMap">
+		update counter_info
+		   set branch_code      = #counterBranch#,
+		       counter_type     = #counterType#,
+		       counter_name     = #counterName#,
+		       address          = #counterAddr#,
+		       zip              = #counterPost#,
+		       counter_phone    = #counterPhone#,
+		       counter_fax      = #counterFax#,
+		       open_time        = #counterTime#,
+		       counter_director = #counterDirector#,
+		       updated_date     = sysdate,
+		       updated_user     = user
+		 where counter_no = #counterNo#
+		   and close_time is null
+    </update>
+    
+</sqlMap>

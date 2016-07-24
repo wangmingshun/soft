@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="com.sinolife.pos.common.dao.InterestRateDAO">
+
+   <!--  <resultMap id="InterestRate.ResultMap" class="com.sinolife.product.basic.domain.InterestRate">
+         <result property="interestPk" column="INTEREST_PK"/>
+         <result property="productCode" column="PRODUCT_CODE"/>
+         <result property="productFullName" column="FULL_NAME"/>
+         <result property="productAbbrName" column="ABBR_NAME"/>
+         <result property="interestUnit" column="INTEREST_UNIT"/>
+         <result property="interestType" column="INTEREST_TYPE"/>
+         <result property="interestRate" column="INTEREST_RATE"/>
+         <result property="typeName" column="TYPE_NAME"/>
+         <result property="unitName" column="UNIT_NAME"/>
+         <result property="startDate" column="START_DATE"/>
+         <result property="endDate" column="END_DATE"/>
+         <result property="startCoverageYear" column="START_COVERAGE_YEAR"/>
+         <result property="endCoverageYear" column="END_COVERAGE_YEAR"/>           
+     </resultMap>    
+    -->
+       <!-- 获取利率列表 -->
+    <!-- <select id="getInterestRateList"   parameterClass="java.util.Map"  resultMap="InterestRate.ResultMap">
+          SELECT  ir.INTEREST_PK ,ir.PRODUCT_CODE ,pro.FULL_NAME,pro.ABBR_NAME,
+                  it.DESCRIPTION as TYPE_NAME,
+                  iu.DESCRIPTION as UNIT_NAME,
+                  ir.INTEREST_UNIT ,ir.INTEREST_TYPE ,ir.INTEREST_RATE,
+                  ir.START_DATE ,ir.END_DATE,
+                  ir.START_COVERAGE_YEAR,ir.END_COVERAGE_YEAR
+          FROM INTEREST_RATE ir,PRODUCT pro,INTEREST_TYPE it,INTEREST_UNIT iu
+          WHERE ir.PRODUCT_CODE = pro.PRODUCT_CODE(+)
+                AND ir.INTEREST_TYPE = it.INTEREST_TYPE 
+                AND ir.INTEREST_UNIT = iu.INTEREST_UNIT
+                AND ir.INTEREST_PK = #interestPk#
+			   
+    </select>-->
+    
+     <!-- 新增利率信息,其中有部分字段由trigger触发 -->
+       <insert id="addInterestRate" parameterClass="java.util.HashMap">
+       insert into  INTEREST_RATE(PRODUCT_CODE,INTEREST_UNIT,INTEREST_TYPE,INTEREST_RATE,START_DATE,END_DATE)
+       values(
+        	#productCode# ,
+        	#interestUnit# ,
+        	#interestType# ,
+        	#interestRate# ,
+        	to_date(#startDate#,'yyyy-mm-dd') ,
+        	to_date(#endDate#,'yyyy-mm-dd')
+        	
+       )
+
+    </insert>
+    
+     <!-- 修改利率信息-->
+     <!-- <update id="updateInterestRate"  parameterClass="com.sinolife.product.basic.domain.InterestRate">
+       <![CDATA[
+        UPDATE INTEREST_RATE SET
+	        INTEREST_UNIT = #interestUnit# ,
+	        INTEREST_TYPE = #interestType# ,
+	        INTEREST_RATE = #interestRate# ,
+	        START_DATE = #startDate# ,
+	        END_DATE = #endDate#,
+	        START_COVERAGE_YEAR=#startCoverageYear#,
+	        END_COVERAGE_YEAR=#endCoverageYear#
+        WHERE 
+            INTEREST_PK = #interestPk#
+       ]]>
+    </update>-->
+    
+    <!-- 利率设置  利率类型Map -->
+    <select id="getInterestType" resultClass="java.util.HashMap">
+    	<![CDATA[ SELECT INTEREST_TYPE CODE,DESCRIPTION  FROM INTEREST_TYPE ]]>
+    </select>
+	<!-- 利率设置  利率单位Map -->
+    <select id="getInterestUnit" resultClass="java.util.HashMap">
+    	<![CDATA[ SELECT INTEREST_UNIT CODE,DESCRIPTION  FROM INTEREST_UNIT ]]>
+    </select>
+    
+   <!-- 根据主键判断是否已经存在 -->
+   <!-- <select id="existInterestUnit" parameterClass="java.lang.String" resultClass="java.lang.Integer" >
+    	<![CDATA[ SELECT count(INTEREST_PK) from INTEREST_RATE where INTEREST_PK = #value# ]]>
+    </select> 
+   -->
+    <!-- 新增产品利率时需要判断是否已经存在该条记录-->
+     <!--  <select id="existInterest" parameterClass="java.util.Map"  resultClass="com.sinolife.product.basic.domain.InterestRate"> 
+          SELECT  ir.INTEREST_PK interestPk,
+                  ir.PRODUCT_CODE productCode, 
+                  it.DESCRIPTION  typeName,
+                  iu.DESCRIPTION  unitName,
+                  ir.INTEREST_UNIT interestUnit,
+                  ir.INTEREST_TYPE interestType,
+                  ir.INTEREST_RATE interestRate,
+                  ir.START_DATE startDate,
+                  ir.END_DATE endDate,
+                  ir.START_COVERAGE_YEAR startCoverageYear,
+                  ir.END_COVERAGE_YEAR endCoverageYear
+          FROM INTEREST_RATE ir,INTEREST_TYPE it,INTEREST_UNIT iu
+          WHERE ir.INTEREST_TYPE = it.INTEREST_TYPE 
+                AND ir.INTEREST_UNIT = iu.INTEREST_UNIT
+                AND ir.INTEREST_TYPE =#interestType#
+                AND ir.INTEREST_UNIT =#interestUnit#
+               <isNotEmpty prepend="AND" property="productCode">
+                   ir.PRODUCT_CODE = #productCode#
+			  </isNotEmpty>
+			  <isNotEmpty prepend="AND" property="startDate">
+                   ir.START_DATE=#startDate#
+			 </isNotEmpty>  
+		      <isNotEmpty prepend="AND" property="endDate">
+				   ir.END_DATE=#endDate#
+			 </isNotEmpty> 
+			  <isNotEmpty prepend="AND" property="startCoverageYear">
+                   ir.START_COVERAGE_YEAR = #startCoverageYear#
+			  </isNotEmpty> 
+			 <isNotEmpty prepend="AND" property="endCoverageYear">
+                   ir.END_COVERAGE_YEAR = #endCoverageYear#
+			 </isNotEmpty>   					      
+    </select>
+    
+     <select id="getInterestUnit" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select DESCRIPTION
+		  from INTEREST_UNIT
+		  where INTEREST_UNIT=#interest_unit#
+	</select>
+	
+   <select id="getInterestType" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select DESCRIPTION
+		  from INTEREST_TYPE
+		  where INTEREST_TYPE=#interest_type#
+	</select>	
+    -->
+</sqlMap>
+

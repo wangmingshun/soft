@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_10">
+	
+	<parameterMap class="java.util.HashMap" id="isSurvivalDrawableParaMap">
+		<parameter property="p_pk_serial" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_draw_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_drawable" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_undraw_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isSurvivalDrawable" parameterMap="isSurvivalDrawableParaMap">
+		{call l_pos_survival.is_survival_drawable(?,?,?,?)}
+	</procedure>
+	
+	<select id="verifyPolicyNoCanBeTransferedInto" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y')
+		  FROM policy_product      pp,
+		       policy_product_prem ppp
+		 WHERE pp.policy_no = #value#
+		   AND pp.policy_no = ppp.policy_no
+		   AND pp.prod_seq = ppp.prod_seq
+		   AND pp.duty_status = '1'
+		   AND ppp.prem_status = '1'
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="ruleCheckIsSurvivalDrawableParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_drawable" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_undrawable_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="ruleCheckIsSurvivalDrawable" parameterMap="ruleCheckIsSurvivalDrawableParaMap">
+		{call l_pos_survival.rulecheck_survival_is_drawable(?,?,?,?,?)}
+	</procedure>
+	
+	
+	<select id="isHasEffUian" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_rule_query.is_having_special_product(#value#) FROM dual
+	]]>
+	</select>
+	
+</sqlMap>

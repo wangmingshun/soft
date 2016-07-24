@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.riskcontrol.dao.BatchSampleDAO">
+
+    <parameterMap class="java.util.HashMap" id="survivalMonthSampleMap">
+		<parameter property="sampleMonth" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="branchCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_MONTH_SAMPLE_1" parameterMap="survivalMonthSampleMap">
+		{call l_pos_survival.proc_pay_sample(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="dividendMonthSampleMap">
+		<parameter property="sampleMonth" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="branchCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_MONTH_SAMPLE_2" parameterMap="dividendMonthSampleMap">
+		{call l_pos_dividend.proc_div_sample(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="dividendProuductInsMap">
+		<parameter property="policyno" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="prodSeq" javaType="java.lang.Integer" jdbcType="NUMBER" mode="IN"/>
+		<parameter property="payDueDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="SUMINS" javaType="java.math.BigDecimal" jdbcType="DECIMAL" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_PRODUCT_INS" parameterMap="dividendProuductInsMap">
+		{call l_pos_dividend.calc_dividend_product_ins(?,?,?,?,?,?)}
+	</procedure>
+
+    <select id="QUERY_SAMPLE_VERIFY_NEXT_1" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select '1' sample_type,
+		       s.sample_seq,
+		       s.policy_no,
+		       p.full_name || '（' || s.product_code || '）' product,
+		       s.prod_seq,
+		       t.pay_time_type,
+		       m.description pay_time_type_desc,
+		       t.duty_name,
+		       to_char(s.get_due_date, 'yyyy-mm-dd') get_due_date,
+		       s.get_due_sum,
+		       s.interest_sum
+		  from pos_sample_info   s,
+		       product           p,
+		       pos_survival_due  d,
+		       pos_survival_duty t,
+		       pos_pay_time_type m,
+		       policy            a
+		 where s.survival_seq is not null
+		   and s.review_result is null
+		   and s.product_code = p.product_code
+		   and s.policy_no = d.policy_no
+		   and s.prod_seq = d.prod_seq
+		   and s.survival_seq = d.survival_seq
+		   and d.survival_pay_duty = t.survival_pay_duty
+		   and d.product_code = t.product_code
+		   and t.pay_time_type = m.pay_time_type
+		   and s.policy_no = a.policy_no
+		   and a.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code =
+		                    (select branch_code
+		                       from pub_user_branch_oper_privs
+		                      where um_user_id = #user#
+		                        and lower(operation_type) like 'pos_%'
+		                        and valid_flag = 'Y'
+		                        and rownum = 1)
+		        connect by prior branch_code = parent_branch)
+		   and rownum = 1
+    </select>
+    
+    <select id="QUERY_SAMPLE_VERIFY_NEXT_2" resultClass="java.util.HashMap">
+		select '2' sample_type,
+		       s.sample_seq,
+		       s.policy_no,
+		       p.full_name || '（' || s.product_code || '）' product,
+		       s.prod_seq,
+		       to_char(s.get_due_date, 'yyyy-mm-dd') get_due_date,
+		       s.get_due_sum
+		  from pos_sample_info s, product p
+		 where s.dividend_seq is not null
+		   and s.review_result is null
+		   and s.product_code = p.product_code
+		   and rownum = 1
+    </select>
+    
+    <update id="UPDATE_SAMPLE_VERIFY_RESULT" parameterClass="java.util.HashMap">
+		update pos_sample_info
+		   set review_get_due_sum  = #reviewGetDueSum#,
+	       <dynamic>
+		      <isEqual property="sampleType" compareValue="1">
+                review_get_due_date = to_date(#reviewGetDueDate#, 'yyyy-mm-dd'),
+		        review_interest_sum = #reviewInterestSum#,
+		      </isEqual>
+	       </dynamic>
+		       review_result       = #reviewResult#,
+		       reviewer            = #reviewer#,
+		       result_desc         = result_desc || #resultDesc#
+		 where sample_seq = #sampleSeq#
+    </update>
+
+    <select id="QUERY_SAMPLE_CONFIRM_1" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select /*+leading(s, p)*/s.sample_seq,
+		       s.policy_no,
+		       decode(s.review_result, 'Y', '通过', 'N', '不通过') review_result,
+		       s.reviewer,
+		       s.get_due_sum,
+		       to_char(s.get_due_date, 'yyyy-mm-dd') get_due_date,
+		       s.review_get_due_sum,
+		       to_char(s.review_get_due_date, 'yyyy-mm-dd') review_get_due_date,
+		       s.result_desc
+		  from pos_sample_info s, policy p
+		 where s.survival_seq is not null
+		   and s.review_result ='N'
+		   and s.review_confirm_result is null
+		   and s.policy_no = p.policy_no
+		   and p.branch_code in
+		       (select branch_code
+		          from branch_info
+		         start with branch_code =
+		                    (select branch_code
+		                       from pub_user_branch_oper_privs
+		                      where um_user_id = #user#
+		                        and lower(operation_type) like 'pos_%'
+		                        and valid_flag = 'Y'
+		                        and rownum = 1)
+		        connect by prior branch_code = parent_branch)
+    </select>
+    
+    <select id="QUERY_SAMPLE_CONFIRM_2" resultClass="java.util.HashMap">
+		select s.sample_seq,
+		       s.policy_no,
+		       decode(s.review_result, 'Y', '通过', 'N', '不通过') review_result,
+		       s.reviewer,
+		       s.get_due_sum,
+		       to_char(s.get_due_date, 'yyyy-mm-dd') get_due_date,
+		       s.review_get_due_sum,
+		       to_char(s.review_get_due_date, 'yyyy-mm-dd') review_get_due_date,
+		       s.result_desc
+		  from pos_sample_info s
+		 where s.dividend_seq is not null
+		   and s.review_result is not null
+		   and s.review_confirm_result is null
+    </select>
+    
+    <update id="UPDATE_SAMPLE_CONFIRM" parameterClass="java.util.HashMap">
+		update pos_sample_info
+		   set review_confirm_result = #confirmResult#,
+		       review_result          =#reviewResult#,
+		       review_confirmer      = #confirmer#,
+		       result_desc           = result_desc || #resultDesc#,
+           review_get_due_date   =#reviewDate#,
+           review_get_due_sum    =#reviewSum#
+		 where sample_seq = #sampleSeq#
+    </update>
+
+</sqlMap>

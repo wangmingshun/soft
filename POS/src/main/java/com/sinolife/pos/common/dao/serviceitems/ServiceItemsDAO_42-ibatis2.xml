@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_42">
+
+    <!--查询生效日期,满期日期  -->
+	<select id="QUERY_EFFECTDATE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+
+        SELECT TO_CHAR(MATURITY_DATE,'YYYY-MM-DD')MATURITY_DATE,TO_CHAR(EFFECT_DATE,'YYYY-MM-DD')EFFECT_DATE ,PK_SERIAL FROM POLICY_PRODUCT WHERE POLICY_NO=#VALUE# AND PROD_SEQ='1'
+	</select>
+
+
+
+
+	<!-- 插入保全变更明细-->
+	<insert id="INSERT_PROCESS_DETAIL" parameterClass="java.util.HashMap" >
+ 		INSERT INTO POLICY_PRODUCT
+		  (POS_NO,
+		   POS_PROCESS_NO,
+		   TABLE_NAME,
+		   PROCESS_TYPE,
+		   QUERY_COLUMN_PK,
+		   UPDATE_COLUMN_NAME,		  
+		   )
+		VALUES
+		  (#POS_NO#,
+		   '1',
+		   'POLICY_PRODUCT',
+		   '2',
+		   #PK_SERIAL#,
+		   'EFFECT_DATE'
+		   )
+    </insert>
+</sqlMap>

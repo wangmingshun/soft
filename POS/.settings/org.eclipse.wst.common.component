@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="SL_POS">
+        <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resource_int"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/template"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp/WEB-INF/tlds"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resource"/>
+        <property name="context-root" value="SL_POS"/>
+        <property name="java-output-path" value="/SL_POS/src/main/webapp/WEB-INF/classes"/>
+    </wb-module>
+</project-modules>

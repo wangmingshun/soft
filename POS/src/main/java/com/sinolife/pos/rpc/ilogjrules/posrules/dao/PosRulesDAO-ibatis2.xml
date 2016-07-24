@@ -1,0 +1,1105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.rpc.ilogjrules.posrules.dao.PosRulesDAO">
+     
+	<select id="QUERY_POLICY_YEAR_DATE" parameterClass="java.lang.String" resultClass="java.util.Date">
+	<![CDATA[
+		SELECT add_months(t.effect_date,
+		                  (l_pos_pub.calc_years(t.effect_date,
+		                                        nvl((SELECT h.prem_due_date - 1
+		                                              FROM policy_prem_info h
+		                                             WHERE h.policy_no = #value#),
+		                                            SYSDATE),
+		                                        'N') - 1) * 12) policyyeardate
+		  FROM policy t
+		 WHERE t.policy_no = #value#
+	]]>
+	</select>
+     
+     <select id="QUERY_SELF_INPUT_PRIVS" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select p.service_items
+		  from self_input_privs p
+		 where p.user_id = lower(#userId#)
+		   and p.valid_end_date is null
+     </select>
+
+	<parameterMap class="java.util.HashMap" id="isHesitatedParaMap">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="isScruple" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="scrupleDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isHesitated" parameterMap="isHesitatedParaMap">
+		{call l_pos_service_item_1.scruple_period_product_all(?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="FUNC_AGENT_SELF_POLICY" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.agent_self_policy(#policyNo#) from dual
+     </select>
+	
+	<parameterMap class="java.util.HashMap" id="PROC_IS_POLICY_HAS_VALID_APL_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="hasValidApl" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_IS_POLICY_HAS_VALID_APL" parameterMap="PROC_IS_POLICY_HAS_VALID_APL_MAP">
+		{call l_pos_loan_apl.is_policy_has_valid_apl(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="PROC_IS_POLICY_HAS_VALID_LOAN_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="hasValidLoan" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_IS_POLICY_HAS_VALID_LOAN" parameterMap="PROC_IS_POLICY_HAS_VALID_LOAN_MAP">
+		{call l_pos_loan_apl.is_policy_has_valid_loan(?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="PROC_IS_POLICY_HAS_VALID_LOAN_PAS_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="hasValidLoanPas" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_IS_POLICY_HAS_VALID_LOAN_PAS" parameterMap="PROC_IS_POLICY_HAS_VALID_LOAN_PAS_MAP">
+		{call l_pos_loan_apl.is_policy_has_valid_loan_pas(?,?,?,?)}
+	</procedure>
+	
+	
+	<select id="SELECT_IS_POLICY_FEE_FREE" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select decode(count('X'), 0, 'N', 'Y') isPolicyFeeFree
+		  from policy_product_prem t, policy_product s
+		 where s.policy_no = t.policy_no
+		   and s.is_primary_plan = 'Y'
+		   and s.prod_seq = t.prod_seq
+		   and s.policy_no = #policyNo#
+		   and t.prem_source = '4'
+		   and rownum = 1
+     </select>
+     
+     <select id="IS_APPLY_STAGING_PAYMENT" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select l_pos_inv_rule_interface.is_apply_staging_payment(#policyNo#,#queryDate#) from dual
+     </select>
+     
+     <select id="IS_EXIST_UNFINISHED_TRADING" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select l_pos_inv_rule_interface.is_exist_unfinished_trading(#policyNo#,#queryDate#) from dual
+     </select>
+     
+     <select id="SELECT_POLICY_CONFIRM_DATE" parameterClass="java.lang.String" resultClass="java.util.Date">
+		select max(confirm_date)
+		  from policy_contract
+		 where policy_no = #policyNo#
+		   and sign_flag = 'Y'
+     </select>
+          
+     <select id="SELECT_POLICY_SIGN_DATE" parameterClass="java.lang.String" resultClass="java.util.Date">
+		select max(client_sign_date)
+		  from policy_contract
+		 where policy_no = #policyNo#
+		   and sign_flag = 'Y'
+     </select>
+      <select id="SELECT_POLICY_MEDIA_TYPE" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select max(media_type)
+		  from policy_contract
+		 where policy_no = #policyNo#
+     </select>
+     <select id="SELECT_POLICY_PROVIDE_TIME" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		select nvl(SUM(policy_provide_time), 1) - 1
+		  from policy_contract
+		 where policy_no = #policyNo#
+     </select>
+      <select id="SELECT_POLICY_SIGN_FLAG" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select max(sign_flag)
+		  from policy_contract
+		 where policy_no = #policyNo#
+     </select>
+     <select id="SELECT_NOT_TRANSFER_FAILURE" parameterClass="java.lang.String" resultClass="java.lang.String">
+     <![CDATA[
+		SELECT decode(COUNT('X'), 0, 'Y', 'N')
+		  FROM pos_info t
+		 WHERE t.policy_no = #policyNo#
+		   AND t.accept_date IN (SELECT MAX(a.accept_date)
+		                           FROM pos_info a
+		                          WHERE a.policy_no = #policyNo#
+		                            AND a.prem_sum > 0
+		                            AND a.prem_success_flag = 'N')
+	 ]]>
+     </select>
+     
+     <parameterMap class="java.util.HashMap" id="PROC_RN_GET_SERVICE_INFO_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="serviceNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="serviceName" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="phone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_RN_GET_SERVICE_INFO" parameterMap="PROC_RN_GET_SERVICE_INFO_MAP">
+		{call l_pos_rn_interface.rn_get_service_info(?,?,?,?)}
+	</procedure>
+     
+     <select id="SELECT_BENEFICIARY_ACCOUNT_OWNER" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select t.account_owner
+		  from policy_beneficiary t
+		 where t.policy_no = #policyNo#
+		   and t.beneficiary_no = #beneficiaryNo#
+		   and rownum = 1
+     </select>
+     
+     <parameterMap class="java.util.HashMap" id="CALC_LOANABLE_RELATED_AMT_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="prodSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="calcDate" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="cashValue" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="loanMax" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="CALC_LOANABLE_RELATED_AMT" parameterMap="CALC_LOANABLE_RELATED_AMT_MAP">
+		{call l_pos_loan_apl.calc_loanable_related_amt(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="PROC_GET_RELATE_POLICY_INFO_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="hasRelatedPolicy" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="relatedPolicyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="relatedShortTermCanceled" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_GET_RELATE_POLICY_INFO" parameterMap="PROC_GET_RELATE_POLICY_INFO_MAP">
+		{call l_pos_rule_query.get_relate_policy_info(?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="historyServiceItemsList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT t.pos_no,
+		       t.service_items,
+		       t.accept_date,
+		       t.prem_sum,
+		       t.prem_flag,
+		       t.prem_success_flag,
+		       t.acceptor,
+		       t.payment_type,
+		       t.accept_status_code,
+		       t.effective_date
+		  FROM pos_info t
+		 WHERE t.policy_no = #policyNo#
+		   AND t.accept_date < #acceptDate#
+		 ORDER BY t.service_items, t.effective_date
+	]]>
+	</select>
+     
+     <select id="SELECT_IS_IN_LIFE_INVESTIGATION" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select decode(count('X'), 0, 'N', 'Y')
+		  from pos_survival_invest t
+		 where t.policy_no = #policyNo#
+		   and t.invest_state = '1'
+     </select>
+	
+	<select id="FUNC_IS_DIV_PLAN" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_div_product(#productCode#) from dual
+    </select>
+    
+    <select id="FUNC_IS_BONUS_DIV_PLAN" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_bonus_product(#productCode#) from dual
+    </select>
+    
+    <select id="FUNC_IS_ENDOWMENT_PRODUCT" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_endowment_product(#productCode#) from dual
+    </select>
+    
+    <select id="FUNC_IS_ULINK_PRODUCT" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_fund_product(#productCode#) from dual
+    </select>
+    
+    <select id="FUNC_IS_ULIFE_PRODUCT" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_ulife_product(#productCode#) from dual
+    </select>
+    
+    <select id="FUNC_IS_LONG_PRODUCT" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_pub.is_long_product(#productCode#) from dual
+    </select>
+    
+    <parameterMap class="java.util.HashMap" id="isLoanablePlanParaMap">
+		<parameter property="p_product_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_loanable" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isLoanablePlan" parameterMap="isLoanablePlanParaMap">
+		{call l_pos_loan_apl.is_product_loanable(?,?,?,?)}
+	</procedure>
+    
+    <select id="hasPaidDuePolicyFee" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    <![CDATA[
+		SELECT l_pos_inv_rule_interface.is_every_term_prem_paid(#p_policy_no#, #p_query_date#)
+		  FROM dual
+    ]]>
+    </select>
+	
+    <select id="SELECT_DIVIDEND_SELECTION" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select t.dividend_selection from policy_dividend t where t.policy_no = #policyNo# and rownum = 1
+    </select>
+    
+    <select id="SELECT_EFFECTED_YEARS" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT trunc(months_between(#applyDate#, l.effect_date) / 12)
+		  FROM policy_product l
+		 WHERE l.policy_no = #policyNo#
+		   AND l.prod_seq = #prodSeq#
+	]]>
+    </select>
+    
+    <parameterMap class="java.util.HashMap" id="GET_POL_ADDTO_MIN_AMOUNT_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="prodSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="reqDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="addtoMinAmount" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="GET_POL_ADDTO_MIN_AMOUNT" parameterMap="GET_POL_ADDTO_MIN_AMOUNT_MAP">
+		{call l_pos_inv_rule_interface.get_pol_addto_min_amount(?,?,?,?,?,?)}
+	</procedure>
+
+   <parameterMap class="java.util.HashMap" id="GET_PRODUCT_MIN_BALANCE_MAP">
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productParameter" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="parameterValue" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="GET_PRODUCT_MIN_BALANCE" parameterMap="GET_PRODUCT_MIN_BALANCE_MAP">
+		{call l_pos_pd_interface.pd_sel_prd_parameter_value_pro(?,?,?)}
+	</procedure>
+		
+	<parameterMap class="java.util.HashMap" id="GET_FINANCIAL_PRODUCTS_LIST_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="prodSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_financial_products_list" jdbcType="ARRAY" typeName="POSCDE.FINANCIAL_PRODUCTS_LIST" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="GET_FINANCIAL_PRODUCTS_LIST" parameterMap="GET_FINANCIAL_PRODUCTS_LIST_MAP">
+		{call l_pos_inv_rule_interface.get_financial_products_list(?,?,?,?,?)}
+	</procedure>
+    
+    <parameterMap class="java.util.HashMap" id="PROC_IS_PRODUCTS_CLASH_MAP">
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_financial_products_list" jdbcType="ARRAY" javaType="java.util.List" typeHandler="com.sinolife.pos.common.dao.typehandler.FinancialProductsArrayHandler" mode="IN"/>
+		<parameter property="clashFlag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_IS_PRODUCTS_CLASH" parameterMap="PROC_IS_PRODUCTS_CLASH_MAP">
+		{call l_pos_inv_rule_interface.is_products_clash(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="QUERY_FINANCIAL_PRODUCTS_VALUE_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="prodSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="productCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="requestDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="contractStatus" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="totalAmount" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_financial_products_list" jdbcType="ARRAY" typeName="POSCDE.FINANCIAL_PRODUCTS_LIST" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="QUERY_FINANCIAL_PRODUCTS_VALUE" parameterMap="QUERY_FINANCIAL_PRODUCTS_VALUE_MAP">
+		{call l_pos_inv_rule_interface.query_financial_products_value(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="CALC_POLICY_LOAN_INTEREST_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="endDate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="interestSum" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="loanAllSum" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="CALC_POLICY_LOAN_INTEREST" parameterMap="CALC_POLICY_LOAN_INTEREST_MAP">
+		{call l_pos_loan_apl.calc_policy_loan_interest(?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="PROC_QUERY_RELA_POLICY_MAP">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="relatedPolicyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="hasRelatedPolicy" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="PROC_QUERY_RELA_POLICY" parameterMap="PROC_QUERY_RELA_POLICY_MAP">
+		{call l_pos_uw_interface.uw_query_rela_policy(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="policyLoanMinMoneyParaMap">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="minLoanMoney" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="policyLoanMinMoney" parameterMap="policyLoanMinMoneyParaMap">
+		{call l_pos_loan_apl.get_policy_min_loan_money(?,?,?,?)}
+	</procedure>
+
+	<select id="queryPosExtraInfoByPosNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.accept_channel_code,
+			   a.apply_type_code,
+			   b.apply_date,
+			   a.idno_validity_date
+		  FROM pos_apply_batch a,
+		       pos_apply_files b,
+		       pos_info        c
+		 WHERE a.pos_batch_no = b.pos_batch_no
+		   AND b.barcode_no = c.barcode_no
+		   AND c.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="queryLapseDateAndReasonByPolicyNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT z.lapse_type lapse_type,
+		       y.lapse_date lapse_date
+		  FROM policy           t,
+		       pos_lapse_policy y,
+		       pos_lapse_type   z
+		 WHERE t.policy_no = y.policy_no
+		   AND y.lapse_type = z.lapse_type
+		   AND t.duty_status = '2'
+		   AND y.valid_flag = 'Y'
+		   AND y.is_reinstatement = 'N'
+		   AND y.policy_no = #value#
+		   AND y.lapse_date IN (SELECT MAX(y.lapse_date)
+		                          FROM policy           t,
+		                               pos_lapse_policy y,
+		                               pos_lapse_type   z
+		                         WHERE t.policy_no = y.policy_no
+		                           AND y.lapse_type = z.lapse_type
+		                           AND t.duty_status = '2'
+		                           AND y.valid_flag = 'Y'
+		                           AND y.is_reinstatement = 'N'
+		                           AND y.policy_no = #value#)
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="isAutoPolicyLoan" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(t.apl_option, '1', 'Y', '2', 'N')
+		  FROM policy t
+		 WHERE t.policy_no = #value#
+	]]>
+	</select>
+	
+	<select id="isExtendedTerm" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_pub.is_grace_period(#policyNo#, #calcDate#) FROM dual
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="checkPolicySuspendParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_service_suspend_item" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_suffer_suspend" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_suspend_item_arr" jdbcType="ARRAY" typeName="PUBCDE.T_CHAR_KEY_VAL_ARR" mode="OUT"/>
+		<parameter property="p_sign" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="checkPolicySuspend" parameterMap="checkPolicySuspendParaMap">
+		{call l_pos_pub_interface.pub_proc_rechk_pol_suspend(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="getMaturityPay" parameterClass="java.util.HashMap" resultClass="java.lang.Double">
+	<![CDATA[
+ 		SELECT l_pos_survival.get_matu_pay(#p_policy_no#, #p_prod_seq#, #p_calc_date#) FROM dual
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="financeNoConfirmPremParaMap">
+		<parameter property="p_business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_capital_confirm_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_mes" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="financeNoConfirmPrem" parameterMap="financeNoConfirmPremParaMap">
+		{call l_pos_fin_interface.fin_get_capital_confirm_flag(?,?,?,?,?)}
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="finCapitalConfirmParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_apply_bar_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_capital_confirm_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_mes" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="finCapitalConfirm" parameterMap="finCapitalConfirmParaMap">
+		{call l_pos_fin_interface.get_fin_capital_confirm_flag(?,?,?,?,?)}
+	</procedure>
+	
+	
+	
+	
+	<select id="currentOriginalAccountSame" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+    	SELECT l_pos_approve.judge_bankacctno(#value#) FROM dual
+	]]>
+	</select>
+	
+	<select id="getApplyBarcode" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_uw_interface.uw_get_apply_bar_code(#value#) FROM dual
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="getPolProdPremCoverageParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_product_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_prod_seq" javaType="java.lang.Integer" jdbcType="NUMERIC" mode="IN"/>
+		<parameter property="p_calc_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="p_prem_term" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_left_prem_term" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_coverage_period" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_left_coverage_period" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_paidenddate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getPolProdPremCoverage" parameterMap="getPolProdPremCoverageParaMap">
+		{call l_pos_accept.get_pol_prod_prem_coverage(?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="currentServiceItemsList" parameterClass="java.lang.String" resultClass="com.sinolife.sf.ruleengine.pos.bom.dto.ServiceItemDomainDto">
+	<![CDATA[
+		SELECT DISTINCT d.service_items "serviceItem"
+		  FROM pos_apply_files c,
+		       pos_info        d
+		 WHERE c.barcode_no = d.barcode_no
+		   AND c.pos_batch_no = (SELECT a.pos_batch_no
+		                           FROM pos_apply_files a,
+		                                pos_info        b
+		                          WHERE a.barcode_no = b.barcode_no
+		                            AND b.pos_no = #value#)
+	]]>
+	</select>
+
+	<parameterMap class="java.util.HashMap" id="getToundwrtProductDatailParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_ins_clientno" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_app_clientno" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_ins_undwrt_product_list" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_TOUNDWRT_PRODUCT" mode="OUT"/>
+		<parameter property="p_app_undwrt_product_list" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POS_TOUNDWRT_PRODUCT" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getToundwrtProductDatail" parameterMap="getToundwrtProductDatailParaMap">
+		{call l_pos_accept.get_toundwrt_product_datail(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="getOccupationGradeByCode" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT o.occupation_grade
+		  FROM occupation o
+		 WHERE o.occupation_code = #value#
+	]]>
+	</select>
+	
+	<select id="getRelationWithInsured" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT p.relationship
+		  FROM policy_product p
+		 WHERE p.policy_no = #value#
+		   AND p.is_primary_plan = 'Y'
+	]]>
+	</select>
+	
+	<select id="queryPosPolicyProductTmpListByPosNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyProductDTO">
+	<![CDATA[
+		SELECT a.policy_no "policyNo",
+		       a.prod_seq "prodSeq",
+		       a.product_code "productCode",
+		       a.relationship "relationship",
+		       f.description "relationshipDesc",
+		       a.insured_no "insuredNo",
+		       c.client_name "insuredName",
+		       a.duty_status "dutyStatus",
+		       g.description "dutyStatusDesc",
+		       a.lapse_reason "lapseReason",
+		       a.effect_date "effectDate",
+		       a.units "units",
+		       a.product_level "productLevel",
+		       a.base_sum_ins "baseSumIns",
+		       a.dividend_sum_ins "dividendSumIns",
+		       a.coverage_period "coveragePeriod",
+		       a.maturity_date "maturityDate",
+		       a.special_term "specialTerm",
+		       a.is_primary_plan "isPrimaryPlan",
+		       a.cover_period_type "coverPeriodType",
+		       e.description "coverPeriodTypeDesc",
+		       b.full_name "productFullName",
+		       b.abbr_name "productAbbrName",
+		       d.policy_no "premInfo.policyNo",
+		       d.prod_seq "premInfo.prodSeq",
+		       d.frequency "premInfo.frequency",
+		       h.description "premInfo.frequencyDesc",
+		       d.prem_source "premInfo.premSource",
+		       i.description "premInfo.premSourceDesc",
+		       d.prem_status "premInfo.premStatus",
+		       j.description "premInfo.premStatusDesc",
+		       d.prem_term "premInfo.premTerm",
+		       d.ann_standard_prem "premInfo.annStandardPrem",
+		       d.ann_weak_add_prem "premInfo.annWeakAddPrem",
+		       d.ann_occu_add_prem "premInfo.annOccuAddPrem",
+		       d.period_standard_prem "premInfo.periodStandardPrem",
+		       d.period_occu_add_prem "premInfo.periodOccuAddPrem",
+		       d.period_weak_add_prem "premInfo.periodWeakAddPrem",
+		       d.period_prem_sum "premInfo.periodPremSum",
+		       d.pay_to_date "premInfo.payToDate",
+		       d.add_prem_term "premInfo.addPremTerm",
+		       d.add_prem_eff_date "premInfo.addPremEffDate",
+		       d.pk_serial "premInfo.pkSerial",
+		       d.prem_period_type "premInfo.premPeriodType",
+		       k.description "premInfo.premPeriodTypeDesc",
+		       d.sex_code "premInfo.sexCode",
+		       l.sex_desc "premInfo.sexDesc",
+		       d.ins_age "premInfo.insAge",
+		       d.occupation_code "premInfo.occupationCode",
+		       m.occupation_desc "premInfo.occupationDesc",
+		       l_pos_pub.is_long_product(a.product_code) "longFlag"
+		  FROM pos_policy_product_tmp      a,
+		       product                     b,
+		       client_information          c,
+		       pos_policy_product_prem_tmp d,
+		       cover_period_type           e,
+		       relationship                f,
+		       duty_status                 g,
+		       frequency                   h,
+		       prem_source                 i,
+		       prem_status                 j,
+		       prem_period_type            k,
+		       sex                         l,
+		       occupation                  m
+		 WHERE a.product_code = b.product_code(+)
+		   AND a.insured_no = c.client_no(+)
+		   AND a.policy_no = d.policy_no(+)
+		   AND a.prod_seq = d.prod_seq(+)
+		   AND a.cover_period_type = e.cover_period_type(+)
+		   AND a.relationship = f.relationship(+)
+		   AND a.duty_status = g.duty_status(+)
+		   AND d.frequency = h.frequency(+)
+		   AND d.prem_source = i.prem_source(+)
+		   AND d.prem_status = j.prem_status(+)
+		   AND d.prem_period_type = k.prem_period_type(+)
+		   AND d.sex_code = l.sex_code(+)
+		   AND d.occupation_code = m.occupation_code(+)
+		   AND a.pos_no = #value#
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="isBlackListParaMap">
+		<parameter property="p_client_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_biz_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="p_black_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_sign" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isBlackList" parameterMap="isBlackListParaMap">
+		{call l_pos_pub_interface.pub_proc_chk_balck_client(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="isConvertableParaMap" class="java.util.HashMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_convertableplan" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_unconvertable_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isConvertable" parameterMap="isConvertableParaMap">
+		{call l_pos_service_item_34.is_convertable(?,?,?,?,?)}
+	</procedure>
+	
+	<select id="isExemptPlan" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_pub.is_exempt_others_product(#value#) FROM dual
+	]]>
+	</select>
+	
+	<select id="isOffSideAccept" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_accept.is_offside_accept(#p_policy_no#, #p_acceptor#) FROM dual
+	]]>
+	</select>
+	
+	<select id="hasOffSidePriv" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT different_place_privs
+		  FROM pos_user_privs
+		 WHERE user_id = #value#
+	]]>
+	</select>
+	
+	<select id="annualPaymentStartDate" parameterClass="java.util.HashMap" resultClass="java.util.Date">
+	<![CDATA[
+		SELECT psc.first_pay_date
+		  FROM policy_survival_coverage psc
+		 WHERE psc.policy_no = #policyNo#
+		   AND psc.prod_seq = #prodSeq#
+	]]>
+	</select>
+	
+	<select id="historyPlans" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT ta.insured_no,
+		       ta.policy_no,
+		       ta.product_code,
+		       ta.prod_seq,
+		       ta.base_sum_ins,
+		       ta.units,
+		       tb.receivable_bal + tb.receivable_add_bal first_premium
+		  FROM policy_product ta,
+		       uw_apply_info  tb
+		 WHERE ta.insured_no = #clientNo#
+		   AND ta.policy_no = tb.policy_no
+		   AND ta.duty_status = '1'
+		   AND ta.policy_no <> #policyNo#
+	]]>
+	</select>
+	
+	<select id="drawEndowmentAge" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT psc.pay_start
+		  FROM policy_survival_coverage psc
+		 WHERE psc.policy_no = #policyNo#
+		   AND psc.prod_seq = #prodSeq#
+		   AND psc.pay_start_type = '1'
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="endowmentPayTypeAndFrequency" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+	    SELECT psc.pay_type, psc.frequency
+	      FROM policy_survival_coverage psc
+	     WHERE psc.policy_no = #policyNo#
+	       AND psc.prod_seq = #prodSeq#
+	       AND rownum = 1
+	]]>
+	</select>
+	
+	<parameterMap id="uwGetLastDecisionDetailParaMap" class="java.util.HashMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_prod_seq" javaType="java.lang.Integer" jdbcType="NUMERIC" mode="IN"/>
+		<parameter property="p_cbzt_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="uwGetLastDecisionDetail" parameterMap="uwGetLastDecisionDetailParaMap">
+		{call l_pos_uw_interface.uw_get_last_decision_detail(?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap class="java.util.HashMap" id="getSuwbomElementParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_prem_term_chk" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_app_client_rec" jdbcType="STRUCT" typeName="POSCDE.REC_APP_CLIENT" mode="OUT"/>
+		<parameter property="p_ins_client_list" jdbcType="ARRAY" typeName="POSCDE.ARRAY_INS_CLIENT" mode="OUT"/>
+		<parameter property="p_beneficiary_list" jdbcType="ARRAY" typeName="POSCDE.ARRAY_BENEFICIARY" mode="OUT"/>
+		<parameter property="p_policy_product_list" jdbcType="ARRAY" typeName="POSCDE.ARRAY_POLICY_PRODUCT" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getSuwbomElement" parameterMap="getSuwbomElementParaMap">
+		{call l_pos_accept.get_suwbom_element(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="isPaymentFeeAuthorized" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT MAX(is_prem)
+		  FROM policy_survival_coverage
+		 WHERE policy_no = #value#
+	]]>
+	</select>
+	
+	<select id="isPaymentTransferFailure" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y') is_payment_transfer_failure
+		  FROM pos_info pi
+		 WHERE pi.policy_no = #value#
+		   AND pi.service_items IN ('10', '82')
+		   and pi.prem_sum is not null
+		   AND pi.accept_status_code = 'E01'
+		   AND pi.payment_type = '2'
+		   AND nvl(pi.prem_success_flag, 'N') = 'N'
+	]]>
+	</select>
+	
+	<parameterMap id="maxAddupPolicyFeeParaMap" class="java.util.HashMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="p_prod_seq" javaType="java.lang.Integer" jdbcType="NUMERIC" mode="IN" />
+		<parameter property="p_request_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN" />
+		<parameter property="p_addto_max_amount" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="maxAddupPolicyFee" parameterMap="maxAddupPolicyFeeParaMap">
+		{call l_pos_inv_rule_interface.get_pol_addto_max_amount(?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="policyYearAddupTimes" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT COUNT(pi.pos_no)
+		  FROM pos_info          pi,
+		       pos_accept_detail pad
+		 WHERE pi.policy_no = #policyNo#
+		   AND pi.accept_date > l_pos_pub.get_policy_pre_anni_date(p_policy_no => #policyNo#, p_pre_date => #applyDate#)
+		   AND pi.service_items = '3'
+		   AND pi.accept_status_code = 'E01'
+		   AND pi.pos_no = pad.pos_no
+		   AND pad.pos_object = '2'
+		   AND pad.item_no IN ('012', '015')
+		   AND pad.object_value = #prodSeq#
+	]]>
+	</select>
+	
+	<select id="policyYearDeductTimes" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT COUNT(pi.pos_no)
+		  FROM pos_info          pi,
+		       pos_accept_detail pad
+		 WHERE pi.policy_no = #policyNo#
+		   AND pi.accept_date > l_pos_pub.get_policy_pre_anni_date(p_policy_no => #policyNo#, p_pre_date => #applyDate#)
+		   AND pi.service_items = '4'
+		   AND pi.accept_status_code = 'E01'
+		   AND pi.pos_no = pad.pos_no
+		   AND pad.pos_object = '2'
+		   AND pad.item_no IN ('006', '007')
+		   AND pad.object_value = #prodSeq#
+	]]>
+	</select>
+	
+	<select id="isHasHealthNote" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT decode(COUNT('x'), 0, 'N', 'Y')
+		  FROM pos_personal_notice p
+		 WHERE p.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="getYearlyServiceItemTimes" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT l_pos_inv_rule_interface.get_yearly_service_item_times(#policyNo#, #prodSeq#, #applyDate#, #serviceItems#)
+		  FROM dual
+	]]>
+	</select>
+	
+	<select id="acceptingServiceItems" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT DISTINCT service_items
+		  FROM pos_info pi
+		 WHERE pi.policy_no = #policyNo#
+		   AND pi.accept_date < SYSDATE
+		   AND NOT (pi.accept_status_code LIKE 'C%' OR pi.accept_status_code = 'E01')
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="judgePosSuspendParaMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_suspend_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_suspend_cause" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="judgePosSuspend" parameterMap="judgePosSuspendParaMap">
+		{call l_pos_workflow.judge_pos_suspend(?,?,?)}
+	</procedure>
+
+	<select id="QUERY_LATEST_RELATION_CODE" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select d.new_value
+		  from pos_accept_detail d
+		 where d.pos_no = #posNo#
+		   and d.pos_object = '1'
+		   and d.item_no = decode(#serviceItems#, '16', '014', '20', '081')
+	</select>
+
+	<parameterMap class="java.util.HashMap" id="isRenewTransferingParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="isRenewTransfering" parameterMap="isRenewTransferingParaMap">
+		{call l_pos_rn_interface.rn_is_policy_trans_processing(?,?)}
+	</procedure>
+	
+	<select id="forwardAcceptDays" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		SELECT trunc(l_pos_pub.populate_working_hours(trunc(#p_date_start#), trunc(#p_date_end#)) / 24)
+		  FROM dual
+	]]>
+	</select>
+	
+	<!-- 保单是否已预约 -->
+	<select id="isReservation" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+			select  l_pos_pub_interface.policy_booking_status(#policyNo#) from  dual
+	]]>
+	</select>
+
+    <!-- 查询客户体检次数 -->
+	
+	<select id="examinaTionTime" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+				select  l_pos_pub_interface.policy_examination_time(#policyNo#) from  dual
+	]]>
+	</select>
+	
+	
+	<!-- 保单是否淘宝渠道销售 -->
+	<select id="isTaobaoPolicy" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+			select  l_pos_pub_interface.is_taobao_policy(#policyNo#) from  dual
+	]]>
+	</select>
+	
+	<!-- 获取电商渠道保单的来源 -->
+	<select id="getEPolicySource" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+			select  l_pos_pub_interface.get_e_policy_source(#policyNo#) from  dual
+	]]>
+	</select>
+	
+
+	<!-- 查询保单新生效日期和旧生效日期 -->
+   <select id="queryEffectDate" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	<![CDATA[
+		    select COUNT(*)
+		      from pos_accept_detail
+		     where pos_object = '1'
+		       and item_no = '147'
+		       and object_value = #policyNo#
+		       and pos_no = #posNo#
+		       and to_date(old_value, 'YYYY-MM-DD') 
+		       <to_date(new_value, 'YYYY-MM-DD')
+
+	]]>
+	</select>
+
+	
+	<parameterMap class="java.util.HashMap" id="applyGimUndwrtParaMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	
+		<parameter property="p_branch_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_sign" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="applyGimUndwrt" parameterMap="applyGimUndwrtParaMap">
+		{call poscde.l_pos_biab_interface.proc_apply_gim_undwrt(?,?,?,?,?)}
+	</procedure>	
+      
+   <!-- 判断卡单是否激活 -->
+    <select id="queryBusSource" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		         
+		    select count(*) from POLICY p where p.business_source='C' AND P.POLICY_NO=#policyNo#
+
+	]]>
+	</select>
+	<!-- 判断是否整单退保 -->
+    <select id="querySurrender" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		         
+		    select COUNT(*) from pos_accept_detail p where p.pos_no=#posNo#
+         and p.pos_object='1' and p.item_no='091' and p.new_value='Y'
+
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="scruplePeriodPolicyMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_is_scruple" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>	
+		<parameter property="p_scruple_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="OUT"/>
+		<parameter property="p_sign" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="scruplePeriodPolicy" parameterMap="scruplePeriodPolicyMap">
+		{call l_pos_pub.scruple_period_policy_all(?,?,?,?,?)}
+	</procedure>	
+	
+	<parameterMap class="java.util.HashMap" id="isHesitateConditionMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_apply_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>	
+		<parameter property="p_valid_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_reason" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="isHesitateCondition" parameterMap="isHesitateConditionMap">
+		{call l_pos_rule_query.is_hesitate_condition(?,?,?,?,?,?)}
+	</procedure>
+	
+		<parameterMap class="java.util.HashMap" id="isFreeInterestMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_apply_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>	
+		<parameter property="p_can_free" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="isFreeInterest" parameterMap="isFreeInterestMap">
+		{call l_pos_vip_manage.get_policy_can_free_interest(?,?,?,?,?)}
+	</procedure>
+					   
+	<!--	<parameterMap class="java.util.HashMap" id="isBeneficiaryInfoConsistentMap">
+		<parameter property="p_policy_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_prod_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_benef_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_benef_name" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_benef_sex_code" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_benef_birthday" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="p_benef_id_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_benef_idno" javaType="java.lang.String" jdbcType="VARCHAR"  mode="IN"/>
+		<parameter property="p_is_const" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="isBeneficiaryInfoConsistent" parameterMap="isBeneficiaryInfoConsistentMap">
+		{call l_pos_survival.proc_get_benefit_info_const(?,?,?,?,?,?)}
+	</procedure>	
+	
+	-->
+	<select id="isClientReportedByClaim" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_claim_interface.is_client_reported_claim(#value#) FROM dual
+	]]>
+	</select>
+	
+	
+	<select id="isProductPayByClaim" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT  l_pos_claim_interface.is_product_pay_by_claim(#policyNo#,#prodSeq#)   FROM dual
+	]]>
+	</select>
+	   <!-- 保单是否有组合代码-->
+    <select id="isPolicyCombinationCode" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+		         
+		    select count(*) from POLICY p where p.combination_code is not null AND P.POLICY_NO=#policyNo#
+
+	]]>
+	</select>
+	<!--  保单指定险种是否发生过理赔（包含已结案和正在理赔）-->
+    <select id="isPolicyProdClaimed" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_claim_interface.is_policy_prod_claimed(#policyNo#, #prodSeq#)
+		  FROM dual
+	]]>
+	</select>   
+	<!-- 保单指定险种是否有医疗责任-->
+    <select id="hasMedicalLiability" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_claim_interface.has_medical_liability(#policyNo#, #prodSeq#)
+		  FROM dual
+	]]>
+	</select>   
+	<!-- 变更的电话号码是否与业务员一致-->
+    <select id="isPhoneNoTheAgent" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_rule_query.is_phone_no_the_agent(#value#)
+		  FROM dual
+	]]>
+				</select>   
+	<!-- 变更的电话号码是否3个及以上客户共用-->
+    <select id="isPhoneNoForThreeClient" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_rule_query.is_phone_no_for_three_client(#value#)
+		  FROM dual
+	]]>
+	</select>  
+	<!-- 投保人是否在黑名单中-->
+    <select id="isApplicantInBlacklist" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pub_pos_interface.is_client_in_blacklist(#clientName#, #clientIdno#)
+		  FROM dual
+	]]>
+	</select>  
+	<!-- 被保人是否在黑名单中-->
+    <select id="isInsuredInBlacklist" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pub_pos_interface.is_client_in_blacklist(#clientName#, #clientIdno#)
+		  FROM dual
+	]]>
+	</select> 
+    <!-- 受益人是否在黑名单中-->
+    <select id="isBenefciaryInBlacklist" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pub_pos_interface.is_client_in_blacklist(#clientName#, #clientIdno#)
+		  FROM dual
+	]]>
+	</select>
+	<!-- 变更项的姓名是否在黑名单中-->
+    <select id="isChangenameInBlacklist" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pub_pos_interface.is_client_in_blacklist(#clientName#, #clientIdno#)
+		  FROM dual
+	]]>
+	</select> 
+	 <!-- 受理人是否有电销续期保费退费权限-->
+    <select id="isReturnPremPrivs" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		 SELECT pup.return_prem_privs  from pos_user_privs pup where pup.user_id=#userId#        
+	]]>
+	</select>
+		<!-- 是否原交费账户-->
+    <select id="isFirstAccountNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_approve.judge_bankacctno(#value#)
+		  FROM dual
+	]]>
+	</select>
+		<!-- 销售网点是否有与公司签订协议-->
+    <select id="isDepartmentHasProtocol" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_accept.check_bank_protocol(#value#)
+		  FROM dual
+	]]>
+	</select>
+	<!-- 投连首期保费是否未进入理财账户-->
+    <select id="isUwUntransFund" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_rule_query.get_uw_untrans_fund_product(#value#)
+		  FROM dual
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="checkBankPosRulesMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	<procedure id="checkBankPosRules" parameterMap="checkBankPosRulesMap">
+		{call l_pos_rule_query.check_bank_pos_rules(?,?,?)}
+	</procedure>	
+	
+	<select id="getUnPaidLoanTimes" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<![CDATA[
+				select l_pos_rule_query.get_unpaid_loan_times(#policyNo#) from  dual
+	]]>
+	</select>
+	<!-- 将调用规则引擎的的入参出参toString后放到数据库　　-->
+	<insert id="insertRulesBom" parameterClass="java.util.Map">
+		insert into POS_BOM_TEMP(
+					CONTROL_NO,
+					RULE_TYPE,					
+					BOM_CONTENT,
+					CREATE_DATE
+					)
+			  values(
+			  		#controlNo#,
+			  		#ruleType#,
+			  		#bomContent#,
+			  		sysdate
+			  		)
+	</insert>
+</sqlMap>

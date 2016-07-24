@@ -1,0 +1,5 @@
+<FindBugsFilter>
+	<Match>
+	 <Bug code="DLS,REC,SBSC,UuF,UrF,RC,DE,SA,EC,Bx,MS,DMI,ES,Eq,FI,RCN,Esync,BC,BIT,BOA,Bx,DMI,Dm,Fe,Fs,SQL"/>
+	</Match>  
+</FindBugsFilter> 

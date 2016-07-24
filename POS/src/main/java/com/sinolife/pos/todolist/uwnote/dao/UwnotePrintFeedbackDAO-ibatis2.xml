@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.todolist.uwnote.dao.UwnotePrintFeedbackDAO">
+
+	<select id="QUERY_UWNOTE_TO_PRINT_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+	    select p.pos_no,
+	           p.policy_no,
+	           s.description service_items_desc,
+	           p.barcode_no,
+	           p.acceptor,
+	           to_char(p.accept_date,'yyyy-mm-dd') accept_date,
+	           to_char(a.apply_date,'yyyy-mm-dd') apply_date,
+	           decode(p.service_items,
+	                  '6',              '2',
+	                  '3',              '3',
+	                  '5',              '4',
+	                  '20',              '5',
+	                  '12',              '6',
+	                  '15',              '7',
+	                  '16',              '9',
+	                  '14',              '10',
+	                  '35',              '11',
+	                  '22',              '12',
+	                  p.service_items) uw_type
+	      from pos_info p, product_service_items s, pos_apply_files a
+		 where p.acceptor = (select nvl(max(w.handover), #userId#)
+		                       from pos_work_handover w
+		                      where w.undertaker = #userId#
+		                        and w.task_type = '4'
+		                        and w.handover_status = '2'
+		                        and w.handover_end_date > sysdate)
+			   and p.accept_status_code in ('A21','C04')
+	           and s.service_items = p.service_items
+			   and not exists (select a.new_value
+			          from pos_accept_detail a
+			         where a.pos_no = p.pos_no
+			           and a.pos_object = '5'
+			           and a.item_no = '008')
+			   and p.accept_date > sysdate - 60
+			   and p.barcode_no = a.barcode_no
+			 order by p.accept_date
+	]]>
+	</select>
+	
+	<select id="UW_QUERY_UNDWRT_IS_DECI" parameterClass="java.lang.String" resultClass="java.lang.String">
+	    select l_pos_uw_interface.uw_query_undwrt_is_deci(#posNo#) from dual
+	</select>
+
+	<select id="QUERY_UWNOTE_PRINT_DETAIL" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select new_value
+		  from pos_accept_detail
+		 where pos_no = #value#
+		   and pos_object = '5'
+		   and item_no = '008'
+	</select>
+	
+	<update id="UPDATE_DETAIL_PRINT_TIME" parameterClass="java.lang.String">
+		update pos_accept_detail
+		   set new_value = new_value + 1
+		 where pos_no = #value#
+		   and pos_object = '5'
+		   and item_no = '008'
+	</update>
+
+	<select id="QUERY_UWNOTE_FOR_PRINT_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select p.pos_no,
+		       p.policy_no,
+		       s.description service_items_desc,
+		       p.barcode_no,
+		       p.acceptor,
+		       to_char(p.accept_date, 'yyyy-mm-dd') accept_date,
+		       to_char(a.apply_date,'yyyy-mm-dd') apply_date,
+		       decode(p.service_items,
+		              '6',              '2',
+		              '3',              '3',
+		              '5',              '4',
+		              '20',              '5',
+		              '12',              '6',
+		              '15',              '7',
+		              '16',              '9',
+		              '14',              '10',
+		              '35',              '11',
+		              '22',              '12',
+		              p.service_items) uw_type,
+		       (select nvl(max(a.new_value), 0)
+		          from pos_accept_detail a
+		         where a.pos_no = p.pos_no
+		           and a.pos_object = '5'
+		           and a.item_no = '008') print_time
+		  from pos_info p, product_service_items s, pos_apply_files a
+		 where l_pos_pub.handover_or_undertaker(p.acceptor, '4') = lower(#userId#)
+		   and p.accept_status_code in ('A21','C04')
+		   and l_pos_uw_interface.uw_query_undwrt_is_deci(p.pos_no) = 'Y'
+		   and s.service_items = p.service_items
+		   and p.accept_date >= to_date(#startDate#,'yyyy-mm-dd')
+		   and p.accept_date < to_date(#endDate#,'yyyy-mm-dd')+1
+		   and p.barcode_no = a.barcode_no
+		 order by p.accept_date
+	]]>
+	</select>
+
+	<select id="QUERY_FEEDBACK_POSINFO" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select p.pos_no,
+		       p.policy_no,
+		       decode(p.service_items,
+		              '6',              '2',
+		              '3',              '3',
+		              '5',              '4',
+		              '20',              '5',
+		              '12',              '6',
+		              '15',              '7',
+		              '16',              '9',
+		              '14',              '10',
+		              '35',              '11',
+		              '22',              '12',
+		              p.service_items) task_type,
+		       s.description service_items_desc,
+		       p.barcode_no,
+		       p.acceptor,
+		       to_char(p.accept_date, 'yyyy-mm-dd') accept_date,
+		       a.new_value print_time
+		  from pos_info p, product_service_items s, pos_accept_detail a
+		 where p.pos_no = #posNo#
+		   and l_pos_pub.handover_or_undertaker(p.acceptor, '5') = lower(#userId#)
+		   and p.accept_status_code = 'A21'
+		   and s.service_items = p.service_items
+		   and a.pos_no = p.pos_no
+		   and a.pos_object = '5'
+		   and a.item_no = '008'
+	</select>
+	
+	<parameterMap id="UW_UNDWRT_NOTE_WRITE_OFF_MAP" class="java.util.HashMap">
+		<parameter property="taskType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="controlNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="writeOffStaff" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientOption" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientOptionRemark" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="UW_UNDWRT_NOTE_WRITE_OFF" parameterMap="UW_UNDWRT_NOTE_WRITE_OFF_MAP">
+		{call l_pos_uw_interface.uw_undwrt_note_write_off(?,?,?,?,?,?,?)}
+	</procedure>
+	
+</sqlMap>

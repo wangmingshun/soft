@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_13">
+
+	<select id="QUERY_PRODUCT_INFO_INPUT" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyProductPremDTO">
+		SELECT d.policy_no policyNo,
+		       d.product_code productCode,
+		       t.full_name productName,
+		       d.prod_seq prodSeq,
+		       c.client_name insuredName,
+		       s.description dutyStatusDesc,
+		       p.frequency frequency,
+		       f.description frequencyDesc,
+		       p.ann_standard_prem annStandardPrem,
+		       p.period_prem_sum periodPremSum,
+		       p.pay_to_date payToDate,
+		       p.prem_term premTerm,
+		       d.effect_date effectDate,
+		       p.prem_period_type premPeriodType,
+		       decode(p.prem_period_type,
+		              '1',              '趸缴',
+		              '2',              '年',
+		              '3',              '岁',
+		              '4',              '终身缴费',
+		              '') premPeriodTypeDesc,
+		       p.prem_status premStatus,
+		       p.prem_source premSource
+		  FROM policy_product      d,
+		       policy_product_prem p,
+		       client_information  c,
+		       duty_status         s,
+		       frequency           f,
+		       product             t
+		 WHERE d.policy_no = #policyNo#
+		   AND d.policy_no = p.policy_no
+		   AND d.prod_seq = p.prod_seq
+		   AND d.insured_no = c.client_no
+		   AND d.duty_status = s.duty_status
+		   AND p.frequency = f.frequency
+		   and d.product_code = t.product_code
+	</select>
+	
+	<select id="QUERY_PRODUCT_INFO_INPUT_FOEMCC" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyProductPremForMccDTO">
+		SELECT d.policy_no policyNo,
+		       d.product_code productCode,
+		       t.full_name productName,
+		       d.prod_seq prodSeq,
+		       c.client_name insuredName,
+		       s.description dutyStatusDesc,
+		       p.frequency frequency,
+		       f.description frequencyDesc,
+		       p.ann_standard_prem annStandardPrem,
+		       p.period_prem_sum periodPremSum,
+		       p.pay_to_date payToDate,
+		       p.prem_term premTerm,
+		       d.effect_date effectDate,
+		       p.prem_period_type premPeriodType,
+		       decode(p.prem_period_type,
+		              '1',              '趸缴',
+		              '2',              '年',
+		              '3',              '岁',
+		              '4',              '终身缴费',
+		              '') premPeriodTypeDesc,
+		       p.prem_status premStatus,
+		       p.prem_source premSource
+		  FROM policy_product      d,
+		       policy_product_prem p,
+		       client_information  c,
+		       duty_status         s,
+		       frequency           f,
+		       product             t
+		 WHERE d.policy_no = #policyNo#
+		   AND d.policy_no = p.policy_no
+		   AND d.prod_seq = p.prod_seq
+		   AND d.insured_no = c.client_no
+		   AND d.duty_status = s.duty_status
+		   AND p.frequency = f.frequency
+		   and d.product_code = t.product_code
+	</select>
+
+	<parameterMap id="GET_PREM_FREQUENCY_CONVERT_MAP" class="java.util.HashMap">
+		<parameter property="policyNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="premFrequency" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="GET_PREM_FREQUENCY_CONVERT" parameterMap="GET_PREM_FREQUENCY_CONVERT_MAP">
+		{call l_pos_service_item_13.get_prem_frequency_convert(?,?,?,?)}
+	</procedure>
+	
+</sqlMap>

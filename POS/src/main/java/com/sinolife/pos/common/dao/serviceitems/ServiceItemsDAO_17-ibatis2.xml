@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_17">
+
+	<select id="queryPolicyBalanceByPolicyNo" parameterClass="java.lang.String" resultClass="java.math.BigDecimal">
+	<![CDATA[
+		SELECT a.policy_balance
+		  FROM policy_prem_info a
+		 WHERE a.policy_no = #value#
+	]]>
+	</select>
+  <!--最近一期续期保费通过信用卡进行收费，续期保费退费是否需要勾选特殊件add by yanghanguang start-->
+	<select id="canRnUseCreditCard" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select l_pos_rule_query.is_rn_use_credit_card(#posNo#) from dual
+	]]>
+	</select>
+	
+	<!-- 查询续期保费 -->
+	<select id="queryPeriodPrem" parameterClass="java.lang.String" resultClass="java.math.BigDecimal">
+	<![CDATA[
+		select sum(ppp.period_prem_sum)
+ 		  from  policy_product_prem ppp
+	     where ppp.policy_no = #policyNo#
+	]]>
+	</select>
+</sqlMap>

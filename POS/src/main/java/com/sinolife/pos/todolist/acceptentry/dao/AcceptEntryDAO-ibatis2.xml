@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.todolist.acceptentry.dao.AcceptEntryDAO">
+
+	<select id="queryBatchNotCompleteList" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.pos_batch_no,
+		       a.apply_date,
+		       b.policy_no,
+		       b.barcode_no,
+		       b.service_items,
+		       e.description        service_items_desc,
+		       b.accept_status_code,
+		       d.description        accept_status_desc,
+		       b.accept_seq,
+		       c.client_name
+		  FROM pos_apply_files        a,
+		       pos_info               b,
+		       client_information     c,
+		       pos_accept_status_code d,
+		       product_service_items  e
+		 WHERE a.barcode_no = b.barcode_no
+		   AND b.client_no = c.client_no
+		   AND b.accept_status_code = d.accept_status_code
+		   AND b.service_items = e.service_items
+		   AND b.accept_status_code IN ('A01', 'A19')
+		   AND b.acceptor = #value#
+		   AND b.accept_date > SYSDATE - 60
+		 ORDER BY a.pk_serial, b.pk_serial
+	]]>
+	</select>
+	
+	<select id="queryPosNoBatchNo" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select a.pos_batch_no
+		  from pos_info p, pos_apply_files a
+		 where p.pos_no = #posNo#
+		   and p.acceptor = #acceptor#
+		   and p.barcode_no = a.barcode_no
+		   and p.accept_status_code in ('A01', 'A19')
+	</select>
+	
+	<select id="queryBatchAcceptList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select paf.pos_batch_no,
+            paf.barcode_no,
+            pi.pos_no  ,
+            pi.accept_date,
+            pi.policy_no,
+            pi.service_items,
+            psi.description       service_items_desc,
+            pi.accept_status_code,
+            pasc.description      accept_status_desc
+       from pos_info        pi,
+            pos_apply_files paf,            
+            pos_accept_status_code pasc,
+            product_service_items  psi
+      where pi.barcode_no = paf.barcode_no           
+        and pi.accept_status_code = pasc.accept_status_code
+        and pi.service_items = psi.service_items
+        and pi.acceptor = #acceptor#
+        and paf.barcode_no like 'MP%'
+        and pi.accept_date >= #startDate#
+        and pi.accept_date <= #endDate#+1
+        
+	]]>
+	</select>
+	
+	<select id="queryreceivePolicyMessageList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select 
+            p.policy_no           "policyNo",
+            pc.sign_flag          "signFlag",
+            pc.client_sign_date   "clientSignDate",
+            ci.client_name        "applicantName",
+            cp.phone_no           "applicantPhone",
+            ci1.client_name       "insuredName",
+           	p.effect_date         "effectDate",
+           	pc.e_receipt_id   	  "eReceiptFileid",
+           	prd.note              "receiptFailReason"
+       from policy              p,
+       		policy_contract     pc,
+       		client_information  ci,
+       		client_information  ci1,
+       		client_phone        cp,
+            policy_contact_info pci,
+            policy_product      pp,
+            pos_receipt_deal    prd
+      where ci.client_no= p.applicant_no
+      	and ci1.client_no = pp.insured_no         
+        and cp.phone_seq = pci.phone_seq
+        and pp.policy_no = p.policy_no
+        and pci.policy_no = p.policy_no
+        and pc.policy_no = p.policy_no
+        and prd.policy_no(+) = p.policy_no
+     ]]>
+        <isNotEmpty prepend="and" property="startDate">
+        	<![CDATA[
+		      trunc(pc.client_sign_date) >= #startDate#
+		      ]]>
+		</isNotEmpty> 
+        <isNotEmpty prepend="and" property="endDate">
+        	<![CDATA[
+		      trunc(pc.client_sign_date) <= #endDate#
+		      ]]>
+		</isNotEmpty> 
+        <isNotEmpty prepend="and" property="policyNo">
+		      p.policy_no = #policyNo#
+		</isNotEmpty> 
+		 <isNotEmpty prepend="and" property="flag">
+        	pc.sign_flag = #flag#
+		</isNotEmpty> 
+        and p.agent_no = #agentNo#
+        
+	
+	</select>
+	
+	
+</sqlMap>

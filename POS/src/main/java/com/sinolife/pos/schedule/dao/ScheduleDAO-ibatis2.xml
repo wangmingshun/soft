@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.schedule.dao.ScheduleDAO">
+
+	<select id="queryProcessRuleCheckList" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT t.pos_no,t.service_items 
+		  FROM pos_info t
+		 WHERE t.accept_status_code = 'A03'
+		   AND l_pos_workflow.pre_posno_is_end(t.pos_no) = 'Y'
+		   AND t.accept_date >= SYSDATE - 60
+		   AND rownum < 10000
+	]]>
+	</select>
+	
+	<select id="queryUndwrtRuleCheckList" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT t.pos_no
+		  FROM pos_info t
+		 WHERE t.accept_status_code = 'A10'		 
+		   AND rownum < 10000
+	]]>
+	</select>
+	
+	<select id="queryWebMobileChangedList" resultClass="java.util.HashMap">
+	<![CDATA[
+          SELECT pd.pos_no,pd.object_value,pd.new_value 
+            FROM pos_info          pi,
+                 pos_accept_detail pd
+           WHERE pi.pos_no = pd.pos_no
+             AND pi.service_items = '19'
+             AND pi.accept_status_code = 'E01'
+             AND pd.pos_object = '3'
+             AND pd.item_no = '096'
+             AND pd.old_value is null
+             AND pd.new_value IS NOT NULL
+             AND pi.effective_date >= SYSDATE - 2
+             AND rownum < 1000
+	]]>
+	</select>
+	
+	<select id="lockPosInfoRecord" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT 'Y'
+		  FROM pos_info t
+		 WHERE t.pos_no = #value#
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<select id="verifyAcceptStatus" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT 'Y'
+		  FROM pos_info t
+		 WHERE t.pos_no = #posNo#
+		   AND t.accept_status_code = #acceptStatusCode#
+	]]>
+	</select>
+	
+	<select id="queryPosNoteNeedProcess" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.print.dto.PosNoteDTO">
+	<![CDATA[
+		SELECT p.note_type "noteType",
+               p.client_no "clientNo",
+               p.policy_no "policyNo",
+               p.business_date "businessDate",
+               p.detail_sequence_no "detailSequenceNo",
+               lower(p.template_version) "templateVersion",
+               p.client_name "clientName",
+               p.client_address "clientAddress",
+               p.client_postalcode "clientPostalcode",
+               p.company_service_name "companyServiceName",
+               p.company_service_address "companyServiceAddress",
+               p.company_service_postalcode "companyServicePostalcode",
+               p.company_service_telephone "companyServiceTelephone",
+               p.company_name "companyName",
+               p.print_date "printDate",
+               p.service_telephone_a "serviceTelephoneA",
+               p.service_telephone_b "serviceTelephoneB",
+               p.return_flag "returnFlag",
+               p.return_reason "returnReason",
+		       CASE
+		          WHEN p.client_postalcode LIKE '518%' THEN
+		           'Y'
+		          ELSE
+		           'N'
+		       END "isLocal"
+		  FROM pos_note_main p
+		 WHERE p.detail_sequence_no IN (SELECT m.detail_sequence_no
+		                                  FROM (SELECT t.detail_sequence_no,
+		                                               CASE
+		                                                  WHEN t.client_postalcode LIKE #localZip# THEN
+		                                                   'Y'
+		                                                  ELSE
+		                                                   'N'
+		                                               END "isLocal"
+		                                          FROM pos_note_main t
+		                                         WHERE t.note_type IN ('1', '2', '10', '11')
+		                                           AND t.pdf_upload_date IS NULL
+		                                           AND t.pdf_name IS NULL
+		                                           AND t.is_local IS NULL
+		                                           AND t.business_date > SYSDATE - 250
+		                                           AND t.business_date >= DATE '2014-01-01'	
+		                                           AND (select ci.need_pos_letter from policy_contact_info ci  where ci.policy_no=t.policy_no) ='Y'	
+		                                           AND (select max(ci.address_seq) from policy_contact_info  ci where ci.policy_no=t.policy_no) is not null
+		                                           AND not exists
+													 (select 'x'
+													          from policy pol, policy_e_service pes, client_e_service ces
+													         where pol.policy_no = pes.policy_no(+)
+													           and pol.applicant_no = ces.client_no(+)
+													           and pes.is_added = 'Y'
+													           and ces.e_letter_flag = 'Y'
+													           and pol.policy_no = t.policy_No)	
+										           AND not exists
+										             (SELECT 'x'
+														FROM policy p, policy_contact_info pci
+													   WHERE p.policy_no = pci.policy_no
+													     AND p.policy_no = t.policy_no
+													     AND pci.email_seq IS NOT NULL
+													     AND (p.channel_type = '08' OR
+													          p.channel_type = '02' AND p.business_source IN ('H', 'N', 'R', 'S')))	                                                                                     
+		                                         ORDER BY t.note_type,
+		                                                  "isLocal",
+		                                                  t.business_date) m
+		                                 WHERE rownum <= #batchSize#)
+		 ORDER BY p.note_type,
+		          "isLocal",
+		          p.business_date
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<parameterMap id="autoWorkflowParaMap" class="java.util.HashMap">
+		<parameter property="p_sysdate" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+	</parameterMap>
+	<procedure id="autoWorkflow" parameterMap="autoWorkflowParaMap">
+		{call l_pos_workflow.auto_workflow(?)}
+	</procedure>
+	
+	<parameterMap id="getPrintSeqParaMap" class="java.util.HashMap">
+		<parameter property="p_clac_date" javaType="java.util.Date" jdbcType="TIMESTAMP" mode="IN"/>
+		<parameter property="p_print_seq" javaType="java.math.BigDecimal" jdbcType="NUMERIC" mode="OUT"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="getPrintSeq" parameterMap="getPrintSeqParaMap">
+		{call l_pos_pub.get_print_seq(?,?,?,?)}
+	</procedure>
+	
+	<select id="queryPosNoteBatchTask" parameterClass="java.lang.Integer" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT t.task_id
+		  FROM pos_notice_print_batch_task t
+		 WHERE t.submit_date > SYSDATE - 90
+		   AND (t.task_status = '1' OR t.task_status = '2' AND (SYSDATE - t.proc_touch_time) * 24 > 2)
+		   AND t.valid_flag = 'Y'
+		   AND rownum <= #value#
+	]]>
+	</select>
+	<select id="lockNoticePrintBatchTask" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT 'Y'
+		  FROM pos_notice_print_batch_task t
+		 WHERE t.task_id = #taskId#
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<update id="updateNoticePrintBatchTask" parameterClass="java.util.HashMap">
+	<![CDATA[
+		UPDATE pos_notice_print_batch_task t
+		   SET t.proc_touch_time = SYSDATE
+ 	]]>
+ 	<dynamic>
+ 		<isNotEmpty property="email" prepend=",">
+			   t.email = #email#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="gen_cost_time" prepend=",">
+		       t.gen_cost_time = #gen_cost_time#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="gen_record_num" prepend=",">
+		       t.gen_record_num = #gen_record_num#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="im_file_id" prepend=",">
+		       t.im_file_id = #im_file_id#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="file_size" prepend=",">
+		       t.file_size = #file_size#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="task_status" prepend=",">
+		       t.task_status = #task_status#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="task_fail_reason" prepend=",">
+		       t.task_fail_reason = #task_fail_reason#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="proc_server_ip" prepend=",">
+		       t.proc_server_ip = #proc_server_ip#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="valid_flag" prepend=",">
+		       t.valid_flag = #valid_flag#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="notice_file_name" prepend=",">
+		       t.notice_file_name = #notice_file_name#
+ 		</isNotEmpty>
+ 	</dynamic>
+ 	<![CDATA[
+		 WHERE t.task_id = #task_id#
+	]]>
+	</update>
+	
+	<update id="touchNoticePrintBatchTask" parameterClass="java.lang.String">
+	<![CDATA[
+		UPDATE pos_notice_print_batch_task t
+		   SET t.proc_touch_time = SYSDATE
+		 WHERE t.task_id = #value#
+		   AND t.task_status = '2'
+	]]>
+	</update>
+	
+	<select id="queryNoticePrintBatchTaskById" parameterClass="java.lang.String" resultClass="com.sinolife.pos.schedule.dto.NoticePrintBatchTask">
+	<![CDATA[
+		SELECT t.task_id             "taskId",
+		       t.submit_user_id      "submitUserId",
+		       t.submit_user_name    "submitUserName",
+		       t.submit_date         "submitDate",
+		       t.um_branch_code      "UMBranchCode",
+		       t.query_notice_type   "queryNoticeType",
+		       t.query_date_start    "queryDateStart",
+		       t.query_date_end      "queryDateEnd",
+		       t.query_branch_code   "queryBranchCode",
+		       t.query_branch_name   "queryBranchName",
+		       t.query_channel_code  "queryChannelCode",
+		       t.query_user_id       "queryUserId",
+		       t.query_service_items "queryServiceItems",
+		       t.QUERY_POLICY_CHANNEL_CODE "queryPolicyChannelCode",
+		       t.QUERY_APPROVAL_SERVICE_TYPE "queryApprovalServiceType",
+		       t.need_send_email     "needSendEmail",
+		       t.email               "email",
+		       t.notice_file_name    "noticeFileName",
+		       t.gen_cost_time       "genCostTime",
+		       t.gen_record_num      "genRecordNum",
+		       t.im_file_id          "IMFileId",
+		       t.file_size           "fileSize",
+		       t.task_status         "taskStatus",
+		       t.task_fail_reason    "taskFailReason",
+		       t.proc_touch_time     "procTouchTime",
+		       t.proc_server_ip      "procServerIP",
+		       t.valid_flag          "validFlag",
+		       t.print_status        "printStatus"
+		  FROM pos_notice_print_batch_task t
+		 WHERE t.task_id = #value#
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<insert id="insertNoticePrintBatchTask" parameterClass="com.sinolife.pos.schedule.dto.NoticePrintBatchTask">
+	<![CDATA[
+		INSERT INTO pos_notice_print_batch_task
+		   (task_id,
+		    submit_user_id,
+		    submit_user_name,
+		    submit_date,
+		    um_branch_code,
+		    query_notice_type,
+		    query_date_start,
+		    query_date_end,
+		    query_branch_code,
+		    query_branch_name,
+		    query_channel_code,
+		    query_user_id,
+		    query_service_items,
+		    QUERY_POLICY_CHANNEL_CODE,
+		    QUERY_APPROVAL_SERVICE_TYPE,
+		    need_send_email,
+		    email,
+		    notice_file_name,
+		    task_status,
+		    valid_flag,
+		    print_status)
+		VALUES
+		   (
+		   	#taskId#,
+		   	#submitUserId#,
+		   	#submitUserName#,
+		   	sysdate,
+		   	#UMBranchCode#,
+		   	#queryNoticeType#,
+		   	#queryDateStart#,
+		   	#queryDateEnd#,
+		   	#queryBranchCode#,
+		   	#queryBranchName#,
+		   	#queryChannelCode#,
+		   	#queryUserId#,
+		   	#queryServiceItems#,
+		   	#queryPolicyChannelCode#,
+		   	#queryApprovalServiceType#,		   	
+		   	#needSendEmail#,
+		   	#email#,
+		   	#noticeFileName#,
+		   	'1',
+		   	'Y',
+		   	#printStatus#
+		   )
+	]]>
+	</insert>
+	
+	<select id="queryNoticePrintBatchTaskByUserId" parameterClass="java.lang.String" resultClass="com.sinolife.pos.schedule.dto.NoticePrintBatchTask">
+	<![CDATA[
+		SELECT t.task_id             "taskId",
+		       t.submit_user_id      "submitUserId",
+		       t.submit_user_name    "submitUserName",
+		       t.submit_date         "submitDate",
+		       t.um_branch_code      "UMBranchCode",
+		       t.query_notice_type   "queryNoticeType",
+		       t.query_date_start    "queryDateStart",
+		       t.query_date_end      "queryDateEnd",
+		       t.query_branch_code   "queryBranchCode",
+		       t.query_branch_name   "queryBranchName",
+		       t.query_channel_code  "queryChannelCode",
+		       t.query_user_id       "queryUserId",
+		       t.query_service_items "queryServiceItems",
+		       t.need_send_email     "needSendEmail",
+		       t.email               "email",
+		       t.notice_file_name    "noticeFileName",
+		       t.gen_cost_time       "genCostTime",
+		       t.gen_record_num      "genRecordNum",
+		       t.im_file_id          "IMFileId",
+		       t.file_size           "fileSize",
+		       t.task_status         "taskStatus",
+		       t.task_fail_reason    "taskFailReason",
+		       t.proc_touch_time     "procTouchTime",
+		       t.proc_server_ip      "procServerIP",
+		       t.valid_flag          "validFlag"
+		  FROM pos_notice_print_batch_task t
+		 WHERE t.submit_user_id = #value#
+		   AND t.valid_flag = 'Y'
+		 ORDER BY t.submit_date DESC
+	]]>
+	</select>
+	
+	<update id="updateDetailChangeWebPhone" parameterClass="java.lang.String">
+		<![CDATA[
+		update pos_accept_detail
+		   set old_value = 'Y'
+		 where pos_no = #value#
+		   and pos_object = '3'
+		   and item_no = '096'	
+		]]>
+	 </update>
+	 <select id="queryNothandPdfEmail" resultClass="java.util.HashMap">
+	 <![CDATA[
+			select pi.client_no,
+			       pi.pos_no,
+			       pi.policy_no,
+			       pi.service_items,
+			       (select pab.accept_channel_code
+			          from pos_apply_batch pab, pos_apply_files paf
+			         where paf.barcode_no = pi.barcode_no
+			           AND paf.pos_batch_no = pab.pos_batch_no) accept_channel_code,
+			       l_pos_pub.can_send_e_letter(pi.policy_no) can_send_e_letter
+			  from pos_info pi
+			 where pi.accept_status_code = 'E01'
+			   AND pi.effective_date >= SYSDATE - 2
+			   AND pi.e_ent_file_id is null
+			   and pi.service_items < 50
+			   and exists
+			 (select 1
+			          from pos_apply_batch pab, pos_apply_files paf
+			         where paf.barcode_no = pi.barcode_no
+			           AND paf.pos_batch_no = pab.pos_batch_no
+			           and  nvl(pab.apply_type_code,'1') <> 5)
+			   and (exists (select 'x'
+			                  from pos_apply_batch pab, pos_apply_files paf
+			                 where paf.barcode_no = pi.barcode_no
+			                   AND paf.pos_batch_no = pab.pos_batch_no
+			                   and pab.accept_channel_code in
+			                       ('7', '15', '16', '14', '17','18','19','24','25','26','27','28','29','30','32')) or exists
+			        (select 'x'
+			           from policy pol, policy_e_service pes, client_e_service ces
+			          where pol.policy_no = pes.policy_no(+)
+			            and pol.applicant_no = ces.client_no(+)
+			            and pes.is_added = 'Y'
+			            and ces.e_letter_flag = 'Y'
+			            and pol.policy_no = pi.policy_No))
+			   and rownum < 200
+	]]>
+	</select>
+	<parameterMap id="E_FILE_ID_MAP" class="java.util.HashMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_e_ent_flie_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="updatePosInfoEfileID" parameterMap="E_FILE_ID_MAP">
+		{call l_pos_pub.update_pos_info_eflie_id(?,?,?,?)}
+	</procedure>
+	<!-- 锁住保全记录用于发送电子邮件 -->
+	<select id="lockPosInfoForSendEntMail" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+        SELECT t.pos_no
+		  FROM pos_info t
+		 WHERE  t.accept_status_code = 'E01'
+		   AND  t.e_ent_file_id is null
+           AND  t.pos_no=#value#
+		   AND ROWNUM = 1
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>
+
+	<!-- 电子信函查询自动打印任务  edit by gaojiaming start-->		
+	<select id="queryPosNoteNeedELetter" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.print.dto.PosNoteDTO">
+	<![CDATA[
+		SELECT p.note_type "noteType",
+		                  p.client_no "clientNo",
+		                  p.policy_no "policyNo",
+		                  p.business_date "businessDate",
+		                  p.detail_sequence_no "detailSequenceNo",
+		                  lower(p.template_version) "templateVersion",
+		                  p.client_name "clientName",
+		                  p.client_address "clientAddress",
+		                  p.client_postalcode "clientPostalcode",
+		                  p.company_service_name "companyServiceName",
+		                  p.company_service_address "companyServiceAddress",
+		                  p.company_service_postalcode "companyServicePostalcode",
+		               p.company_service_telephone "companyServiceTelephone",
+		               p.company_name "companyName",
+		               p.print_date "printDate",
+		               p.service_telephone_a "serviceTelephoneA",
+		               p.service_telephone_b "serviceTelephoneB",
+		               p.return_flag "returnFlag",
+		               p.return_reason "returnReason"
+		          FROM pos_note_main p
+		         WHERE (p.note_type IN ('1', '2', '10', '11')  OR 
+		                p.note_type NOT IN ('1', '2', '10', '11') AND p.note_created_date > SYSDATE - 2)
+		           AND p.business_date > SYSDATE - 150
+		           AND p.pdf_upload_date IS NULL
+		           AND p.pdf_name IS NULL
+		           AND p.is_local IS NULL
+		           AND p.im_file_id IS NULL
+		           AND (exists
+		           (select 'x'
+		                    from policy pol, policy_e_service pes, client_e_service ces
+		                   where pol.policy_no = pes.policy_no
+		                     and pol.applicant_no = ces.client_no
+		                     and pes.is_added = 'Y'
+		                     and ces.e_letter_flag = 'Y'
+		                     and ces.email_seq is not null
+		                     and pol.policy_no = p.policy_No)
+		               or exists
+		            (SELECT 'x'
+					   FROM policy p1, policy_contact_info p2
+					  WHERE p1.policy_no = p2.policy_no
+						AND p1.policy_no = p.policy_no
+						AND p2.email_seq IS NOT NULL
+						AND (p1.channel_type = '08' OR
+						     p1.channel_type = '02' AND p1.business_source IN ('H', 'N', 'R', 'S'))))
+	                     
+		   AND rownum <= #batchSize#
+		   FOR UPDATE NOWAIT	
+	]]>
+	</select>	
+	<!-- 电子信函查询自动打印任务  edit by gaojiaming end -->	
+	<!-- 查询报表任务  edit by gaojiaming start -->		
+	 <select id="queryReportTask" resultClass="java.util.HashMap">
+	 <![CDATA[
+			select plc.list_code,
+			       plc.user_id,
+			       to_char(plc.submit_time, 'yyyymmddhh24miss') SUBMIT_TIME,
+			       to_char(plc.submit_time, 'yyyy-mm-dd hh24:mi:ss') SUBMIT_TIME_MAIL,
+			       plc.query_index,
+			       (select t.description
+			          from pos_list_code t
+			         where t.list_code = plc.list_code) description,
+			       plc.row_num  
+			  from pos_list_control plc
+			 where plc.proc_status = '2'
+			       and plc.is_valid = 'Y'
+			       and plc.submit_time > sysdate - 1
+			   and rownum < = 50
+	]]>
+	</select>
+	<!-- 查询报表任务  edit by gaojiaming end -->	
+	<!-- 锁定报表任务  edit by gaojiaming start -->		
+	<select id="lockReportTask" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+        SELECT 'Y'
+		  FROM pos_list_control plc
+			 where plc.list_code = #LIST_CODE#
+			   and plc.user_id = #USER_ID#
+			   and plc.submit_time = to_date(#SUBMIT_TIME#, 'yyyy-mm-dd hh24:mi:ss')
+		   AND ROWNUM = 1
+		   FOR UPDATE NOWAIT
+	]]>
+	</select>	
+	<!-- 锁定报表任务  edit by gaojiaming end -->		
+	
+	<!--定时工作流推动失败处理 -->	
+	<parameterMap id="workflowFailureParaMap" class="java.util.HashMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_wrong_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="workflowFailure" parameterMap="workflowFailureParaMap">
+		{call l_pos_workflow.workflow_failure_process(?,?,?,?)}
+	</procedure>
+	
+	<!-- 保全定时工作流推动失败后继续推动 -->	
+	<parameterMap id="workfloRunAgainParaMap" class="java.util.HashMap">
+		<parameter property="p_pos_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="workfloRunAgain" parameterMap="workfloRunAgainParaMap">
+		{call l_pos_workflow.workflow_run_again(?,?,?)}
+	</procedure>
+	
+	<!--成长红包在柜面加保后通知微信端-->	
+	 <select id="queryAddPremList" resultClass="java.util.HashMap">
+	 <![CDATA[
+                SELECT pi.pos_no         posno,
+                 pi.policy_no      policyno,
+                 pi.effective_date effectivedate
+            FROM pos_info        pi,
+                 pos_apply_batch pab,
+                 pos_apply_files paf,
+                 policy_product  pp
+           WHERE pi.policy_no = pp.policy_no
+             AND pp.prod_seq = 1
+             AND pp.product_code = 'CEAN_AN1'
+             AND pi.accept_status_code = 'E01'
+             AND pi.barcode_no = paf.barcode_no
+             AND paf.pos_batch_no = pab.pos_batch_no
+             AND pab.accept_channel_code <> '16'
+             AND pi.service_items = '3'
+             AND pi.effective_date >= SYSDATE - 5
+             AND  EXISTS 
+             (SELECT 'x'
+                    FROM pos_accept_detail ad
+                   WHERE ad.pos_no = pi.pos_no
+                     AND ad.pos_object = '2'
+                     AND ad.item_no = '269'
+                     AND ad.new_value = 'N')
+             AND rownum < 200
+	]]>
+	</select>
+	
+		<!-- 锁住保全记录用于发送电子邮件 -->
+	<select id="lockNoticeAddPrem" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+      SELECT 'Y'
+        FROM pos_accept_detail pd
+       WHERE pd.pos_no = #value#
+         AND pos_object = '2'
+         AND item_no = '269'
+         FOR UPDATE NOWAIT
+	]]>
+	</select>
+	
+	<update id="updateNoticeAddPrem" parameterClass="java.lang.String">
+		<![CDATA[
+		update pos_accept_detail
+		   set new_value = 'Y'
+		 where pos_no = #value#
+		   and pos_object = '2'
+		   and item_no = '269'	
+		]]>
+	 </update>
+	<!--投保人变更后通知官网解除加挂-->	
+	 <select id="queryAppChangeList" resultClass="java.util.HashMap">
+	 <![CDATA[
+            select a.policy_no ,a.pos_no,b.object_value,p.channel_type
+              from pos_info a, pos_accept_detail b,policy p
+             where a.service_items = '20'
+               and a.pos_no=b.pos_no
+               and a.policy_no=p.policy_no
+               and b.pos_object='2'
+               and b.item_no='271'
+               and b.new_value='N'
+               and a.effective_date>sysdate -1
+               and a.accept_status_code = 'E01'
+               AND rownum < 200
+	]]>
+	</select>
+	<update id="updateNoticeAppChange" parameterClass="java.lang.String">
+		<![CDATA[
+		update pos_accept_detail
+		   set new_value = 'Y'
+		 where pos_no = #value#
+		   and pos_object = '2'
+		   and item_no = '271'	
+		]]>
+	 </update>
+	 
+	 <!-- 获取待发送短信数据  -->
+	 <select id="querySatisfactionList" resultClass="java.util.HashMap">
+	 <![CDATA[
+	 	SELECT DISTINCT pab.pos_batch_no posBatchNo
+		  FROM pos_info pi, pos_apply_files paf, pos_apply_batch pab
+		 WHERE pi.barcode_no = paf.barcode_no
+		   AND paf.pos_batch_no = pab.pos_batch_no
+		   AND pi.effective_date >= TRUNC(sysdate)
+		   AND pi.effective_date < TRUNC(sysdate) + 1
+		   AND pab.se_sms_flag = '9'
+	 ]]>	
+	 </select>
+	 
+	<!-- 锁住 待发送短信数据的单条记录 -->
+	<select id="lockSatisfaction" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+      SELECT 'Y'
+        FROM pos_apply_batch pab
+       WHERE pab.pos_batch_no = #posBatchNo#
+         FOR UPDATE NOWAIT
+	]]>
+	</select>	
+	 	
+	 <!-- 通过批次号查询发送号码  -->	
+	 <select id="queryPhoneNoByPosBatchNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	 <![CDATA[
+	 	SELECT MAX(pad.new_value)
+		  FROM pos_info pi, pos_apply_files paf, pos_apply_batch pab, pos_accept_detail pad
+		 WHERE pi.barcode_no = paf.barcode_no
+		   AND paf.pos_batch_no = pab.pos_batch_no
+		   AND pi.pos_no = pad.pos_no
+		   AND pad.item_no = '185'
+		   AND pad.pos_object = '11'
+		   AND paf.pos_batch_no = #posBatchNo#
+	 ]]>
+	 </select>
+	 
+	 <!-- 发送短信后调整 pos_apply_batch -->
+	 <update id="updatePosApplyBatch" parameterClass="java.util.HashMap">
+	 <![CDATA[
+	 	UPDATE pos_apply_batch
+		   SET se_sms_flag = #status#
+		 WHERE pos_batch_no = #posBatchNo# 	
+	 ]]>
+	 </update>	
+	 	
+	 <!-- 获取官网非资金类保全操作(联系方式变更,客户资料变更, 保单挂失)一小时后仍未完成的保全  -->
+	 <select id="queryCanclePosInfoList" resultClass="java.lang.String">
+	 <![CDATA[
+	 	select a.pos_no
+		  from pos_info a, pos_apply_files b, pos_apply_batch c
+		 where a.barcode_no = b.barcode_no
+		   and b.pos_batch_no = c.pos_batch_no
+		   and c.accept_channel_code in ('7', '15')
+		   and a.accept_status_code in ('A01')
+		   AND A.SERVICE_ITEMS IN ('19', '21', '28')
+		   AND A.ACCEPT_DATE > SYSDATE - 5
+		   AND A.ACCEPT_DATE < SYSDATE - 1 / 24
+	 ]]>	
+	 </select>
+	 
+	<!-- 锁住 待撤销保全记录 -->
+	<select id="lockCanclePosInfo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+      SELECT 'Y'
+        FROM pos_info p
+       WHERE p.pos_no = #posNo#
+         FOR UPDATE NOWAIT
+	]]>
+	</select>	
+</sqlMap>

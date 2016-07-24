@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.approve.dao.ApproveManageDAO">
+	<!-- 银代不良记录查询edit by gaojiaming start-->
+	<select id="queryBadBehavior2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			SELECT a.object_no,
+			       a.object_name,
+			       to_char(a.record_date, 'yyyy-mm-dd') record_date,
+			       a.record_user,
+			       a.remark descrpiton,
+			       case
+			         when a.behavior_type = '1' then
+			          '有效投诉件数'
+			         when a.behavior_type = '2' then
+			          '疑似销售误导'
+			         when a.behavior_type = '3' then
+			          '疑似代签名'
+			         when a.behavior_type = '4' then
+			          '伪造保全资料'
+			         when a.behavior_type = '5' then
+			          '其它'
+			       end behavior_type,
+			       a.policy_no,
+			       b.emp_idno,
+			       c.dept_name
+			  FROM pos_bad_behavior a, staff_info b, department_info c
+			 WHERE a.is_valid = 'Y'
+			   and a.object_no = b.emp_no
+			   and b.dept_no = c.dept_no
+			   and a.object_type = '2'
+		]]>	
+		<dynamic>	
+			<isNotEmpty property="empNo">
+			<![CDATA[
+			   and a.object_no=#empNo#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="objectNo">
+			<![CDATA[
+			   and a.object_no=#objectNo#
+			]]>
+			</isNotEmpty>			
+			<isNotEmpty property="empName">
+			<![CDATA[
+			   and a.object_name=#empName#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="empIdNo">
+			<![CDATA[
+			   and b.emp_idno=#empIdNo#
+			]]>
+			</isNotEmpty>	
+			<isNotEmpty property="idType">
+			<![CDATA[
+			   and b.id_type=#idType#
+			]]>
+			</isNotEmpty>								
+		</dynamic>
+		<![CDATA[
+		   order by a.Record_date desc
+		]]>				   
+	</select>  		   
+	<!-- 银代不良记录查询 edit by gaojiaming end-->	
+	<!-- 网点不良记录查询edit by gaojiaming start-->
+	<select id="queryBadBehavior1" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			SELECT a.object_no,
+			       a.object_name,
+			       to_char(a.record_date, 'yyyy-mm-dd') record_date,
+			       a.record_user,
+			       a.remark descrpiton,
+			       case
+			         when a.behavior_type = '1' then
+			          '有效投诉件数'
+			         when a.behavior_type = '2' then
+			          '疑似销售误导'
+			         when a.behavior_type = '3' then
+			          '疑似代签名'
+			         when a.behavior_type = '4' then
+			          '伪造保全资料'
+			         when a.behavior_type = '5' then
+			          '其它'
+			       end behavior_type,
+			       a.policy_no,
+			       b.branch_name
+			  FROM pos_bad_behavior a, branch_info b, department_info c
+			 WHERE a.is_valid = 'Y'
+			   and a.object_no = c.dept_no
+			   and b.branch_code = c.branch_code
+			   and a.object_type = '1'
+		]]>	
+		<dynamic>	
+			<isNotEmpty property="deptNo">
+			<![CDATA[
+			   and a.object_no=#deptNo#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="objectNo">
+			<![CDATA[
+			   and a.object_no=#objectNo#
+			]]>
+			</isNotEmpty>				
+			<isNotEmpty property="deptName">
+			<![CDATA[
+			   and a.object_name=#deptName#
+			]]>
+			</isNotEmpty>
+		</dynamic>
+		<![CDATA[
+		   order by a.Record_date desc
+		]]>				   
+	</select>  		   
+	<!-- 网点不良记录查询 edit by gaojiaming end-->	  	  
+	<!-- 不良记录新增 edit by gaojiaming start-->
+    <insert id="insertBadBehavior" parameterClass="java.util.HashMap" >
+		insert into pos_bad_behavior
+		  (object_type,
+		   object_no,
+		   object_name,
+		   record_date,
+		   record_user,
+		   policy_no,
+		   behavior_type,
+		   remark,
+		   is_valid)
+		values
+		  (#objectType#,
+		   #objectNo#,
+		   #objectName#,
+		   sysdate,
+		   #recordUser#,
+		   #policyNo#,
+		   #behaviorType#,
+		   #descrpiton#,
+		   'Y')
+    </insert>	
+	<!-- 不良记录新增 edit by gaojiaming end-->
+	<!-- 获取银代名称edit by gaojiaming start-->
+	<select id="getObjectNameByObjectNo2" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select a.emp_name from staff_info a where a.emp_no = #objectNo#
+		]]>				   
+	</select>  
+	<!-- 获取银代名称 edit by gaojiaming end-->	 
+	<!-- 获取网点名称edit by gaojiaming start-->
+	<select id="getObjectNameByObjectNo1" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select a.dept_full_name from department_info a where a.dept_no = #objectNo#
+		]]>				   
+	</select>  
+	<!-- 获取网点名称 edit by gaojiaming end-->	 
+	<!-- 获取不良次数edit by gaojiaming start-->
+	<select id="getBadBehaviorCountByObjectNo" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select count(1)
+			  from pos_bad_behavior a
+			 where a.object_no = #objectNo#
+			   and a.is_valid = 'Y'
+		]]>				   
+	</select>  
+	<!-- 获取不良次数 edit by gaojiaming end-->
+	<!-- 判断是否需要送审edit by gaojiaming start-->		 
+	<select id="needExamPrivsApproved" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+ 			select l_pos_accept.need_exam_privs_approved(#objectType#,#objectNo#) from dual
+		]]>				   
+	</select>  
+	<!-- 判断是否需要送审 edit by gaojiaming end-->	
+	<!-- 新增代审审批表 edit by gaojiaming start-->
+    <insert id="insertPosExamPrivsApprove" parameterClass="java.util.HashMap" >
+		insert into pos_exam_privs_approve
+		  (object_type,
+		   object_no,
+		   object_name,
+		   is_canceled,
+		   approve_result,
+		   approve_user)
+		values
+		  (#objectType#,
+		   #objectNo#,
+		   #objectName#,		   
+		   'N',
+		   'A',
+		   #approveUser#)
+    </insert>	
+	<!-- 新增代审审批表 edit by gaojiaming end-->		
+	<!-- 代审审批查询 edit by gaojiaming start-->
+	<select id="queryExamPrivsApprovePage" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			select a.approve_pk,
+			       a.object_no,
+			       case
+			         when a.object_type = '1' then
+			          '网点'
+			         when a.object_type = '2' then
+			          '银代经理'
+			       end object_type,
+			       a.object_type object_type_code,
+			       a.approve_user,
+			       a.approve_result,
+			       case
+			         when a.approve_result = 'Y' then
+			          '白名单'
+			         when a.approve_result = 'N' then
+			          '黑名单'
+			       end approve_result_desc,
+			       to_char(a.approve_date, 'yyyy-mm-dd hh24:mi:ss') approve_date,
+			       a.approve_desc,
+			       a.is_canceled,
+			       case
+			         when a.is_canceled = 'Y' then
+			          '否'
+			         when a.is_canceled = 'N' then
+			          '是'
+			       end is_canceled_desc,
+			       to_char(a.cancel_date, 'yyyy-mm-dd hh24:mi:ss') cancel_date,
+			       a.cancel_user,
+			       a.cancel_reason
+			  from pos_exam_privs_approve a
+			  		where a.is_valid='Y'
+		]]>	
+		<dynamic>				
+			<isNotEmpty property="approveUser">
+			<![CDATA[
+			   and a.approve_user=#approveUser#
+			]]>
+			</isNotEmpty>			
+			<isNotEmpty property="startDate">
+			<![CDATA[
+			   and trunc(a.created_date) >= to_date(#startDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="endDate">
+			<![CDATA[
+			   and trunc(a.created_date) <= to_date(#endDate#, 'yyyy-mm-dd')
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="objectNo">
+			<![CDATA[
+			   and a.object_no=#objectNo#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="approveResult">
+			<![CDATA[
+			   and a.approve_result=#approveResult#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="isCanceled">
+			<![CDATA[
+			   and a.is_canceled=#isCanceled#
+			]]>
+			</isNotEmpty>										
+		</dynamic>
+		<![CDATA[
+		   order by a.approve_pk desc
+		]]>				   
+	</select>  		   
+	<!-- 代审审批查询 edit by gaojiaming end-->	
+	<!-- 代审审批  edit by gaojiaming start -->		
+	<update id="examPrivsApprove" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update pos_exam_privs_approve a
+			   set a.approve_date   = sysdate,
+			       a.approve_result = #approveResult#,
+			       a.approve_desc   = #approveDesc#
+			 where a.approve_pk = #approvePk#
+		]]>
+	 </update>
+	<!-- 代审审批  edit by gaojiaming end -->	
+	<!-- 撤销黑名单 edit by gaojiaming start -->	
+	<update id="examPrivsCancel" parameterClass="java.util.HashMap">
+		<![CDATA[
+			update pos_exam_privs_approve a
+			   set a.cancel_user   = #userId#,
+			       a.cancel_date   = sysdate,
+			       a.is_canceled = #isCanceled#,
+			       a.cancel_reason   = #cancelReason#
+			 where a.approve_pk = #approvePk#
+		]]>
+	 </update>
+	<!-- 撤销黑名单 edit by gaojiaming end -->
+	<!-- 代审权限判断edit by gaojiaming start-->		 
+	<select id="checkApprovePrivs" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			select l_pos_accept.get_exam_privs(#objectType#, #objectNo#, #policyNo#) privs,
+			       l_pos_accept.is_in_exam_blacklist(#objectType#, #objectNo#) blacklist,
+			       l_pos_accept.is_exam_privis_approving(#objectType#, #objectNo#) approving
+			  from dual
+		]]>				   
+	</select>  
+	<!-- 代审权限判断 edit by gaojiaming end-->	
+	<!-- 根据保全号获取代审信息 edit by gaojiaming start-->		 
+	<select id="getBadBehaviorInfoByPosNo" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		<![CDATA[
+			select decode(pab.apply_type_code, '10', '1', '9', '2') "objectType",
+			       pad.new_value "objectNo",
+			       decode(pab.apply_type_code,
+			              '10',
+			              (select dept_name
+			                 from department_info
+			                where dept_no = pad.new_value),
+			              '9',
+			              (select emp_name from staff_info where emp_no = pad.new_value)) "objectName",
+			       pi.policy_no "policyNo"
+			  from pos_info          pi,
+			       pos_apply_files   paf,
+			       pos_apply_batch   pab,
+			       pos_accept_detail pad
+			 where pi.barcode_no = paf.barcode_no
+			   and paf.pos_batch_no = pab.pos_batch_no
+			   and pi.pos_no = pad.pos_no
+			   and pad.pos_object = '5'
+			   and pad.item_no = '026'
+			   and pi.pos_no = #posNo#
+			   and rownum < 2
+		]]>				   
+	</select>  
+	<!-- 根据保全号获取代审信息  edit by gaojiaming end-->	
+	<!-- 结合保单号校验代审权限edit by gaojiaming start-->		 
+	<select id="checkPrivsByPolicyNo" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select l_pos_accept.get_exam_privs(#objectType#, #objectNo#, #policyNo#) privs from dual
+		]]>				   
+	</select>  
+	<!-- 结合保单号校验代审权限 edit by gaojiaming end-->		
+	<!-- 检查是否是代办代审的试点机构 edit by wangmingshun start-->
+	<select id="checkExamBranch" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		<![CDATA[
+			select l_pos_accept.check_exam_branch(#objectType#, #objectNo#, #policyNo#) exam from dual
+		]]>
+	</select>
+	<!-- 检查是否是代办代审的试点机构 edit by wangmingshun end-->								 		 	
+</sqlMap>

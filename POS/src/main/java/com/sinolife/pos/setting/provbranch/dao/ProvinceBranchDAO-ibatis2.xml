@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.setting.provbranch.dao.ProvinceBranchDAO">
+
+	<select id="QUERY_PROVINCE_BRANCH" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select b.branch_in_prov_pk,
+		       b.branch_code,
+		       b.province_code,
+		       p.province_name,
+		       b.city_code,
+		       c.city_name
+		  from pos_branch_in_province b, province p, city c
+		 where b.province_code = #value#
+		   and b.province_code = p.province_code
+		   and b.city_code = c.city_code
+		   and b.vailid_flag = 'Y'
+	</select>
+	
+	<insert id="INSERT_POS_BRANCH_IN_PROVINCE" parameterClass="java.util.HashMap">
+		insert into pos_branch_in_province
+		  (branch_code,
+		   country_code,
+		   province_code,
+		   city_code,
+		   branch_in_prov_pk,
+		   created_user,
+		   created_date,
+		   updated_user,
+		   updated_date)
+		values
+		  (#branchCode#,
+		   '156',
+		   #provinceCode#,
+		   #cityCode#,
+		   (select lpad(nvl(max(to_number(branch_in_prov_pk)), 0) + 1,10,'0') from pos_branch_in_province),
+		   user,
+		   sysdate,
+		   user,
+		   sysdate)
+	</insert>
+	
+	<update id="SET_BRANCH_IN_PROVINCE_VAILID_FLAG" parameterClass="java.lang.String">
+		update pos_branch_in_province
+		   set vailid_flag = 'N', updated_date = sysdate, updated_user = user
+		 where branch_in_prov_pk = #value#
+	</update>
+	
+	<update id="UPDATE_BRANCH_IN_PROVINCE" parameterClass="java.util.HashMap">
+		update pos_branch_in_province
+		   set branch_code  = #branchCode#,
+		       updated_date = sysdate,
+		       updated_user = user
+		 where branch_in_prov_pk = #provBranchPK#
+	</update>
+	
+</sqlMap>

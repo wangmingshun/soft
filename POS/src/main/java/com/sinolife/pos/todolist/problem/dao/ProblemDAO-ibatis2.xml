@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.todolist.problem.dao.ProblemDAO">
+
+	<select id="queryProblemByCriteria" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+	<![CDATA[
+		SELECT a.problem_item_no    "problemItemNo",
+			   a.submitter          "submitter",
+			   l.user_name          "submitterName",
+			   a.created_date       "submitDate",
+			   a.problem_status     "problemStatus",
+			   i.description        "problemStatusDesc",
+			   a.pos_no             "posNo",
+			   a.problem_item_type  "problemItemType",
+			   b.description        "problemItemTypeDesc",
+			   a.status_change_no   "statusChangeNo",
+			   a.problem_content    "problemContent",
+			   a.accessor           "accessor",
+			   k.user_name          "accessorName",
+			   a.pk_serial          "pkSerial",
+			   a.deal_result        "dealResult",
+			   j.description        "dealResultDesc",
+			   a.deal_opinion       "dealOpinion",
+			   c.pos_no             "posInfo.posNo",
+			   c.policy_no          "posInfo.policyNo",
+			   c.client_no          "posInfo.clientNo",
+			   m.client_name        "posInfo.clientName",
+			   c.barcode_no         "posInfo.barcodeNo",
+			   c.acceptor           "posInfo.acceptor",
+			   c.service_items      "posInfo.serviceItems",
+			   d.description        "posInfo.serviceItemsDesc",
+			   c.accept_status_code "posInfo.acceptStatusCode",
+			   e.description        "posInfo.acceptStatusDesc",
+			   f.pos_no             "stsChangeHis.posNo",
+			   f.status_change_no   "stsChangeHis.statusChangeNo",
+			   f.old_status_code    "stsChangeHis.oldStatusCode",
+			   g.description        "stsChangeHis.oldStatusDesc",
+			   f.new_status_code    "stsChangeHis.newStatusCode",
+			   h.description        "stsChangeHis.newStatusDesc",
+			   f.change_date        "stsChangeHis.changeDate",
+			   f.change_user        "stsChangeHis.changeUser",
+			   f.pk_serial          "stsChangeHis.pkSerial"
+		  FROM pos_problem_items         a,
+			   pos_problem_item_type     b,
+			   pos_info                  c,
+			   product_service_items     d,
+			   pos_accept_status_code    e,
+			   pos_status_change_history f,
+			   pos_accept_status_code    g,
+			   pos_accept_status_code    h,
+			   pos_problem_status        i,
+			   pos_problem_deal_result   j,
+			   pos_user_privs            k,
+			   pos_user_privs            l,
+			   client_information        m
+		 WHERE a.problem_item_type = b.problem_item_type
+		   AND a.pos_no = c.pos_no
+		   AND c.service_items = d.service_items
+		   AND c.accept_status_code = e.accept_status_code
+		   AND a.status_change_no = f.status_change_no
+		   AND a.pos_no = f.pos_no
+		   AND f.old_status_code = g.accept_status_code(+)
+		   AND f.new_status_code = h.accept_status_code(+)
+		   AND a.problem_status = i.problem_status
+		   AND a.deal_result = j.deal_result(+)
+		   AND a.accessor = k.user_id(+)
+		   AND a.submitter = l.user_id(+)
+		   AND c.client_no = m.client_no(+)
+	]]>
+		<dynamic>
+			<isNotEmpty property="problemStatusList">
+				<iterate prepend="AND" open="(" conjunction="OR" close=")" property="problemStatusList">
+				<![CDATA[
+					a.problem_status = #problemStatusList[]#
+				]]>
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty property="problemItemNo">
+			<![CDATA[
+				   AND a.problem_item_no = #problemItemNo#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="accessor">
+			<![CDATA[
+				   AND a.accessor = #accessor#
+			]]>
+			</isNotEmpty>
+		</dynamic>
+	<![CDATA[
+		 ORDER BY "submitDate"
+	]]>
+	</select>
+	
+	
+	<select id="queryProblemByCriteriaForMPos" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+	<![CDATA[
+		  SELECT a.problem_item_no    "problemItemNo",
+					 a.submitter          "submitter",
+					 l.user_name          "submitterName",
+					 a.created_date       "submitDate",
+					 a.problem_status     "problemStatus",
+					 i.description        "problemStatusDesc",
+					 a.pos_no             "posNo",
+					 a.problem_item_type  "problemItemType",
+					 b.description        "problemItemTypeDesc",
+					 a.status_change_no   "statusChangeNo",
+					 a.problem_content    "problemContent",
+					 a.accessor           "accessor",
+					 k.emp_name           "accessorName",
+					 a.pk_serial          "pkSerial",
+					 a.deal_result        "dealResult",
+					 j.description        "dealResultDesc",
+					 a.deal_opinion       "dealOpinion",
+					 c.pos_no             "posInfo.posNo",
+					 c.policy_no          "posInfo.policyNo",
+					 c.client_no          "posInfo.clientNo",
+					 m.client_name        "posInfo.clientName",
+					 c.barcode_no         "posInfo.barcodeNo",
+					 c.acceptor           "posInfo.acceptor",
+					 c.service_items      "posInfo.serviceItems",
+					 d.description        "posInfo.serviceItemsDesc",
+					 c.accept_status_code "posInfo.acceptStatusCode",
+					 e.description        "posInfo.acceptStatusDesc",
+					 f.pos_no             "stsChangeHis.posNo",
+					 f.status_change_no   "stsChangeHis.statusChangeNo",
+					 f.old_status_code    "stsChangeHis.oldStatusCode",
+					 g.description        "stsChangeHis.oldStatusDesc",
+					 f.new_status_code    "stsChangeHis.newStatusCode",
+					 h.description        "stsChangeHis.newStatusDesc",
+					 f.change_date        "stsChangeHis.changeDate",
+					 f.change_user        "stsChangeHis.changeUser",
+					 f.pk_serial          "stsChangeHis.pkSerial"
+				FROM pos_problem_items         a,
+					 pos_problem_item_type     b,
+					 pos_info                  c,
+					 product_service_items     d,
+					 pos_accept_status_code    e,
+					 pos_status_change_history f,
+					 pos_accept_status_code    g,
+					 pos_accept_status_code    h,
+					 pos_problem_status        i,
+					 pos_problem_deal_result   j,
+					 staff_info                k,
+					 pos_user_privs            l,
+					 client_information        m
+			   WHERE a.problem_item_type = b.problem_item_type
+				 AND a.pos_no = c.pos_no
+				 AND c.service_items = d.service_items
+				 AND c.accept_status_code = e.accept_status_code
+				 AND a.status_change_no = f.status_change_no
+				 AND a.pos_no = f.pos_no
+				 AND f.old_status_code = g.accept_status_code(+)
+				 AND f.new_status_code = h.accept_status_code(+)
+				 AND a.problem_status = i.problem_status
+				 AND a.deal_result = j.deal_result(+)
+				 AND a.accessor = k.emp_no(+)
+				 AND a.submitter = l.user_id(+)
+				 AND c.client_no = m.client_no(+)
+	]]>
+		<dynamic>
+			<isNotEmpty property="problemStatusList">
+				<iterate prepend="AND" open="(" conjunction="OR" close=")" property="problemStatusList">
+				<![CDATA[
+					a.problem_status = #problemStatusList[]#
+				]]>
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty property="problemItemNo">
+			<![CDATA[
+				   AND a.problem_item_no = #problemItemNo#
+			]]>
+			</isNotEmpty>
+			<isNotEmpty property="accessor">
+			<![CDATA[
+				   AND a.accessor = #accessor#
+			]]>
+			</isNotEmpty>
+		</dynamic>
+	<![CDATA[
+		 ORDER BY "submitDate"
+	]]>
+	</select>
+	
+	
+	
+
+	<select id="queryPosNoProblemNo" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select min(problem_item_no)
+		  from pos_problem_items
+		 where pos_no = #posNo#
+		   and problem_status <> '4'
+		   and accessor = #userId#
+	]]>
+	</select>
+	
+	<insert id="insertPosProblemItems" parameterClass="com.sinolife.pos.common.dto.PosProblemItemsDTO">
+	<![CDATA[
+		   INSERT INTO pos_problem_items
+			  (problem_item_no,
+			   problem_item_type,
+			   pos_no,
+			   status_change_no,
+			   problem_status,
+			   submitter,
+			   problem_content,
+			   accessor,
+			   deal_result,
+			   deal_opinion)
+			  SELECT #problemItemNo#,
+					 #problemItemType#,
+					 m.pos_no,
+					 m.status_change_no,
+					 #problemStatus#,
+					 #submitter#,
+					 #problemContent#,
+					 #accessor#,
+					 #dealResult#,
+					 #dealOpinion#
+				FROM (SELECT t.status_change_no,
+							 t.pos_no
+						FROM pos_status_change_history t
+					   WHERE t.pos_no = #posNo#
+					   ORDER BY t.status_change_no DESC) m
+			   WHERE rownum = 1
+	]]>
+	</insert>
+	
+	<insert id="insertPosProblemStatusChange" parameterClass="com.sinolife.pos.common.dto.PosProblemStatusChangeDTO">
+	<![CDATA[
+		INSERT INTO pos_problem_status_change
+		   (problem_item_no,
+			status_change_no,
+			status_old,
+			status_new,
+			status_change_date,
+			status_change_user)
+		   SELECT #problemItemNo#,
+				  nvl(MAX(b.status_change_no), 0) + 1,
+				  #statusOld#,
+				  #statusNew#,
+				  #statusChangeDate#,
+				  #statusChangeUser#
+			 FROM pos_problem_items         a,
+				  pos_problem_status_change b
+			WHERE a.problem_item_no = b.problem_item_no(+)
+			  AND a.problem_item_no = #problemItemNo#
+			GROUP BY a.problem_item_no
+	]]>
+	</insert>
+	
+	<!-- FIXME 这几个SQL很烂，有空再改 -->
+	<select id="queryExtraInfoForLetter1" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT a.client_name
+		  FROM client_information a
+		 WHERE a.client_no = #clientNo#
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="queryExtraInfoForLetter2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+				  SELECT s.emp_no,
+				 s.emp_name,
+				 decode(sp_mobile.phone_no,
+						NULL,
+						sp_phone.phone_no,
+						sp_mobile.phone_no || ' ' || sp_phone.phone_no) emp_phone,
+				 d.dept_full_name emp_dept_name
+			FROM policy t,
+				 policy_agent r,
+				 staff_info s,
+				 (select emp_no, phone_no from staff_phone where phone_type = '4') sp_mobile,
+				 (select emp_no, phone_no from staff_phone where phone_type = '1') sp_phone,
+				 department_info d
+		   WHERE t.policy_no = #policyNo#
+			 and t.policy_no = r.policy_no
+			 AND r.agent_no = s.emp_no(+)
+			 AND s.dept_no = d.dept_no(+)
+			 AND s.emp_no = sp_mobile.emp_no(+)
+			 AND s.emp_no = sp_phone.emp_no(+)
+	]]>
+	</select>
+	
+	<select id="queryExtraInfoForLetter3" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT full_address,
+			   postalcode
+		  FROM client_address
+		 WHERE client_no = #clientNo#
+		   AND address_status = 1
+		   AND address_type = '3'
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<select id="queryExtraInfoForLetter4" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		SELECT decode(area_no, NULL, phone_no, area_no || '-' || phone_no) client_phone
+		  FROM client_phone
+		 WHERE client_no = #clientNo#
+		   AND rownum = 1
+	]]>
+	</select>
+	
+	<update id="updatePosProblemItems" parameterClass="java.util.HashMap">
+	<![CDATA[
+		UPDATE pos_problem_items a
+	]]>
+		<dynamic>
+			<isEqual property="fieldType" compareValue="1">
+			SET a.problem_status = #newValue#
+			</isEqual>
+			<isEqual property="fieldType" compareValue="2">
+			SET a.accessor = #newValue#
+			</isEqual>
+			<isEqual property="fieldType" compareValue="3">
+			SET a.deal_result = #newValue#
+			</isEqual>
+			<isEqual property="fieldType" compareValue="4">
+			SET a.deal_opinion = #newValue#
+			</isEqual>
+			<isEqual property="fieldType" compareValue="5">
+			SET a.problem_content = #newValue#
+			</isEqual>
+		</dynamic>
+	<![CDATA[
+		 WHERE a.problem_item_no = #problemItemNo#
+	]]>
+	</update>
+	
+	<select id="generatePosProblemItemNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		SELECT l_pos_pub.get_pos_problem_item_no(#value#)
+		  FROM dual
+	]]>
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="queryTransFailureCauseParaMap">
+		<parameter property="business_no_type" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="business_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="transfer_result" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="trans_failure_cause" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+		<parameter property="p_flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="p_mes" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="queryTransFailureCause" parameterMap="queryTransFailureCauseParaMap">
+		{ call l_pos_fin_interface.query_trans_failure_cause(?,?,?,?,?,?)}
+	</procedure>
+	
+</sqlMap>

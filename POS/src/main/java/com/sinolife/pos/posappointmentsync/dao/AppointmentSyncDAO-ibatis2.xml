@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.posappointmentsync.dao.AppointmentSyncDAO">
+	
+	 <resultMap id="appointmentInfoMap" class="java.util.HashMap">
+        <result property="clientNo" column="clientNo"/>
+        <result property="serviceItems" column="serviceItems"/>
+        <result property="serviceItemsDesc" column="description"/>
+        <result property="policyNo" column="policyNo"/>
+        <result property="acceptor"  column="acceptor"/>
+        <result property="acceptChannelCode"  column="acceptChannelCode"/>
+        <result property="bankCode" column="bankCode"/>
+        <result property="transferAccountno" column="transferAccountno"/>
+        <result property="accountNoType" column="accountNoType"/>
+        <result property="transferAccountOwner"  column="transferAccountOwner"/>
+        <result property="transferAccountOwnerIdType" column="transferAccountOwnerIdType"/>
+        <result property="transferAccountOwnerIdNo" column="transferAccountOwnerIdNo"/>
+        <result property="deptNo" column="deptNo"/>
+     </resultMap>
+     <!--查询预约任务相关信息-->	
+	 <select id="queryAppointmentInfo" parameterClass="java.lang.String" resultMap="appointmentInfoMap">
+	 <![CDATA[
+		select a.client_no clientNo,
+		       e.service_items serviceItems,
+		       f.description,
+		       a.policy_no policyNo,
+		       a.acceptor acceptor,
+		       b.accept_channel_code acceptChannelCode,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '158'
+		           and p.pos_object = '1') bankCode,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '159'
+		           and p.pos_object = '1') transferAccountno,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '161'
+		           and p.pos_object = '1') accountNoType,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '157'
+		           and p.pos_object = '1') transferAccountOwner,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '163'
+		           and p.pos_object = '1') transferAccountOwnerIdType,
+		       (select p.new_value
+		          from pos_accept_detail p
+		         where p.pos_no = a.pos_no
+		           and p.item_no = '162'
+		           and p.pos_object = '1') transferAccountOwnerIdNo,
+		       d.department_no deptNo
+		  from pos_info              a,
+		       pos_apply_batch       b,
+		       pos_apply_files       c,
+		       policy                d,
+		       pos_appointment_info  e,
+		       product_service_items f
+		 where a.pos_no = #posNo#
+		   and a.barcode_no = c.barcode_no
+		   and c.pos_batch_no = b.pos_batch_no
+		   and a.policy_no = d.policy_no
+		   and e.pos_no = a.pos_no
+		   and e.service_items = f.service_items
+		]]>
+	</select>
+	    
+</sqlMap>

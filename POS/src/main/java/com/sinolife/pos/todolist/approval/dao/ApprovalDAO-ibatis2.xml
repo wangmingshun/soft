@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.todolist.approval.dao.ApprovalDAO">
+
+	<select id="QUERY_TO_APPROVE_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select p.pos_no,
+		       p.client_no,
+		       p.policy_no,
+		       s.description service_items_desc,
+		       p.barcode_no,
+		       p.acceptor,
+		       to_char(a.submit_time, 'yyyy-mm-dd hh24:mi:ss') submit_time,
+		       a.submit_no,
+		       a.approve_no,
+		       p.barcode_no
+		  from pos_info p, product_service_items s, pos_approve a
+		 where a.approver = lower(#userId#)
+		   and p.pos_no = nvl(#posNo#,p.pos_no)
+		   and a.approve_time is null
+		   and p.pos_no = a.pos_no
+		   and p.accept_status_code = 'A08'
+		   and a.is_oa_approve='N'
+		   and p.service_items = s.service_items
+		   and a.submit_no = (select max(a2.submit_no)
+		                        from pos_approve a2
+		                       where a2.pos_no = a.pos_no)
+		   and not exists
+		 (select ap.pk_serial
+		          from pos_approve ap
+		         where ap.pos_no = a.pos_no
+		           and ap.submit_no = a.submit_no
+		           and (ap.approve_time is null and ap.approve_no < a.approve_no or
+		               ap.approve_decision = '2'))
+		   order by a.submit_time
+	]]>
+	</select>
+	
+	
+	<select id="QUERY_TO_PUBLIC_APPROVE_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+	 SELECT pi.pos_no,
+                   pi.client_no,
+                   pi.policy_no,
+                   psi.description service_items_desc,
+                   pi.barcode_no,
+                   pi.acceptor,
+                   to_char(pa.submit_time, 'yyyy-mm-dd hh24:mi:ss') submit_time,
+                   pa.submit_no,
+                   pa.approve_no,
+                   pi.barcode_no
+              FROM pos_info              pi,
+                   product_service_items psi,
+                   pos_approve           pa,
+                   pos_apply_files       paf,
+                   pos_apply_batch       pab,
+                   pos_user_privs        pup
+             WHERE (pa.approver = 'MPOS' OR pa.approver = pup.user_id)
+               AND pup.mpos_privs = 'Y'
+               AND PUP.USER_ID =  #value#
+               AND pab.pos_batch_no = paf.pos_batch_no
+               AND paf.barcode_no = pi.barcode_no
+               AND pab.accept_channel_code = '11'
+               AND pi.pos_no = pa.pos_no
+               AND pi.service_items = psi.service_items
+               AND pa.approve_time IS NULL
+               AND pi.accept_status_code = 'A08'              
+		
+	]]>
+	</select>
+	
+	
+
+	<select id="QUERY_POSINFO_FOR_APPROVE" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+	select s.pos_no "posNo",
+       s.barcode_no "barcodeNo",
+       s.policy_no "policyNo",
+       c.client_name "clientName",
+       s.service_items "serviceItems",
+       to_char(s.accept_date, 'yyyy-mm-dd') "acceptDate",
+       s.acceptor "acceptor",
+       t.policy_provide_time - 1 "reprovide",
+       b.apply_type_code "applyType",
+       s.remark "remark",
+       replace(to_char(s.approve_text), chr(10), '<br />') "approveText",
+       s.payment_type "paymentType",
+       l_pos_approve.get_pos_refund_sum(s.pos_no) "premSum",
+       s.prem_name "premName",
+       s.account_no "accountNo",
+       s.bank_code "bankCode",
+       (select nvl2(max(pos_no), 'Y', 'N')
+          from pos_accept_detail
+         where pos_no = s.pos_no
+           and pos_object = '5'
+           and item_no = '004') "phoneFlag",   
+         (select new_value
+          from pos_accept_detail
+         where pos_no = s.pos_no
+           and pos_object = '2'
+           and object_value='1' 
+           and item_no = '022') "branchPercent",                 
+       to_char(p.effect_date,'yyyy-mm-dd' )     "effectDate",
+       to_char(t.provide_date,'yyyy-mm-dd' )      "provideDate",
+       to_char(t.client_sign_date,'yyyy-mm-dd' )  "signDate",
+       c.idno             "idNo",
+       p.channel_type     "channelType"
+  from pos_info           s,
+       policy_contract    t,
+       policy             p,
+       client_information c,
+       pos_apply_files    f,
+       pos_apply_batch    b
+ where s.pos_no = #value#
+   and s.policy_no = t.policy_no(+)
+   and s.policy_no = p.policy_no
+   and c.client_no = p.applicant_no
+   and s.barcode_no = f.barcode_no
+   and f.pos_batch_no = b.pos_batch_no
+	]]>
+	</select>
+	
+	<select id="QUERY_POS_ATTACHMENT_LIST" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select old_value "phoneFileId", new_value "phoneFileName"
+		  from pos_accept_detail
+		 where pos_no = #posNo#
+		   and pos_object = '5'
+		   and item_no = '009'
+	</select>
+	
+	<select id="QUERY_APPROVED_LIST" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		select a.approve_no,
+		       a.approver,
+		       replace(a.submit_description,chr(10),'<br />') submit_description,
+		       decode(a.approve_decision,
+		              '1',              '通过',
+		              '2',              '不通过',
+		              '3',              '转他人审批',
+		              '4',              '重新录入受理明细',
+		              '未审批') approve_decision,
+		       a.approve_opnion,
+		       to_char(a.approve_time,'yyyy-mm-dd hh24:mi:ss') approve_time
+		  from pos_approve a
+		 where a.pos_no = #posNo#
+		 order by approve_no
+	]]>
+	</select>
+	
+	<update id="UPDATE_APPROVE_DECISION" parameterClass="java.util.HashMap">
+		update pos_approve
+		   set approve_decision = #decision#, 
+		       approve_opnion   = approve_opnion||#remark#, 
+		       approve_time     = sysdate
+		 where pos_no     = #posNo#
+		   and submit_no  = #submitNo#
+		   and approve_no = #approveNo#
+	</update>
+	
+	<update id="UPDATE_APPROVE_OPNION" parameterClass="java.util.HashMap">
+		update pos_approve
+		   set approve_opnion   = approve_opnion||#remark#
+		 where pos_no     = #posNo#
+		   and submit_no  = #submitNo#
+		   and approve_no = #approveNo#
+	</update>
+	
+	<insert id="INSERT_APPROVE_NO" parameterClass="java.util.HashMap">
+		insert into pos_approve
+		  (pos_no,
+		   submit_no,
+		   approve_no,
+		   submiter,
+		   approver,
+		   submit_time,
+		   submit_description)
+		values
+		  (#posNo#,
+		   #submitNo#,
+		   #approveNo#,
+		   (select max(submiter)
+		      from pos_approve
+		     where pos_no = #posNo#
+		       and submit_no = #submitNo#),
+		   l_pos_pub.handover_or_undertaker(#newApprover#, '2'),
+		   (select max(submit_time)
+		      from pos_approve
+		     where pos_no = #posNo#
+		       and submit_no = #submitNo#),
+		   (select approver || '转办'
+		      from pos_approve
+		     where pos_no = #posNo#
+		       and submit_no = #submitNo#
+		       and approve_no = #approveNo# + 1))
+	</insert>
+	
+	<update id="UPDATE_APPROVE_LIST_NO" parameterClass="java.util.HashMap">
+	<![CDATA[
+		update pos_approve
+		   set approve_no = approve_no + 1
+		 where pos_no     = #posNo#
+		   and submit_no  = #submitNo#
+		   and approve_no >= #approveNo#
+	]]>
+	</update>
+	
+	<select id="QUERY_ALL_APPROVED" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT pos_no from pos_approve WHERE pos_no = #posNo# AND submit_no = #submitNo# AND approve_time IS NULL
+	</select>
+	
+	<select id="QUERY_POS_PROBLEM_FLAG" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.problem_item_no,
+		       p.submitter,
+		       s.description       problem_status_desc,
+		       d.description       deal_result,
+		       p.problem_content,
+		       p.deal_opinion,
+		       p.problem_item_type,
+		       p.problem_status
+		  from pos_problem_items p, pos_problem_status s, pos_problem_deal_result d
+		 where p.pos_no = #posNo#
+		   and p.problem_status = s.problem_status
+		   and p.deal_result = d.deal_result(+)
+	</select>
+	
+	<update id="UPDATE_POSINFO_APPROVED" parameterClass="java.util.HashMap">
+		update pos_info
+		   set approved_date = sysdate, accept_status_code = #acceptStatus#
+		 where pos_no = #posNo#
+	</update>
+	
+		<update id="UPDATE_APPROVE_APPROVER" parameterClass="java.util.HashMap">
+		  update  pos_approve
+		   set  approver = #approver#
+		 where pos_no = #posNo#
+	</update>
+	
+	
+	<parameterMap id="PROC_APPROVE_POS_MAP" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_APPROVE_POS" parameterMap="PROC_APPROVE_POS_MAP">
+		{call l_pos_approve.approve_pos(?,?,?)}
+	</procedure>
+	
+	<select id="QUERY_SELF_APPROVE_FLAG" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		   SELECT nvl2(MAX(a.pos_no), 'Y', 'N') 
+              FROM pos_approve a, 
+               pos_info pi 
+            WHERE a.pos_no = #posNo# 
+                  AND a.submit_no = #submitNo# 
+                  AND a.approve_no = #approveNo# 
+                  AND a.approver = pi.acceptor 
+                  AND a.pos_no = pi.pos_no 
+	</select>
+
+	<select id="QUERY_POS_STATUS_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		select nvl(max('Y'), 'N')
+		  from pos_info a
+		 where a.pos_no = #posNo#
+		   and a.accept_status_code = #status#
+	</select>
+	
+	<select id="QUERY_POS_APPROVE_PROBLEM_CHECK" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select nvl(max('Y'), 'N')
+		  from pos_problem_items
+		 where pos_no = #posNo#
+		   and problem_item_type = '2'
+		   and problem_status in ('1', '2')
+	</select>
+
+	<select id="SELECT_POS_APPROVE_FOR_UPDATE" parameterClass="java.lang.String">
+		select pos_no from pos_approve where pos_no = #posNo# for update nowait
+	</select>
+
+	<select id="QUERY_APPROVE_CHECK1" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select max(a1.pos_no)
+		  from pos_approve a1, pos_approve a2
+		 where a1.pos_no = #posNo#
+		   and a1.pos_no = a2.pos_no
+		   and a1.submit_no <> a2.submit_no
+		   and not exists (select a.submit_no
+		          from pos_approve a
+		         where a.pos_no = a1.pos_no
+		           and a.submit_no = a1.submit_no
+		           and a.approve_time is not null)
+		   and not exists (select a.submit_no
+		          from pos_approve a
+		         where a.pos_no = a2.pos_no
+		           and a.submit_no = a2.submit_no
+		           and a.approve_time is not null)
+	]]>
+	</select>
+	
+	<select id="QUERY_APPROVE_CHECK2" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select max(a1.pos_no)
+		  from pos_approve a1, pos_approve a2
+		 where a1.pos_no = #posNo#
+		   and a1.pos_no = a2.pos_no
+		   and a1.submit_no = a2.submit_no
+		   and a1.approve_no = a2.approve_no - 1
+		   and a1.approver = a2.approver
+	]]>
+	</select>
+	
+	<select id="QUERY_POS_NEXT_APPROVER" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select l_pos_approve.pos_next_approver(#posNo#) from dual
+	</select>
+	
+	<select id="QUERY_SUBMIT_APPROVE_NO_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		select a.pk_serial
+		  from pos_info p, pos_approve a
+		 where a.approver = #approver#
+		   and p.pos_no = #posNo#
+		   and a.approve_time is null
+		   and p.pos_no = a.pos_no
+		   and p.accept_status_code = 'A08'
+		   and a.submit_no = #submitNo#
+		   and a.approve_no = #approveNo#
+		   and not exists
+		 (select ap.pk_serial
+		          from pos_approve ap
+		         where ap.pos_no = a.pos_no
+		           and ap.submit_no = a.submit_no
+		           and (ap.approve_time is null and ap.approve_no < a.approve_no or
+		               ap.approve_decision = '2'))
+	]]>
+	</select>
+	
+	<parameterMap id="update_approve_decisions_map" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="submitNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="decision" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="remark" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="update_approve_decisions" parameterMap="update_approve_decisions_map">
+		{call l_pos_approve.update_approve_decisions(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	
+	<select id="CHECK_APPROVE_DUPSUBMIT" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	<![CDATA[
+		  select max(pa.pos_no) from pos_approve pa where pa.pos_no= #posNo#
+      and pa.submit_no=#submitNo# and pa.approve_no= #approveNo#
+      and pa.approver= #approver#
+      and pa.approve_time is not null
+	]]>
+	</select>
+	
+	<!-- 根据oa_approve_id 查询审批信息  edit by wangmingshun-->
+	<select id="getPosApproveInfoByFlowId" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosApproveInfo">
+	<![CDATA[
+		select p.pos_no posNo,
+		       p.submit_no submitNo,
+		       p.approve_no approveNo,
+		       p.submiter submiter,
+		       p.approver approver,
+		       p.submit_time submitDate,
+		       p.approve_time approveDate,
+		       p.approve_decision approveDesc,
+		       p.approve_opnion approveOption,
+		       p.approve_role approveRole,
+		       p.is_oa_approve isOaApprove
+	  	  from pos_approve p
+	     where p.oa_approve_id=#flowId#
+	]]>
+	</select>
+	
+	<!-- 根据pos_no,submit_no,approve_no  查询审批信息  edit by wangmingshun-->
+	<select id="checkPosApproveInfo" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosApproveInfo">
+	<![CDATA[
+		select p.pos_no posNo,
+	           p.submit_no submitNo,
+	           p.approve_no approveNo,
+	           p.submiter submiter,
+	           p.approver approver,
+	           p.submit_time submitDate,
+	           p.submit_description submitDesc,
+	           p.approve_time approveDate,
+	           p.approve_decision approveDesc,
+	           p.approve_opnion approveOption,
+	           p.approve_role approveRole,
+	           p.is_oa_approve isOaApprove      
+	  	  from pos_approve p    
+	     where p.pos_no=#posNo#
+           AND p.submit_no = #submitNo#
+           AND p.approve_no > #approveNo#
+           AND p.approve_time IS NULL    
+         order by p.approve_no
+	]]>
+	</select>
+	
+	<select id="getPosApproveInfo" parameterClass="java.util.HashMap" resultClass="com.sinolife.pos.common.dto.PosApproveInfo">
+	<![CDATA[
+		select p.pos_no posNo,
+	           p.submit_no submitNo,
+	           p.approve_no approveNo,
+	           p.submiter submiter,
+	           p.approver approver,
+	           pup.user_name approverName,
+	           p.submit_time submitDate,
+	           p.submit_description submitDesc,
+	           p.approve_time approveDate,
+	           p.approve_decision approveDesc,
+	           p.approve_opnion approveOption,
+	           p.approve_role approveRole,
+	           p.is_oa_approve isOaApprove      
+	  	  from pos_approve p, pos_user_privs pup   
+	     where p.approver=pup.user_id
+	       AND p.pos_no=#posNo#
+           AND p.submit_no = #submitNo#
+         order by p.approve_no
+	]]>
+	</select>
+	
+	<!-- 更新pos_approve表的oa_approve_id字段，该字段是在oa生成的 -->
+	<update id="updateApproveOaApproveId" parameterClass="java.util.HashMap">
+	<![CDATA[
+		update pos_approve p
+   		   set p.oa_approve_id = #flowId#
+ 		 where p.pos_no=#posNo#
+ 		   and p.submit_no=#submitNo#
+   	  	   and p.is_oa_approve = 'Y'
+	]]>
+	</update>
+	
+	<select id="queryOaTitle" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+	 select l_pub_pos_interface.get_senior_branch_info(p_branch_code  => ci.branch_code,
+                                                  	   p_branch_level => '02',
+                                                  	   p_code_or_name => 'NAME') ||
+	        l_pub_pos_interface.get_senior_branch_info(p_branch_code  => ci.branch_code,
+	                                                   p_branch_level => '03',
+	                                                   p_code_or_name => 'NAME')
+	   from pos_info pi, pos_user_privs pup, counter_info ci
+	  where pi.acceptor = pup.user_id
+	    and pup.counter_no = ci.counter_no
+	    and pi.pos_no = #posNo#
+	]]>
+	</select>
+	
+	<select id="queryOaApproveList" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+	<![CDATA[
+	 select pi.pos_no,
+	        pi.policy_no,
+	        pi.acceptor,
+	        pa.oa_approve_id,
+	        pa.approver,
+	        (select description
+	           from product_service_items
+	          where service_items = pi.service_items) items_desc
+	   from pos_approve pa, pos_info pi
+	  where pa.pos_no = pi.pos_no
+	    and pi.acceptor = #user#
+	    and pi.accept_status_code = 'A08'
+	    and pa.oa_approve_id is not null
+	    and pa.approve_pk =
+	        (select max(approve_pk) from pos_approve where pos_no = pi.pos_no)
+	]]>
+	</select>
+	
+	<parameterMap id="PROC_APPROVE_POS_ALL_MAP" class="java.util.HashMap">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="approveFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="PROC_APPROVE_POS_ALL" parameterMap="PROC_APPROVE_POS_ALL_MAP">
+		{call l_pos_approve.approve_pos_all(?,?,?)}
+	</procedure>
+	
+	<update id="updatePosApprove" parameterClass="java.util.HashMap">
+		 update pos_approve p
+		    set p.approve_time=#approveTime#,
+		        p.approve_decision=#approveDecision#,
+		        p.approve_opnion=#approveOpnion#
+		  where p.approver=#approver#
+		    and p.oa_approve_id=#flowId#
+		    and p.pos_no=#posNo#
+	</update>
+	
+</sqlMap>

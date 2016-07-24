@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.PosCodeTableDAO">
+	<resultMap id="CodeTableItemDTO" class="com.sinolife.pos.common.dto.CodeTableItemDTO">
+		<result property="code" column="CODE" />
+		<result property="description" column="DESCRIPTION" />
+	</resultMap>
+
+	<select id="SEX" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT sex_code code, sex_desc description FROM sex where sex_code in ('1','2')
+	]]>
+	</select>
+	
+	<select id="ID_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select id_type code, id_type_name description from id_type
+	]]>
+	</select>
+	
+	<select id="POS_ACCEPT_CHANNEL_CODE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.accept_channel_code code,
+		       t.description         description
+		  FROM pos_accept_channel_code t
+		 WHERE t.accept_channel_code IN ('1', '2', '3', '6','20','21','22','23')
+	]]>
+	</select>
+	
+	<select id="ALL_POS_ACCEPT_CHANNEL_CODE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.accept_channel_code code,
+		       t.description         description
+		  FROM pos_accept_channel_code t		
+	]]>
+	</select>
+	
+	<select id="POS_APPLY_TYPE_CODE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select t.apply_type_code code, t.description description
+		  from pos_apply_type_code t where t.description not like '%已作废%' 
+		  order by t.apply_type_code
+	]]>
+	</select>
+	
+	<!-- 将结束范围 1到43改为1到44(增加险种转换) 范围扩大到50，方便以后增加项目  edit by wangminngshun start -->
+	<select id="PRODUCT_SERVICE_ITEMS" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select s.service_items code, s.description
+		  from product_service_items s
+		 where to_number(s.service_items) >= 1
+		   and to_number(s.service_items) <= 50
+		 order by to_number(code)
+	]]>
+	</select>
+	<!-- 将结束范围 1到43改为1到44(增加险种转换) 范围扩大到50，方便以后增加项目  edit by wangminngshun end -->
+	
+	<select id="PRODUCT_SERVICE_ITEMS_LOST_PREM" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select service_items code, description
+		  from product_service_items
+		 where service_items in ('1','2','4','6','8','10','11','12','14','15','16','17','20','37','40')
+		 order by to_number(code)
+	]]>
+	</select>
+
+	<select id="POS_INPUT_GRADE_CODE" resultMap="CodeTableItemDTO">
+		select g.input_grade code, g.description from pos_input_grade_code g
+	</select>
+	
+	<select id="POS_RANK_CODE" resultMap="CodeTableItemDTO">
+		select c.rank_code code, c.description from pos_rank_code c
+	</select>
+	
+	<select id="POS_AMOUNT_DAYS_GRADE" resultMap="CodeTableItemDTO">
+		select a.amount_days_grade code, a.description from pos_amount_days_grade a
+	</select>
+	
+	<select id="POS_SPECIAL_FUNC_CODE" resultMap="CodeTableItemDTO">
+		select s.special_func code, s.description from pos_special_func_code s
+	</select>
+	
+	<select id="POS_SPECIAL_RULE_CODE" resultMap="CodeTableItemDTO">
+		select s.special_rule code, s.description from pos_special_rule_code s
+	</select>
+	
+	<select id="FIN_FOREIGN_EXCHANGE_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select t.foreign_exchange_type code, t.description description
+		  from lifebase.fin_foreign_exchange_type t
+	]]>
+	</select>
+	
+	<select id="POS_APPLY_MATERIAL_CODE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT image      code,
+		       image_name description
+		  FROM image
+		 WHERE image_type IN (SELECT image_type
+		                        FROM image_doc_type
+		                       WHERE business_type = '2')
+		 ORDER BY to_number(code)
+	]]>
+	</select>
+	
+	<select id="DIVIDEND_SELECTION" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select d.dividend_selection code, d.description
+		  from dividend_selection d
+		 where d.dividend_selection <> 3
+	]]>
+	</select>
+	
+	<select id="COUNTRY" resultMap="CodeTableItemDTO">
+		select t.country_code code, t.country_name description
+		  from (select rownum, c.country_code, c.country_name
+		          from country c
+		         where c.country_code in ('156', '344', '446', '158')
+		        union
+		        select rownum + 4, c.country_code, c.country_name
+		          from country c
+		         where c.country_code not in ('156', '344', '446', '158')) t
+	</select>
+	
+	<select id="NATION" resultMap="CodeTableItemDTO">
+		select n.nation_code code, n.nation_name description from nation n
+	</select>
+	
+	<select id="EDUCATION" resultMap="CodeTableItemDTO">
+		select education_code code, education_name description from education
+	</select>
+	
+	<select id="MARRIAGE" resultMap="CodeTableItemDTO">
+		select marriage_code code, marriage_name description from marriage
+	</select>
+	
+	<select id="PHONE_TYPE" resultMap="CodeTableItemDTO">
+		select phone_type code, phone_type_name description from phone_type order by code desc
+	</select>
+	
+	<select id="PROVINCE" resultMap="CodeTableItemDTO">
+		select distinct a.province_code code, p.province_name description
+		  from area_define a, province p
+		 where a.province_code = p.province_code
+		 order by a.province_code
+	</select>
+	
+	<select id="POS_REPLACE_SIGN_CAUSE_CODE" resultMap="CodeTableItemDTO">
+		select replace_sign_cause code, description from pos_replace_sign_cause_code
+	</select>
+	
+	<select id="RELATIONSHIP" resultMap="CodeTableItemDTO">
+		select relationship code, description from relationship
+	</select>
+	
+	<select id="APL_OPTION" resultMap="CodeTableItemDTO">
+	   select apl_option code, description from apl_option
+	</select>
+	
+	<select id="POS_ROLLBACK_CAUSE_CODE" resultMap="CodeTableItemDTO">
+	   select rollback_cause code, description from pos_rollback_cause_code
+	</select>
+	
+	<select id="POS_ACCEPT_STATUS_CODE" resultMap="CodeTableItemDTO">
+	   select s.accept_status_code code, s.description from pos_accept_status_code s
+	</select>
+	
+	<select id="BENEFIT_TYPE" resultMap="CodeTableItemDTO">
+		select t.benefit_type code, t.description description from benefit_type t
+	</select>
+	
+	<select id="EMAIL_TYPE" resultMap="CodeTableItemDTO">
+	   select email_type code, email_type_name description from email_type
+	</select>
+	
+	<select id="ADDRESS_TYPE" resultMap="CodeTableItemDTO">
+	   select address_type code, address_type_name description from address_type
+	</select>
+	
+	<select id="BUSINESS_NO_TYPE" resultMap="CodeTableItemDTO">
+		select t.business_no_type code, t.business_desc description
+		  from business_no_type t
+		 order by to_number(code)
+	</select>
+	
+	<select id="CLIENT_TOUCH_CHANNEL" resultMap="CodeTableItemDTO">
+		select t.channel_code code, t.channel_name description
+		  from client_touch_channel t
+		 order by to_number(code)
+	</select>
+	
+	<select id="CHARGING_METHOD" resultMap="CodeTableItemDTO">
+		select charging_method code, description from charging_method order by code desc
+	</select>
+	
+	<select id="POS_POL_MORT_UNFREEZE_CAUSE" resultMap="CodeTableItemDTO">
+		select unfreeze_cause code, description from pos_pol_mort_unfreeze_cause
+	</select>
+	
+	<select id="CHANNEL_TYPE_TBL" resultMap="CodeTableItemDTO">
+		select channel_type code, description from channel_type_tbl
+	</select>
+	
+	<select id="FREQUENCY" resultMap="CodeTableItemDTO">
+		select frequency code,description from frequency order by frequency desc
+	</select>
+	
+	<select id="FREQUENCY_MINI" resultMap="CodeTableItemDTO">
+		select frequency code,description from frequency where frequency not in ('0','1')
+	</select>
+	
+	<select id="POS_SURRENDER_CAUSE_CODE" resultMap="CodeTableItemDTO">
+		select surrender_cause code, description from pos_surrender_cause_code
+	</select>
+
+	<select id="POS_RENEW_REFUND_CAUSE_CODE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT a.renew_refund_cause code,
+		       a.description        description
+		  FROM pos_renew_refund_cause_code a
+		 ORDER BY to_number(code)
+	]]>
+	</select>
+	
+	<select id="POS_TASK_TYPE" resultMap="CodeTableItemDTO">
+		select task_type code, description from pos_task_type
+	</select>
+
+	<select id="BANK_CATEGORY" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT a.bank_category code,
+		       a.description   description
+		  FROM bank_category a
+		 WHERE a.using_flag = 'Y'
+		   AND EXISTS (SELECT 'x'
+		          FROM bank_info b
+		         WHERE b.bank_category = a.bank_category)
+		 ORDER BY a.bank_category
+ 	]]>
+	</select>
+	
+	<select id="APPROVAL_SERVICE_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.approval_service_type code,
+		       t.description           description
+		  FROM approval_service_type t
+		 ORDER BY to_number(code)
+ 	]]>
+	</select>
+	
+	<select id="POS_PROBLEM_DEAL_RESULT" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.deal_result code,
+		       t.description description
+		  FROM pos_problem_deal_result t
+		 ORDER BY to_number(code)
+ 	]]>
+	</select>
+	
+	<select id="POS_VIP_TYPE" resultMap="CodeTableItemDTO">
+	    select vip_type code, description from pos_vip_type
+	</select>
+	
+	<select id="POS_VIP_GRADE" resultMap="CodeTableItemDTO">
+	    select vip_grade code, description from pos_vip_grade
+	</select>
+
+	<select id="POS_NOTE_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.note_type   code,
+		       t.description description
+		  FROM pos_note_type t
+		 WHERE t.note_type not in ('12', '13')
+		 ORDER BY to_number(t.note_type)
+	]]>
+	</select>
+	
+	<select id="POS_NOTE_TYPE_BATCH" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT t.note_type   code,
+		       t.description description
+		  FROM pos_note_type t
+		 WHERE t.note_type not in ('1', '2', '12', '13')
+		 ORDER BY to_number(t.note_type)
+	]]>
+	</select>
+	
+	<select id="POS_BRANCH_CLASSIFY" resultMap="CodeTableItemDTO">
+	    select branch_classify code, description from pos_branch_classify
+	</select>
+	
+	<select id="FIN_ACCOUNT_NO_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select t.account_no_type code, t.description description
+		  from fin_account_no_type t
+	]]>
+	</select>
+
+	<select id="DEPARTMENT_INFO" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		SELECT DEPT_NO  CODE , DEPT_FULL_NAME  DESCRIPTION FROM DEPARTMENT_INFO T WHERE T.DEPT_TYPE='03' AND T.DEPT_LEVEL='01'
+	]]>
+	</select>
+
+	<select id="POS_EXAM_TYPE" resultMap="CodeTableItemDTO">
+	<![CDATA[
+		select t.exam_type code, t.description description from pos_exam_type t
+	]]>
+	</select>
+	
+	<select id="POS_BANK_CATEGORY" resultMap="CodeTableItemDTO">
+	<![CDATA[
+	  select a.dept_no code,a.dept_name description
+        from department_info a
+       where is_valid = 'Y'
+         and dept_level = '01'
+         and a.dept_no in ('01', '02', '04', '17')
+         and a.dept_type = '03'
+	]]>	
+	</select>
+</sqlMap>

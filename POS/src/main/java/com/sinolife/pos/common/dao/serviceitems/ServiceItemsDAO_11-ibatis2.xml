@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_11">
+
+	<select id="QUERY_POLICY_DIVIDEND" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PolicyDividendDTO">
+		select p.policy_no             policyNo,
+		       d.prod_seq              prodSeq,
+		       t.product_code          productCode,
+		       d.part_due_date         partToDate,
+		       d.interest_dividend_bal interestDividendBal,
+		       d.cash_dividend_bal     cashDividendBal,
+		       a.full_name             productFullName
+		  from policy p, policy_dividend d, policy_product t, product a
+		 where p.policy_no = #value#
+		   and p.policy_no = d.policy_no
+		   and d.policy_no = t.policy_no
+		   and d.prod_seq = t.prod_seq
+		   and t.product_code = a.product_code
+	</select>
+
+    <!-- 根据保单查询转账授权信息 -->
+    <select id="QUERY_TRANS_GRANT"  parameterClass="java.lang.String" resultClass="java.util.HashMap">
+    
+	SELECT 
+	     
+	       TRANSFER_GRANT_FLAG transfer_grant_flag, 
+	       BANK_CODE           bank_code, 
+	       ACCOUNT_NO          account_no, 
+	       ACCOUNT_OWNER       account_owner
+	  FROM POSDATA.POS_DIVIDEND_TRANS_GRANT
+	  WHERE POLICY_NO=#value#
+    </select>
+    
+    <!-- 根据保单号查询客户号 -->
+    <select id="getApplicantByPolicyNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select applicant_no from policy where policy_no = #value#
+	]]>
+	</select>
+	
+	<!-- 根据客户号查询客户姓名证件类型证件号 -->
+	 <resultMap id="queryclientResultMap" class="java.util.HashMap">
+        <result property="CLIENT_NAME" column="CLIENT_NAME"/>
+        <result property="ID_TYPE" column="ID_TYPE"/>
+        <result property="IDNO" column="IDNO"/>
+    </resultMap>
+	<select id="QueryClientInfoByclientNo" parameterClass="java.lang.String" resultMap="queryclientResultMap">
+	           select ci.client_name CLIENT_NAME,
+                  ci.id_type ID_TYPE,
+                  ci.idno IDNO
+             from client_information ci
+            where ci.client_no = #value#    
+	</select>
+</sqlMap>

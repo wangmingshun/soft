@@ -1,0 +1,13 @@
+#Fri Dec 14 10:41:41 CST 2012
+eclipse.preferences.version=1
+encoding//src/main/resource/i18n/ValidationMessages_zh_CN.properties=UTF-8
+encoding//src/main/resource/log4j.properties=UTF-8
+encoding//src/main/webapp/WEB-INF/commons/head.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/CountryDefination/add/add.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/CountryDefination/list.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/CountryDefination/toolbar.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/layouts/commlistlayout.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/layouts/simplelayout.jsp=UTF-8
+encoding//src/main/webapp/resources/styles/style.css=GBK
+encoding//src/main/webapp/resources/styles/ui/css/layout_cn.css=GBK
+encoding/<project>=UTF-8

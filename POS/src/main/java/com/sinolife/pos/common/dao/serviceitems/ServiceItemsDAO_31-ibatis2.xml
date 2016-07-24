@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_31">
+
+	<select id="QUERY_INPUT_INFO" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_31">
+		SELECT a.policy_no policyNo,
+		       decode(b.mortgage, 'Y', '抵押冻结', 'N', '抵押解冻') freezeStatus,
+		       f.description productStatus,
+		       e.full_name productName,
+		       d.product_code productCode,
+		       d.prod_seq prodSeq,
+		       g.client_name applicantName,
+		       g.id_type applicantIdType,
+		       g.idno applicantIdNo,
+		       h.client_name insuredName,
+		       h.id_type insuredIdType,
+		       h.idno insuredIdNo,
+		       b.interest_rate interestRate,
+		       to_char(b.maturity_date, 'yyyy-mm-dd') maturityDate,
+		       b.loan_sum loanSum,
+		       b.loan_deadline loanDeadline,
+		       b.dept_no deptNo,
+		       i.dept_full_name deptName
+		  FROM policy              a,
+		       pos_policy_mortgage b,
+		       policy_product_prem c,
+		       policy_product      d,
+		       product             e,
+		       prem_status         f,
+		       client_information  g,
+		       client_information  h,
+		       department_info     i
+		 WHERE a.policy_no = #policyNo#
+		   AND a.policy_no = b.policy_no(+)
+		   AND b.policy_no = c.policy_no(+)
+		   AND a.policy_no = d.policy_no
+		   AND d.is_primary_plan = 'Y'
+		   AND (d.prod_seq = c.prod_seq AND c.prod_seq IS NOT NULL OR c.prod_seq IS NULL)
+		   AND d.product_code = e.product_code(+)
+		   AND c.prem_status = f.prem_status(+)
+		   AND a.applicant_no = g.client_no(+)
+		   AND h.client_no = d.insured_no(+)
+		   AND b.dept_no = i.dept_no(+)
+		   AND b.mortgage = 'Y'
+	</select>	
+	
+</sqlMap>

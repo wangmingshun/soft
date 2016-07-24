@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.acceptance.rollback.dao.BranchRollbackDAO">
+
+	<parameterMap id="RULECHECK_OF_CANCLE_ROLLBACK_MAP" class="java.util.Map">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="RULECHECK_OF_CANCLE_ROLLBACK" parameterMap="RULECHECK_OF_CANCLE_ROLLBACK_MAP">
+		{call l_pos_service_item_40.rulecheck_of_cancle_rollback(?,?,?)}
+	</procedure>
+	<parameterMap id="POS_CANCLE_ROLLBACK_MAP" class="java.util.Map">
+	    <parameter property="calcdate" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="POS_CANCLE_ROLLBACK" parameterMap="POS_CANCLE_ROLLBACK_MAP">
+		{call l_pos_service_item_40.pos_cancel(?,?,?,?)}
+	</procedure>
+	
+    <select id="QUERY_ORIGINAL_POS_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+            select p.pos_no,
+                       p.policy_no,
+                       p.client_no,
+                       p.barcode_no,
+                       p.service_items,
+                       s.description service_items_desc,
+                       p.accept_status_code,
+                       c.description accept_status_desc,
+                       to_char(p.accept_date, 'yyyy-mm-dd') accept_date,
+                       to_char(p.updated_date, 'yyyy-mm-dd') updated_date,
+                       p.updated_user,
+                       p.acceptor,
+                       p.payment_type,
+                       p.foreign_exchange_type,
+                       p.bank_code,
+                       b.bank_abbr,
+                       p.account_no,
+                       p.prem_name,
+                       p.id_type,
+                       p.prem_idno,
+                       po.channel_type 
+                  from pos_info               p,
+                       policy                 po,
+                       bank_info              b,
+                       product_service_items  s,
+                       pos_accept_status_code c
+                 where p.pos_no = #value#
+                   and p.policy_no=po.policy_no
+                   and p.bank_code = b.bank_code(+)
+                   and p.service_items = s.service_items
+                   and p.accept_status_code = c.accept_status_code
+	</select>
+	
+	<parameterMap id="POS_ROLLBACK_PROCESS_MAP" class="java.util.Map">
+		<parameter property="posNo" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN" />
+		<parameter property="premFlag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="processText" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="flag" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+		<parameter property="message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT" />
+	</parameterMap>
+	<procedure id="POS_ROLLBACK_PROCESS" parameterMap="POS_ROLLBACK_PROCESS_MAP">
+		{call l_pos_service_item_40.process(?,?,?,?,?)}
+	</procedure>
+
+	<select id="QUERY_USER_COUNTER_NO" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select counter_no from pos_user_privs where user_id = lower(#value#) and rownum = 1
+	</select>
+
+</sqlMap>

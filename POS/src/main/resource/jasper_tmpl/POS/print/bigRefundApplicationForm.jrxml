@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bigRefundApplicationForm_v1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30">
+	<property name="ireport.zoom" value="0.8264462809917517"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="73"/>
+	<style name="defaultStyle" isDefault="true" hAlign="Left" vAlign="Middle" isBlankWhenNull="true" fontName="宋体" fontSize="10" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H" isPdfEmbedded="true"/>
+	<parameter name="POLICY_NO" class="java.lang.String"/>
+	<parameter name="SALE_CHANNEL" class="java.lang.String"/>
+	<parameter name="PRIMARY_PLAN_NAME" class="java.lang.String"/>
+	<parameter name="POS_NO" class="java.lang.String"/>
+	<parameter name="REFUND_BRANCH" class="java.lang.String"/>
+	<parameter name="REFUND_APPLY_DATE" class="java.lang.String"/>
+	<parameter name="POLICY_EFFECT_DATE" class="java.lang.String"/>
+	<parameter name="POLICY_PRINT_DATE" class="java.lang.String"/>
+	<parameter name="SERVICE_ITEMS_DESC" class="java.lang.String"/>
+	<parameter name="REFUND_TYPE" class="java.lang.String"/>
+	<parameter name="INVOICE_GOT_BACK" class="java.lang.String"/>
+	<parameter name="REFUND_SUM" class="java.lang.String"/>
+	<parameter name="REFUND_OPERATOR" class="java.lang.String"/>
+	<parameter name="REFUND_MEMO" class="java.lang.String"/>
+	<parameter name="POLICY_RECEIPT_SIGN_DATE" class="java.lang.String"/>
+	<parameter name="IMAGE_SRC_PATH" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="766" splitType="Stretch">
+			<staticText>
+				<reportElement style="defaultStyle" x="0" y="48" width="535" height="30"/>
+				<textElement textAlignment="Center">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[业务退费申请单]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="0" y="78" width="535" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[（本单所列金额单位名称：人民币元）]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="300" y="104" width="236" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保全号："+$P{POS_NO}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="21" y="129" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="159" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="189" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="219" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="249" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="22" y="736" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="22" y="666" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="279" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="321" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="351" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="22" y="526" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="381" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="456" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="596" width="495" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="21" y="130" width="1" height="607"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="516" y="129" width="1" height="608"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="268" y="129" width="1" height="121"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement style="defaultStyle" x="101" y="130" width="167" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_NO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="defaultStyle" x="80" y="160" width="188" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{SALE_CHANNEL}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="defaultStyle" x="80" y="190" width="189" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{PRIMARY_PLAN_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="130" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[保险合同号码：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="160" width="65" height="28"/>
+				<textElement/>
+				<text><![CDATA[销售渠道：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="190" width="65" height="28"/>
+				<textElement/>
+				<text><![CDATA[主险名称：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="130" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[退费分公司：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="336" y="130" width="170" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_BRANCH}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="160" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[退费申请日期：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="346" y="160" width="160" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_APPLY_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="190" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[保单生效日期：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="346" y="190" width="160" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_EFFECT_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="220" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[保单打印日期：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="100" y="220" width="168" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_PRINT_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="220" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[回执签收日期：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="32" y="250" width="474" height="28"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["保全项目："+$P{SERVICE_ITEMS_DESC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="defaultStyle" x="32" y="280" width="474" height="40"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["退费方式：\n　　"+$P{REFUND_TYPE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="322" width="236" height="28"/>
+				<textElement/>
+				<text><![CDATA[若是合同撤销或解除，发票是否收回：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="213" y="322" width="293" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{INVOICE_GOT_BACK}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="268" y="351" width="1" height="31"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement style="defaultStyle" x="80" y="352" width="188" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_SUM}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="352" width="65" height="28"/>
+				<textElement/>
+				<text><![CDATA[退费金额：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="336" y="352" width="170" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_OPERATOR}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="352" width="86" height="28"/>
+				<textElement/>
+				<text><![CDATA[退费操作人：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="388" width="103" height="22"/>
+				<textElement verticalAlignment="Top" lineSpacing="Single"/>
+				<text><![CDATA[退费操作备注：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="101" y="388" width="405" height="67"/>
+				<textElement verticalAlignment="Top" lineSpacing="Single"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REFUND_MEMO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="457" width="181" height="26"/>
+				<textElement lineSpacing="Single"/>
+				<text><![CDATA[退费审批人：]]></text>
+			</staticText>
+			<line>
+				<reportElement x="268" y="456" width="1" height="71"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="defaultStyle" x="278" y="456" width="181" height="26"/>
+				<textElement lineSpacing="Single"/>
+				<text><![CDATA[退费审核人员备注：]]></text>
+			</staticText>
+			<textField pattern="打印日期：yyyy年MM月dd日" isBlankWhenNull="true">
+				<reportElement style="defaultStyle" x="22" y="737" width="495" height="29"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="526" width="181" height="26"/>
+				<textElement/>
+				<text><![CDATA[客户服务部领导审批意见：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="597" width="181" height="26"/>
+				<textElement/>
+				<text><![CDATA[分管领导审批意见：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="defaultStyle" x="32" y="667" width="181" height="26"/>
+				<textElement/>
+				<text><![CDATA[总经理审批意见：]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="defaultStyle" x="346" y="220" width="160" height="28"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{POLICY_RECEIPT_SIGN_DATE}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="101" y="0" width="341" height="41"/>
+				<imageExpression class="java.lang.String"><![CDATA[$P{IMAGE_SRC_PATH}+"sinolife_logo_1.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.mucode.dao.MucodeDAO">
+
+
+   <!-- 检查联系人是否存在 -->
+	<select id="QUERY_NAME" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+      SELECT * FROM POS_MATURE_RPT_SMS_RECEIVER  WHERE  DEPT_NO=#DEPT_NO# AND BRANCH_CODE=#BRANCH_CODE#
+
+      <dynamic>
+		<isNotEmpty property="CONTACT">
+		<![CDATA[
+		   AND CONTACT = #CONTACT#
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="mobileNo">
+		<![CDATA[
+		   AND MOBILE_NO = #MOBILE_NO#
+		]]>
+		</isNotEmpty>
+	   </dynamic>
+	</select>
+	
+	<!-- 根据银行网点和机构查询信息 -->
+    <select id="QUERY_BRANCH_CODE" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+      
+      SELECT * FROM POS_MATURE_RPT_SMS_RECEIVER  WHERE  DEPT_NO=#DEPT_NO# AND BRANCH_CODE=#BRANCH_CODE#
+      
+	</select>
+	
+	<!-- 插入银代联系人 -->
+	<insert id="INSERT_NAME" parameterClass="java.util.HashMap" >
+ 		INSERT INTO POS_MATURE_RPT_SMS_RECEIVER
+		  (BRANCH_CODE,
+		   DEPT_NO,
+		   CONTACT,
+		   MOBILE_NO		  
+		   )
+		VALUES
+		  (#BRANCH_CODE#,
+		   #DEPT_NO#,
+		   #CONTACT#,
+		   #MOBILE_NO#
+		   )
+    </insert>
+   
+   <!-- 修改银代联系人 -->
+    <update id="UPDATE_NAME" parameterClass="java.util.HashMap" >
+     UPDATE POS_MATURE_RPT_SMS_RECEIVER
+       SET BRANCH_CODE = #BRANCH_CODE#,
+           DEPT_NO     = #DEPT_NO#,
+           CONTACT     = #CONTACT#,
+           MOBILE_NO   = #MOBILE_NO#
+     WHERE DEPT_NO = #DEPT_NO#
+       AND BRANCH_CODE = #BRANCH_CODE#
+		 
+     </update>
+     <parameterMap id="PUB_CHECK_CLIENT_MOBILE_MAP" class="java.util.HashMap">
+		<parameter property="checkChar" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="checkPhone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<!-- 手机号码规则校验 -->
+	<procedure id="PUB_CHECK_CLIENT_MOBILE" parameterMap="PUB_CHECK_CLIENT_MOBILE_MAP">
+		{call l_pos_pub_interface.check_client_mobile(?,?,?,?)}	
+	</procedure>
+</sqlMap>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.callback.survival.dao.SurvivalInvestDAO">
+
+     <select id="QUERY_INSURED_INFO" parameterClass="java.lang.String" resultClass="java.util.HashMap">
+		select p.policy_no,
+		       c.client_no,
+		       c.client_name insured_name,
+		       decode(c.sex_code, '1', '男', '2', '女', '未知') sex,
+		       to_char(c.birthday, 'yyyy-mm-dd') birthday,
+		       t.id_type_name id_type,
+		       c.idno,
+		       to_char(c.death_date, 'yyyy-mm-dd') death_date,
+		       nvl(i.invest_state, '3') invest_state,
+		       decode(i.invest_state, '1', '未调查', '2', '已调查', '不存在抽档') invest_state_desc,
+		       to_char(i.sample_month, 'yyyy-mm-dd') sample_month
+		  from policy_product p,
+		       client_information c,
+		       id_type t,
+		       (select s.policy_no, s.sample_month, s.invest_state
+		          from pos_survival_invest s
+		         where s.policy_no = #policyNo#
+		           and s.sample_month =
+		               (select max(sample_month)
+		                  from pos_survival_invest
+		                 where policy_no = s.policy_no)) i
+		 where p.policy_no = #policyNo#
+		   and p.is_primary_plan = 'Y'
+		   and p.insured_no = c.client_no
+		   and c.id_type = t.id_type(+)
+		   and p.policy_no = i.policy_no(+)
+     </select>
+     
+     <update id="MODIFY_SURVIVAL_INVEST" parameterClass="java.util.HashMap">
+		update pos_survival_invest
+		   set feedback_date = sysdate,
+		       investgator   = #investgator#,
+		       remark        = remark || #investgator# || '修改：' || #remark#,
+		       death_date    = to_date(#deathDate#, 'yyyy-mm-dd')
+		 where policy_no = #policyNo#
+		   and invest_state = '2'
+		   and sample_month = (select max(sample_month)
+		                         from pos_survival_invest
+		                        where policy_no = #policyNo#)
+     </update>
+     
+     <update id="UPDATE_SURVIVAL_INVEST" parameterClass="java.util.HashMap">
+		update pos_survival_invest
+		   set feedback_date = sysdate,
+		       investgator   = #investgator#,
+		       remark        = #remark#,
+		       death_date    = to_date(#deathDate#, 'yyyy-mm-dd'),
+		       invest_state  = '2'
+		 where policy_no = #policyNo#
+		   and invest_state  = '1'
+     </update>
+
+    <insert id="INSERT_SURVIVAL_INVEST" parameterClass="java.util.HashMap" >
+		insert into pos_survival_invest
+		  (policy_no,
+		   sample_month,
+		   client_no,
+		   invest_state,
+		   death_date,
+		   remark,
+		   investgator,
+		   feedback_date)
+		values
+		  (#policyNo#,
+		   sysdate,
+		   #clientNo#,
+		   '2',
+		   to_date(#deathDate#, 'yyyy-mm-dd'),
+		   #remark#,
+		   #investgator#,
+		   sysdate)
+    </insert>
+    
+     <parameterMap id="UPDATE_CLIENT_INFO_DEATH_DATE_MAP" class="java.util.HashMap">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="deathDate" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="nullKey" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="UPDATE_CLIENT_INFO_DEATH_DATE" parameterMap="UPDATE_CLIENT_INFO_DEATH_DATE_MAP">
+		{call l_pos_pub_interface.pub_proc_up_client_info(?,?,?,?,?)}
+	</procedure>
+
+</sqlMap>

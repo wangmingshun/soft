@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.ClientInfoDAO">
+	<resultMap id="clientInformationDTO" class="com.sinolife.pos.common.dto.ClientInformationDTO">
+		<result property="clientNo" column="CLIENT_NO" />
+		<result property="clientName" column="CLIENT_NAME" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="sexCode" column="SEX_CODE" />
+		<result property="sexDesc" column="SEX" />
+		<result property="idTypeCode" column="ID_TYPE" />
+		<result property="idTypeDesc" column="ID_TYPE_NAME" />
+		<result property="idNo" column="IDNO" />
+		<result property="idnoValidityDate" column="IDNO_VALIDITY_DATE" />
+		<result property="nationCode" column="NATION_CODE" />
+		<result property="nationDesc" column="NATION_NAME" />
+		<result property="countryCode" column="COUNTRY_CODE" />
+		<result property="countryDesc" column="COUNTRY" />
+		<result property="educationCode" column="EDUCATION_CODE" />
+		<result property="educationDesc" column="EDUCATION" />
+		<result property="marriageCode" column="MARRIAGE_CODE" />
+		<result property="marriageDesc" column="MARRIAGE_STATUS" />
+		<result property="occupationCode" column="OCCUPATION_CODE" />
+		<result property="occupationDesc" column="OCCUPATION_DESC" />
+		<result property="workUnit" column="WORK_UNIT" />
+		<result property="position" column="POSITION" />
+		<result property="deathDate" column="DEATH_DATE" />
+		<result property="registerPlace" column="REGISTER_PLACE" />
+		<result property="phoneticizeFirstName" column="PHONETICIZE_FIRSTNAME" />
+		<result property="phoneticizeLastName" column="PHONETICIZE_LASTNAME" />
+	</resultMap>
+
+	<resultMap id="clientAddressMap" class="com.sinolife.pos.common.dto.ClientAddressDTO">
+		<result property="addressSeq" column="ADDRESS_SEQ"/>
+		<result property="addressType" column="ADDRESS_TYPE"/>
+		<result property="addressTypeDesc" column="ADDRESS_TYPE_DESC"/>
+		<result property="clientNo" column="CLIENT_NO"/>
+		<result property="countryCode" column="COUNTRY_CODE"/>
+		<result property="countryDesc" column="COUNTRY_DESC"/>
+		<result property="provinceCode" column="PROVINCE_CODE"/>
+		<result property="provinceDesc" column="PROVINCE_DESC"/>
+		<result property="cityCode" column="CITY_CODE"/>
+		<result property="cityDesc" column="CITY_DESC"/>
+		<result property="areaCode" column="AREA_CODE"/>
+		<result property="areaDesc" column="AREA_DESC"/>
+		<result property="detailAddress" column="DETAIL_ADDRESS"/>
+		<result property="postalcode" column="POSTALCODE"/>
+		<result property="fullAddress" column="FULL_ADDRESS"/>
+		<result property="addressStatus" column="ADDRESS_STATUS"/>
+	</resultMap>
+	
+	<resultMap id="clientPhoneMap" class="com.sinolife.pos.common.dto.ClientPhoneDTO">
+		<result property="phoneSeq" column="phone_seq"/>
+		<result property="phoneType" column="phone_type"/>
+		<result property="phoneTypeDesc" column="phone_type_desc"/>
+		<result property="clientNo" column="client_no"/>
+		<result property="areaNo" column="area_no"/>
+		<result property="phoneNo" column="phone_no"/>
+		<result property="priLevel" column="pri_level"/>
+		<result property="isFirstPhone" column="is_first_phone"/>
+		<result property="phoneStatus" column="phone_status"/>
+	</resultMap>
+	
+	<parameterMap id="selClientinfoProParaMap" class="java.util.HashMap">
+		<parameter property="p_client_name" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_sex_code" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_birthday" jdbcType="TIMESTAMP" javaType="java.util.Date" mode="IN"/>
+		<parameter property="p_id_type" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="p_idno" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="v_cursor" jdbcType="ORACLECURSOR" javaType="java.sql.ResultSet" mode="OUT" resultMap="clientInformationDTO"/>
+		<parameter property="v_sign" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+		<parameter property="v_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	
+	
+	
+	
+	<select id="queryClientInfoByClientNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.ClientInformationDTO">
+         select         
+          CLIENT_NO "clientNo",
+          CLIENT_NAME "clientName",
+          BIRTHDAY "birthday",
+          SEX_CODE  "sexCode",                  
+          ID_TYPE  "idTypeCode",                
+          IDNO "idNo",
+          IDNO_VALIDITY_DATE "idnoValidityDate",
+          NATION_CODE "nationCode",            
+          COUNTRY_CODE "countryCode",                 
+          EDUCATION_CODE "educationCode",                   
+          MARRIAGE_CODE "marriageCode",          
+          OCCUPATION_CODE "occupationCode",            
+          WORK_UNIT "workUnit",
+          POSITION "position",
+          DEATH_DATE "deathDate",
+          REGISTER_PLACE "registerPlace",
+          PHONETICIZE_FIRSTNAME  "phoneticizeLastName",
+          PHONETICIZE_LASTNAME "phoneticizeFirstName"
+           from client_information
+          where client_no = #value#
+
+	</select>
+
+	<procedure id="selClientinfoPro" parameterMap="selClientinfoProParaMap">
+		<![CDATA[
+			{call l_pos_pub_interface.pub_sel_clientinfo_pro(?,?,?,?,?,?,?,?)}			
+		]]>
+	</procedure>
+	
+	<parameterMap id="selClientinfoForClientnoParaMap" class="java.util.HashMap">
+		<parameter property="p_client_no" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+		<parameter property="t_cursor" jdbcType="ORACLECURSOR" javaType="java.sql.ResultSet" mode="OUT" resultMap="clientInformationDTO"/>
+		<parameter property="v_sign" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+		<parameter property="v_message" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	
+	<procedure id="selClientinfoForClientno" parameterMap="selClientinfoForClientnoParaMap">
+		<![CDATA[
+			{call l_pos_pub_interface.pub_sel_clientinfo_for_clientn(?,?,?,?)}
+		]]>
+	</procedure>
+	
+	<select id="queryAddressByClientNo" parameterClass="java.lang.String" resultMap="clientAddressMap">
+	<![CDATA[
+		select a.address_seq       address_seq,
+		       a.address_type      address_type,
+		       b.address_type_name address_type_desc,
+		       a.client_no         client_no,
+		       a.country_code      country_code,
+		       c.country_name      country_desc,
+		       a.province_code     province_code,
+		       d.province_name     province_desc,
+		       a.city_code         city_code,
+		       e.city_name         city_desc,
+		       a.area_code         area_code,
+		       f.area_name         area_desc,
+		       a.detail_address    detail_address,
+		       a.postalcode        postalcode,
+		       a.full_address      full_address,
+		       a.address_status    address_status
+		  from client_address a,
+		       address_type   b,
+		       country        c,
+		       province       d,
+		       city           e,
+		       area_define    f
+		 where a.address_type = b.address_type(+)
+		   and a.country_code = c.country_code(+)
+		   and a.province_code = d.province_code(+)
+		   and a.city_code = e.city_code(+)
+		   and a.area_code = f.area_code(+)
+		   and a.address_status = '1'
+		   and a.client_no = #clientNo#
+	]]>
+	</select>
+	
+	<select id="queryPhoneByClientNo" parameterClass="java.lang.String" resultMap="clientPhoneMap">
+	<![CDATA[
+		select a.phone_seq       phone_seq,
+		       a.phone_type      phone_type,
+		       b.phone_type_name phone_type_desc,
+		       a.client_no       client_no,
+		       a.area_no         area_no,
+		       a.phone_no        phone_no,
+		       a.pri_level       pri_level,
+		       a.is_first_phone  is_first_phone,
+		       a.phone_status    phone_status
+		  from client_phone a, phone_type b
+		 where a.phone_type = b.phone_type(+)
+		   and a.phone_status = '1'
+		   and a.client_no = #clientNo#
+		   order by a.pri_level
+	]]>
+	</select>
+	
+	<resultMap class="com.sinolife.pos.common.dto.ClientTouchHistoryDTO" id="ClientTouchHistoryDTO">
+		<result property="businessNoType" column="BUSINESS_NO_TYPE"/>
+		<result property="businessNo" column="BUSINESS_NO"/>
+		<result property="channelCode" column="CHANNEL_CODE"/>
+		<result property="touchDate" column="TOUCH_DATE"/>
+		<result property="touchContent" column="TOUCH_CONTENT"/>
+	</resultMap>
+	
+	<parameterMap class="java.util.HashMap" id="selClientTouchHistoryProParaMap">
+		<parameter property="clientNo" javaType="java.lang.String"  jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="touchInfo" javaType="java.sql.ResultSet" jdbcType="ORACLECURSOR" mode="OUT" resultMap="ClientTouchHistoryDTO"/>
+	</parameterMap>
+	
+	<procedure id="selClientTouchHistoryPro" parameterMap="selClientTouchHistoryProParaMap">
+		{call l_pos_pub_interface.pub_sel_client_touch_history_p(?,?)}
+	</procedure>
+	
+	<resultMap class="com.sinolife.pos.common.dto.ClientQualityDTO" id="ClientQualityDTO">
+		<result property="behaviorItem" column="behavior_item"/>
+		<result property="occurDate" column="occur_date"/>
+		<result property="behaviorDesc" column="behavior_desc"/>
+		<result property="businessNoType" column="business_no_type"/>
+		<result property="businessNo" column="business_no"/>
+	</resultMap>
+	
+	<parameterMap class="java.util.HashMap" id="selClientQualBehaProParaMap">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="qualityInfo" javaType="java.sql.ResultSet" jdbcType="ORACLECURSOR" mode="OUT" resultMap="ClientQualityDTO"/>
+	</parameterMap>
+	
+	<procedure id="selClientQualBehaPro" parameterMap="selClientQualBehaProParaMap">
+		{call l_pos_pub_interface.pub_sel_client_qual_beha_pro(?,?)}
+	</procedure>
+
+	<select id="queryEmailByClientNo" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.ClientEmailDTO">
+	    select e.email_seq       emailSeq,
+	           e.email_type      emailType,
+	           t.email_type_name emailTypeDesc,
+	           e.client_no       clientNo,
+	           e.email_address   emailAddress,
+	           e.pri_level       priLevel,
+	           e.email_status    emailStatus
+	      from client_email e, email_type t
+	     where e.client_no = #value#
+	       and e.email_status = '1'
+	       and e.email_type = t.email_type
+	</select>
+	
+	<parameterMap id="insClientInformationProMap" class="com.sinolife.pos.common.dto.ClientInformationDTO">
+		<parameter property="clientName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="sexCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="birthday" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="idTypeCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="idNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="idnoValidityDate" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="workUnit" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="position" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="occupationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="marriageCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="deathDate" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="educationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="countryCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="nationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="registerPlace" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneticizeLastName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneticizeFirstName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientsReturn" jdbcType="ARRAY" typeName="PUBCDE.T_CLIENT_INFO_ARR" 
+		typeHandler="com.sinolife.pos.common.dao.typehandler.TClientInfoArrHandler" mode="OUT" />
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insClientInformationPro" parameterMap="insClientInformationProMap">
+		{call l_pos_pub_interface.pub_ins_client_information_pro(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="insClientPhoneProMap" class="com.sinolife.pos.common.dto.ClientPhoneDTO">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="areaNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="priLevel" javaType="java.lang.Integer" jdbcType="NUMBER" mode="IN"/>
+		<parameter property="isFirstPhone" javaType="java.lang.Integer" jdbcType="NUMBER" mode="IN"/>
+		<parameter property="phoneSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insClientPhonePro" parameterMap="insClientPhoneProMap">
+		{call l_pos_pub_interface.pub_ins_client_phone_pro(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="insClientAddressProMap" class="com.sinolife.pos.common.dto.ClientAddressDTO">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="addressType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="countryCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="provinceCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="cityCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="detailAddress" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="postalcode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="addressSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insClientAddressPro" parameterMap="insClientAddressProMap">
+		{call l_pos_pub_interface.pub_ins_client_address_pro(?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="insClientEmailProMap" class="com.sinolife.pos.common.dto.ClientEmailDTO">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="emailType" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="emailAddress" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="emailStatus" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="priLevel" javaType="java.lang.Integer" jdbcType="NUMBER" mode="IN"/>
+		<parameter property="emailSeq" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="insClientEmailPro" parameterMap="insClientEmailProMap">
+		{call l_pos_pub_interface.pub_ins_client_email_pro(?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<parameterMap id="updateClientInformationProMap" class="com.sinolife.pos.common.dto.ClientInformationDTO">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="sexCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="birthday" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="idTypeCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="idNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="idnoValidityDate" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="workUnit" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="position" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="occupationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="marriageCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="deathDate" javaType="java.util.Date" jdbcType="DATE" mode="IN"/>
+		<parameter property="educationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="countryCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="nationCode" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="registerPlace" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneticizeLastName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="phoneticizeFirstName" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="updateClientInformationPro" parameterMap="updateClientInformationProMap">
+		{call l_pos_pub_interface.pub_upd_client_information_pro(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	
+	<parameterMap class="java.util.HashMap" id="getClientMobileParaMap">
+		<parameter property="clientNo" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="clientWill" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="mobilePhone" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="flag" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="message" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>		
+	</parameterMap>
+	
+	<procedure id="getClientMobile" parameterMap="getClientMobileParaMap">
+		{call l_pos_pub_interface.proc_get_client_mobile(?,?,?,?,?)}
+	</procedure>
+	
+		<!-- 成长红包操作了退保、契撤后，调用下面的接口通知微信端 -->	
+	<select id="queryWebNeedNotify" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		 SELECT decode(COUNT(1), 0, 'N', 'Y')
+             FROM pos_info        pi,
+                  pos_apply_files af,
+                  pos_apply_batch ab,
+                  policy_product  pp
+            WHERE pi.barcode_no = af.barcode_no
+              AND af.pos_batch_no = ab.pos_batch_no
+              AND ab.accept_channel_code IN ('1', '2', '3', '6','7')
+              AND pi.service_items IN ('1', '2')
+              AND pi.accept_status_code='E01'
+              AND pi.policy_no = pp.policy_no
+              AND pp.prod_seq = 1
+              AND pp.product_code = 'CEAN_AN1'
+              AND pi.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="getClientNoByPhoneNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<![CDATA[
+		select distinct cp.client_no from client_phone cp where cp.phone_no = #phoneNo# and cp.phone_status = '1'
+	]]>
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.common.dao.serviceitems.ServiceItemsDAO_18">
+
+	<select id="QUERY_APP_ISUR_NO" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.serviceitems.ServiceItemsInputDTO_18">
+		select p.applicant_no applicantNo, d.insured_no insuredNo
+		  from policy p, policy_product d
+		 where p.policy_no = #policyNo#
+		   and p.policy_no = d.policy_no
+		   and d.is_primary_plan = 'Y'
+	</select>
+	
+</sqlMap>

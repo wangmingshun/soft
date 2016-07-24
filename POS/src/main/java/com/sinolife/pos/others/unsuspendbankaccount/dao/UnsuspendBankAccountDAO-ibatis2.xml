@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.sinolife.pos.others.unsuspendbankaccount.dao.UnsuspendBankAccountDAO">
+
+	<select id="queryPosInfoByPosNoForUnsuspendBankAccount" parameterClass="java.lang.String" resultClass="com.sinolife.pos.common.dto.PosInfoDTO">
+	<![CDATA[
+		SELECT a.pos_no posno,
+		       a.policy_no policyno,
+		       nvl(a.prem_sum, 0) premsum,
+		       a.prem_name premname,
+		       a.bank_code bankcode,
+		       b.description bankname,
+		       a.account_no accountno,
+		       a.transfer_result transferresult,
+		       c.description transferresultdesc,
+		       l_pos_pub.get_pos_transfer_susp_status(a.pos_no) transfersuspstatus
+		  FROM pos_info                       a,
+		       bank_info                      b,
+		       fin_transfer_result_unify_code c
+		 WHERE a.bank_code = b.bank_code(+)
+		   AND a.transfer_result = c.transfer_result(+)
+		   AND a.pos_no = #value#
+	]]>
+	</select>
+	
+	<select id="getPosInfoByPosNoForUnsuspendBankData" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		SELECT a.pos_no posNo,
+		       a.policy_no policyNo,
+		       nvl(a.prem_sum, 0) premSum,
+		       a.prem_name premName,
+		       a.bank_code bankCode,
+		       b.description bankName,
+		       a.account_no accountNo,
+		       a.transfer_result transferResult,
+		       c.description transferresultDesc,
+		       l_pos_pub.get_pos_transfer_susp_status(a.pos_no) transfersuspStatus
+		  FROM pos_info                       a,
+		       bank_info                      b,
+		       fin_transfer_result_unify_code c
+		 WHERE a.bank_code = b.bank_code(+)
+		   AND a.transfer_result = c.transfer_result(+)
+		    and a.prem_success_flag = 'N'
+		   and a.client_no= #clientNo#
+		   <dynamic>	
+			   <isNotEmpty prepend="and" property="posNo">
+				  	  a.pos_no = #posNo#
+			   </isNotEmpty>
+			   <isNotEmpty prepend="and" property="policyNo">
+			  	  a.policy_no = #policyNo#
+			   </isNotEmpty >
+       	   	</dynamic>
+	</select>
+	
+	<update id="clearPosPremSuccessFlag" parameterClass="java.lang.String">
+	<![CDATA[
+		UPDATE pos_info t
+		   SET t.prem_success_flag = ''
+		 WHERE t.pos_no = #value#
+		   AND t.prem_success_flag = 'N'
+	]]>
+	</update>
+	
+</sqlMap>
