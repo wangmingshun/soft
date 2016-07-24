@@ -1,0 +1,63 @@
+.paginationTagTable {
+	width: 100%;
+	background-color: #FFFFFF;
+	background-image: background-image : url(images/xxxx.jpg) repeat-x;
+}
+
+.paginationTagFont {
+	font-size: 12px;
+	color: #000;
+	font-weight: bold;
+	font-family: "宋体";
+}
+
+.paginationTagTdFirst {
+	width: 99%;
+	text-align: right;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.paginationTagTdOther {
+	text-align: right;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.paginationTagDiv {
+	border: 1px solid #A5BADF;
+	vertical-align: middle;
+}
+
+.paginationTagImg {
+	border: none;
+}
+
+.paginationTagInput {
+	text-align: right;
+	height: 20px;
+	width: 40px !important;width: 40px; /*前面应用于firefox，后面应用于ie*/
+	padding-top: 0px;
+}
+
+.paginationTagSelect {
+	line-height:15px;
+}
+
+.paginationTagTable a {
+	text-decoration: none
+}
+
+.paginationTagImgDisable {
+	border: none;
+	color: gray;
+}
+
+.paginationTableLoadDiv {
+	border: 1px solid #A5BADF;
+	text-align: center;
+	vertical-align: middle;
+	width: 200px;
+	height: 40px;
+	background-color: #E6F2ED
+}

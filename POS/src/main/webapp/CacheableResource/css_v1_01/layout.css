@@ -1,0 +1,404 @@
+/* CSS Document */
+body {/*默认的字体样式*/
+	font-family: "宋体", "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 9pt;
+	background-color: #FFFFFF;
+	SCROLLBAR-FACE-COLOR: #8EB3E5;
+	SCROLLBAR-HIGHLIGHT-COLOR: #D9E6F8;
+	SCROLLBAR-SHADOW-COLOR: #dadada;
+	SCROLLBAR-ARROW-COLOR: #FFF200;
+	SCROLLBAR-BASE-COLOR: #5F8AC5;
+	SCROLLBAR-DARK-SHADOW-COLOR: #c1c1c1;
+}
+td {  /**默认的字体样式*/
+	font-family: "宋体", "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 9pt
+}
+form {
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+.hr_default{ /**默认的分割样式*/
+    border: 1px solid #A5BADF;
+}
+
+/*数据表格样式开始*/
+.infoDisTab {
+	border: 1px solid #95a7bf;
+	border-collapse: collapse;
+	text-align: left;
+	cellpadding: 0;
+	cellspacing: 0;
+	width: 100%;
+	margin: 0;
+	table-layout: fixed;
+}
+
+.infoDisTab tr.mouseover{
+	background:#EBF3FD;
+}
+
+.infoDisTab input,textarea,select{  /*数据表格的默认线框样式*/
+    border: 1px solid #95a7bf;
+}
+.infoDisTab td {
+	font-family: "宋体", "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 12px;
+	color: #000000;
+	border: 1px solid #95a7bf;
+	border-collapse: collapse;
+	height:auto;
+	min-height:20px;
+	word-wrap: break-word;
+	vertical-align: top;
+}
+
+.infoDisTab th {
+	font-family: "宋体", "Verdana", "Arial", "Helvetica", "sans-serif";
+	font-size: 12px;
+	color: #4f5b75;
+	background-color: #EEEEEE;
+	font-weight: bold;
+	border: 1px solid #95a7bf;
+	border-collapse: collapse;
+	height: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.infoDisTab .td_default { /*默认左边对齐*/
+	text-align: left;
+}
+
+.infoDisTab .td_data { /*数据右边边对齐*/
+	text-align: right;
+}
+
+.infoDisTab .td_widget { /*控件居中对齐*/
+	text-align: center;
+	vertical-align: middle;
+}
+
+.infoDisTab td_label {
+	font-size: 12px;
+	color: #4f5b75;
+	font-weight: bold;
+	border: 1px solid #95a7bf;
+	background-color: #E9EEFD;
+	border-collapse: collapse;
+	height: 22px;
+	text-align: right;
+}
+
+/*nowrap,不允许换行样式*/
+.infoDisTab_td_nowrap {
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+/*数据表格样式结束*/
+/*odd td*/
+.infoDisTab .odd_column {
+	background: #FFFFFF;
+}
+
+/*even td*/
+.infoDisTab .even_column {
+	background: #E3EEED;
+}
+.div_right{ /*div内容显示居右排列*/
+    text-align:right;
+    width:100%;
+}
+/*显示内容太多，滚动显示div*/
+.display_more_div {
+	width: 100%;
+	height: 100%;
+	white-space: normal;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+/*布局容器的定义*/
+.layout_div {
+	width: 100%;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 5px;
+	margin-right: 0;
+}
+
+/*段落空隙填充*/
+.layout_div_top_spance {
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 0;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+/*垂直填充*/
+.layout_div_vspance {
+	width: 100%;
+	margin-top: 0;
+	margin-bottom: 10px;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+/*四面填充*/
+.layout_div_every_spance {
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+/*-- 导航条样式开始*/
+.navigation_div {
+	border: 0 solid #95a7bf;
+	border-collapse: collapse;
+	width: 100%;
+	height: 25px;
+	background-color: #E5ECF9;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	font-size: 14px;
+	color: #15428B;
+	font-weight: bold;
+	font-family: "宋体";
+	vertical-align: middle;
+	text-align: left;
+	line-height: 25px;
+}
+
+.navigation_div a {
+	font-size: 12px;
+	color: #15428B;
+	font-weight: bold;
+	font-family: "宋体";
+	text-decoration: none;
+}
+
+.navigation_div a:visited {
+	font-size: 12px;
+	text-decoration: none;
+	color: #15428B;
+}
+
+.navigation_div a:hover {
+	font-size: 12px;
+	text-decoration: none;
+	color: #15428B;
+}
+
+.navigation_div a:link {
+	font-size: 12px;
+	text-decoration: none;
+	color: #15428B;
+}  
+/*-- 导航条样式结束*/
+/* 一级标题字体*/
+.font_headline {
+	font-size: 14px;
+	color: #15428B;
+	font-weight: bold;
+	font-family: 宋体;
+}
+
+/* 二级标题字体*/
+.font_heading1 {
+	font-size: 12px;
+	color: #15428B;
+	font-weight: bold;
+	font-family: 宋体;
+}
+
+/* 三级标题字体*/
+.font_heading2 {
+	font-size: 12px;
+	color: #15428B;
+	font-weight: bold;
+	text-align: left;
+}
+
+/* 段落分级的默认样式*/
+.fieldsetdefault {
+	background-color: #FFFF;
+	background-image: url(images/ header_logo_lifesystem.jpg) repeat-x;
+	border: 1px solid #CBDCED;
+    width: 98.5% !important; width: 100%; /*前面应用于firefox，后面应用于ie*/
+}
+.fieldsetdefault legend{
+    font-size: 12px;
+	color: #15428B;
+	font-weight: bold;
+	font-family: 宋体;
+}
+/*布局表格的默认样式开始*/
+.layouttable { /*表格整体样式*/
+	width: 99.8%;
+	background-color: #0000;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	border: none;
+}
+.layouttable input,textarea,select,checkbox,radio{/*布局表格上控件的默认线框*/
+   border: 1px solid #A5BADF;
+   font-size: 12px;
+}
+/*布局表格有标签页的样式设置*/
+.layouttable_td_label {
+	background-color: #CBDCED;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	text-align: right;
+	font-size: 12px;
+	color: #15428B;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: middle;
+	height: 18px;
+}
+
+/*布局表格有标签页的样式设置,如果是textarea或多项下拉框等多行控件，用该样式*/
+.layouttable_td_label_multiple {
+	background-color: #CBDCED;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	text-align: right;
+	color: #15428B;
+	font-size: 12px;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: top;
+}
+
+/*布局表格控件页的设置*/
+.layouttable_td_widget {
+	background-color: #0000;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	text-align: left;
+	nowrap: nowrap;
+	vertical-align: top;
+}
+
+.layouttable_td_widget_1 {
+	background-color: #0000;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	text-align: left;
+	nowrap: nowrap;
+	vertical-align: middle;
+}
+
+/* 控件的外观设置*/
+/*红色星号*/
+.requred_font {
+	color: red;
+}
+
+.input_text {
+	height: 18px;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+}
+
+.input_select {
+	height: 20px;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+}
+
+.input_button {
+	background-color: #D6D7D2;
+	background-image: url(images/header_logo_lifesystem.jpg) repeat-x;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+	height: 25px;
+	vertical-align: middle;
+	text-align: center;
+	cursor: pointer;
+}
+
+.input_date { /*日期输入框*/
+	height: 18px;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+	width: 80px;
+}
+
+.input_phone { /*电话输入框*/
+	height: 18px;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+	width: 100px
+}
+.input_email { /*email输入框*/
+	height: 18px;
+	border: 1px solid #A5BADF;
+	font-size: 12px;
+	width: 150px
+}
+.image_date{  /*日期小图标*/
+   cursor: pointer;
+}
+.multi_text{/*多选下列框*/
+}
+.readOnly_input{
+	background-color: #D4D0C8;
+}
+/*checkbox和radio定义为一行6个*/
+.per_checkbox_radiobutton {
+	width: 16%
+}
+
+/* 定义为每行四列*/
+.per4_1 {
+	width: 25%
+}
+
+.per4_2 {
+	width: 50%
+}
+
+.per4_3 {
+	width: 75%
+}
+
+.per4_4 {
+	width: 100%
+}
+
+/* 定义为每行六列*/
+.per6_1 {
+	width: 16%
+}
+
+.per6_2 {
+	width: 33%
+}
+
+.per6_3 {
+	width: 49%
+}
+
+.per6_4 {
+	width: 66%
+}
+
+.per6_5 {
+	width: 83%
+}
+
+.per6_6 {
+	width: 100%
+}
+/*布局表格的默认样式结束*/
+
+.contactosxl{
+  display: block;
+  width: 16px; 
+  height: 16px;
+  background: url(images/contactosxl.png) left top no-repeat;
+  text-indent: -9999px; 
+}
+
+
